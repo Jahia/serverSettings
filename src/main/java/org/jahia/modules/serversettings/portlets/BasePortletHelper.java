@@ -52,7 +52,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import org.apache.commons.io.FileUtils;
@@ -142,16 +141,10 @@ abstract class BasePortletHelper {
                 return sourcePortletWar;
             }
             jar.close();
-            final JarInputStream jarIn = new JarInputStream(new FileInputStream(sourcePortletWar));
-            final Manifest manifest = jarIn.getManifest();
-            final JarOutputStream jarOut;
-            if (manifest != null) {
-                jarOut = new JarOutputStream(new FileOutputStream(dest), manifest);
-            } else {
-                jarOut = new JarOutputStream(new FileOutputStream(dest));
-            }
-
-            try {
+            try (JarInputStream jarIn = new JarInputStream(new FileInputStream(sourcePortletWar));
+                    JarOutputStream jarOut = jarIn.getManifest() != null
+                            ? new JarOutputStream(new FileOutputStream(dest), jarIn.getManifest())
+                            : new JarOutputStream(new FileOutputStream(dest))) {
                 copyEntries(jarIn, jarOut);
 
                 process(jarIn, jarOut);
@@ -163,8 +156,6 @@ abstract class BasePortletHelper {
                     addToJar("META-INF/portlet-resources/portlet_2_0.tld", "WEB-INF/portlet_2_0.tld", jarOut);
                 }
             } finally {
-                jarIn.close();
-                jarOut.close();
                 FileUtils.deleteQuietly(sourcePortletWar);
             }
             return dest;
