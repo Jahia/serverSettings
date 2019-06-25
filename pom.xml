@@ -54,7 +54,7 @@
         <relativePath />
     </parent>
     <artifactId>serverSettings</artifactId>
-    <version>8.0.8</version>
+    <version>8.0.9-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>Jahia Server Settings</name>
     <description>Server settings</description>
@@ -62,7 +62,7 @@
         <connection>scm:git:git@github.com:Jahia/serverSettings.git</connection>
         <developerConnection>scm:git:git@github.com:Jahia/serverSettings.git</developerConnection>
         <url>scm:git:git@github.com:Jahia/serverSettings.git</url>
-        <tag>8_0_8</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
