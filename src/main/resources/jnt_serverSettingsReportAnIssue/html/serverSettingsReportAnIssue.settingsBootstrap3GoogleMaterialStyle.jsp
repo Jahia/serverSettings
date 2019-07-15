@@ -9,10 +9,10 @@
     <div class="col-md-offset-2 col-md-8">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <fmt:message key="serverSettings.reportAnIssue.description"/>
+                <h4><fmt:message key="serverSettings.reportAnIssue.description"/></h4>
             </div>
-            <div class="panel-body text-center">
-                <a class="btn btn-primary" href="http://support.jahia.com" target="_blank">
+            <div class="panel-body text-right">
+                <a class="btn btn-primary btn-raised" href="http://support.jahia.com" target="_blank">
                     <fmt:message key="serverSettings.reportAnIssue.jira"/>
                 </a>
             </div>

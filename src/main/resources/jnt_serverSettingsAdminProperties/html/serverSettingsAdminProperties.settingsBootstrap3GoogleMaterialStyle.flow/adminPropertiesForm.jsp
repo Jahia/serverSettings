@@ -29,7 +29,7 @@
   <div class="col-md-offset-2 col-md-8">
       <div class="panel panel-default">
           <div class="panel-heading">
-              <fmt:message key="label.username"/>:&nbsp;${adminUser.name}
+              <h4><fmt:message key="label.username"/>:&nbsp;${adminUser.name}</h4>
           </div>
           <div class="panel-body">
               <form:form modelAttribute="adminProperties" class="form" autocomplete="off">
@@ -94,31 +94,43 @@
                   </div>
 
                   <c:if test="${renderContext.user.root}">
-                  <div class="row">
-                      <div class="col-md-6">
-                          <div class="form-group label-floating">
-                              <label class="control-label" for="password">
-                                  <fmt:message key="label.password"/>
-                              </label>
-                              <form:input class="form-control" type="password" id="password" path="password" autocomplete="off"/>
-                              <span class="help-block text-info"><fmt:message key="siteSettings.user.edit.password.no.change"/></span>
+                      <div class="row">
+                          <div class="col-md-6">
+                              <div class="form-group label-floating">
+                                  <div class="input-group">
+                                      <label class="control-label" for="password">
+                                          <fmt:message key="label.password"/>
+                                      </label>
+                                      <form:input class="form-control" type="password" id="password" path="password" autocomplete="off"/>
+                                      <span class="input-group-btn">
+                                          <i class="material-icons text-info" data-toggle="tooltip" data-placement="left"
+                                             title="<fmt:message key='siteSettings.user.edit.password.no.change'/>"
+                                             style="cursor: default;" data-container="body">info_outline</i>
+                                      </span>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="col-md-6">
+                              <div class="form-group label-floating">
+                                  <div class="input-group">
+                                      <label class="control-label" for="passwordConfirm">
+                                          <fmt:message key="label.confirmPassword"/>
+                                      </label>
+                                      <form:input type="password" class="form-control" id="passwordConfirm" path="passwordConfirm" autocomplete="off"/>
+                                      <span class="input-group-btn">
+                                          <i class="material-icons text-info" data-toggle="tooltip" data-placement="left"
+                                             title="<fmt:message key='siteSettings.user.edit.password.no.change'/>"
+                                             style="cursor: default;" data-container="body">info_outline</i>
+                                      </span>
+                                  </div>
+                              </div>
                           </div>
                       </div>
-                      <div class="col-md-6">
-                          <div class="form-group label-floating">
-                              <label class="control-label" for="passwordConfirm">
-                                  <fmt:message key="label.confirmPassword"/>
-                              </label>
-                              <form:input type="password" class="form-control" id="passwordConfirm" path="passwordConfirm" autocomplete="off"/>
-                              <span class="help-block text-info"><fmt:message key="siteSettings.user.edit.password.no.change"/></span>
-                          </div>
-                      </div>
-                  </div>
                   </c:if>
                   <div class="row">
                       <div class="col-md-12">
-                          <div class="form-group" style="margin-top:15px;">
-                              <button class="btn btn-primary pull-right" id="submit" type="submit" name="_eventId_submit">
+                          <div class="form-group form-group-sm">
+                              <button class="btn btn-primary btn-raised pull-right" id="submit" type="submit" name="_eventId_submit">
                                   <fmt:message key='label.save'/>
                               </button>
                           </div>

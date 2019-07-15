@@ -268,11 +268,9 @@
                                    j:hiddenTemplate="false"
                                    j:icon="/modules/serverSettings/templates/files/serveradmin/configurations/search_x0020_settings/recherche-16x16.png"
                                    j:view="serverSettings"
-                                   jcr:primaryType="jnt:contentTemplate">
-                                <j:translation_en jcr:language="en"
-                                       jcr:mixinTypes="mix:title"
-                                       jcr:primaryType="jnt:translation"
-                                       jcr:title="Search settings"/>
+                                   jcr:primaryType="jnt:contentTemplate"
+                                   j:titleKey="serverSettings.searchServerSettings"
+                                   jcr:mixinTypes="jmix:rbTitle">
                                 <pagecontent jcr:primaryType="jnt:contentList">
                                     <search-settings jcr:primaryType="jnt:serverSettingsSearchConfig">
                                         <j:translation_en jcr:language="en"

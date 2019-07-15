@@ -23,27 +23,30 @@
     </h2>
 </div>
 
-<div>
-    <ul class="nav nav-pills">
-        <li role="presentation" class="active">
-            <a href="#jahiaLicense" aria-controls="jahiaLicense" role="tab" data-toggle="tab">
-                <fmt:message key="serverSettings.label.jahiaLicense"/>
-            </a>
-        </li>
-        <li role="presentation">
-            <a href="#thirdPartyLicense" aria-controls="profile" role="tab" data-toggle="tab">
-                <fmt:message key="serverSettings.label.thirdPartyLicenses"/>
-            </a>
-        </li>
-    </ul>
+<div class="panel panel-default">
+    <div class="panel-body">
+        <ul class="nav nav-tabs">
+            <li role="presentation" class="active">
+                <a href="#jahiaLicense" aria-controls="jahiaLicense" role="tab" data-toggle="tab">
+                    <fmt:message key="serverSettings.label.jahiaLicense"/>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#thirdPartyLicense" aria-controls="profile" role="tab" data-toggle="tab">
+                    <fmt:message key="serverSettings.label.thirdPartyLicenses"/>
+                </a>
+            </li>
+        </ul>
 
-    <!-- Tab panes -->
-    <div class="tab-content">
-        <div role="tabpanel" class="tab-pane active" id="jahiaLicense">
-            <pre class="text-center"><%=Jahia.getLicenseText()%></pre>
-        </div>
-        <div role="tabpanel" class="tab-pane" id="thirdPartyLicense">
-			<pre class="text-center">
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="jahiaLicense">
+                <br />
+                <pre class="text-center"><%=Jahia.getLicenseText()%></pre>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="thirdPartyLicense">
+                <br />
+                <pre class="text-center">
 Copyright 2014 The Nunito Project Authors (contact@sansoxygen.com)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
@@ -137,7 +140,8 @@ INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
 DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.
-			</pre>
+			    </pre>
+            </div>
         </div>
     </div>
 </div>

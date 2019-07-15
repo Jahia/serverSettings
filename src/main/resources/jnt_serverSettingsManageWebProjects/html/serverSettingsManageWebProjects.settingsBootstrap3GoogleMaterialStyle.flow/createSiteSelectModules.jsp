@@ -57,19 +57,39 @@
     <div class="panel panel-default">
         <div class="panel-body">
             <c:if test="${not editingModules}">
-                <div class="form-group label-floating">
-                    <label class="control-label" for="templateSet"><fmt:message key="serverSettings.webProjectSettings.pleaseChooseTemplateSet"/></label>
+                <div class="row">
+                    <div class="col-sm-12 col-md-6">
+                        <div class="form-group label-floating">
+                            <label class="control-label" for="templateSet"><fmt:message key="serverSettings.webProjectSettings.pleaseChooseTemplateSet"/></label>
 
-                    <select class="form-control" name="templateSet" id="templateSet">
-                        <c:forEach items="${templateSets}" var="module">
-                            <option value="${module.id}" ${siteBean.templateSet eq module.id || empty siteBean.templateSet && module.id eq defaultTemplateSetId ? 'selected="true"' : ''}>${module.name}&nbsp;(${module.id})</option>
-                        </c:forEach>
-                    </select>
+                            <select class="form-control" name="templateSet" id="templateSet">
+                                <c:forEach items="${templateSets}" var="module">
+                                    <option value="${module.id}" ${siteBean.templateSet eq module.id || empty siteBean.templateSet && module.id eq defaultTemplateSetId ? 'selected="true"' : ''}>${module.name}&nbsp;(${module.id})</option>
+                                </c:forEach>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-6">
+                        <div class="form-group label-floating">
+                            <label class="control-label" for="language"><fmt:message key="serverSettings.manageWebProjects.webProject.selectLanguage"/></label>
+
+                            <select class="form-control" name="language" id="language">
+                                <c:forEach items="${allLocales}" var="locale">
+                                    <option value="${locale}" ${siteBean.language eq locale ? 'selected="true"' : ''}>${locale.displayName}</option>
+                                </c:forEach>
+                            </select>
+                        </div>
+                    </div>
                 </div>
+
+                <hr/>
             </c:if>
 
-            <p><strong><fmt:message key="serverSettings.manageWebProjects.webProject.selectModules"/></strong></p>
             <div class="row">
+                <div class="col-md-12">
+                    <h4><fmt:message key="serverSettings.manageWebProjects.webProject.selectModules"/></h4>
+                </div>
                 <div class="col-sm-5 col-md-5">
                     <div class="form-group label-floating">
                         <label><fmt:message key="jnt_serverSettingsManageWebProjects.createSiteSelectModules.label.unselectedModules"/></label>
@@ -126,28 +146,14 @@
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-sm-4 col-md-4">
-                    <c:if test="${not editingModules}">
-                        <div class="form-group label-floating">
-                            <label class="control-label" for="language"><fmt:message key="serverSettings.manageWebProjects.webProject.selectLanguage"/></label>
-
-                            <select class="form-control" name="language" id="language">
-                                <c:forEach items="${allLocales}" var="locale">
-                                    <option value="${locale}" ${siteBean.language eq locale ? 'selected="true"' : ''}>${locale.displayName}</option>
-                                </c:forEach>
-                            </select>
-                        </div>
-                    </c:if>
-                </div>
+            <div class="form-group form-group-sm">
+                <button class="btn btn-primary btn-raised pull-right" type="submit" name="_eventId_next" onclick="manageSelectedModules.selectValue()">
+                    <fmt:message key='label.next'/>
+                </button>
+                <button class="btn btn-default pull-right" type="submit" name="_eventId_previous">
+                    <fmt:message key='label.previous'/>
+                </button>
             </div>
-
-            <button class="btn btn-primary pull-right" type="submit" name="_eventId_next" onclick="manageSelectedModules.selectValue()">
-                <fmt:message key='label.next'/>
-            </button>
-            <button class="btn default pull-right" type="submit" name="_eventId_previous">
-                <fmt:message key='label.previous'/>
-            </button>
         </div>
     </div>
 </form>

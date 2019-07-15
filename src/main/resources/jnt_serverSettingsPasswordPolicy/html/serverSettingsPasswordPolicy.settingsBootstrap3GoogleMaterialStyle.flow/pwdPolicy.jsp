@@ -21,7 +21,7 @@
 <div class="panel panel-default">
     <div class="panel-body">
         <form action="${flowExecutionUrl}" method="post">
-            <table class="table table-bordered table-hover table-striped">
+            <table class="table">
                 <thead>
                     <tr>
                         <th width="50%">
@@ -49,13 +49,13 @@
                         <td>
                             <c:forEach items="${rule.conditionParameters}" var="condParam" varStatus="paramsStatus">
                                 <c:set var="i18nKey" value='label.${condParam.name}'/>
-                                <input class="input-sm form-control floating-label" placeholder="<fmt:message key='${i18nKey}'/>" type="text" id="rules_${paramsStatus.count}" name="rules[<c:out value='${rlzStatus.index}'/>].conditionParameters[<c:out value='${paramsStatus.index}'/>].value" value="<c:out value='${condParam.value}'/>"/>
+                                <input class="form-control floating-label" placeholder="<fmt:message key='${i18nKey}'/>" type="text" id="rules_${paramsStatus.count}" name="rules[<c:out value='${rlzStatus.index}'/>].conditionParameters[<c:out value='${paramsStatus.index}'/>].value" value="<c:out value='${condParam.value}'/>"/>
                             </c:forEach>
                         </td>
                     </tr>
                 </c:forEach>
             </table>
-            <button class="btn btn-primary pull-right" type="submit" name="_eventId_submitPwdPolicy">
+            <button class="btn btn-primary btn-raised pull-right" type="submit" name="_eventId_submitPwdPolicy">
                 <fmt:message key='label.save'/>
             </button>
         </form>

@@ -15,7 +15,7 @@
 <%--@elvariable id="url" type="org.jahia.services.render.URLGenerator"--%>
 <%--@elvariable id="searchSettings" type="org.jahia.services.search.SearchSettings"--%>
 <%--@elvariable id="flowRequestContext" type="org.springframework.webflow.execution.RequestContext"--%>
-<template:addResources type="javascript" resources="jquery.min.js,jquery-ui.min.js,admin-bootstrap.js,bootstrapSwitch.js"/>
+<template:addResources type="javascript" resources="jquery.min.js,jquery-ui.min.js,bootstrapSwitch.js"/>
 <template:addResources type="css" resources="jquery-ui.smoothness.css,jquery-ui.smoothness-jahia.css,bootstrapSwitch.css"/>
 
 <div class="page-header">
@@ -58,8 +58,8 @@
                     </div>
 
                     <div class="col-md-12">
-                        <div class="form-group">
-                            <button class="btn btn-primary pull-right" type="submit" name="_eventId_submit">
+                        <div class="form-group form-group-sm text-right">
+                            <button class="btn btn-raised btn-primary" type="submit" name="_eventId_submit">
                                 <fmt:message key="label.save"/>
                             </button>
                         </div>

@@ -21,13 +21,14 @@
 <div class="row">
     <div class="col-md-offset-2 col-md-8">
         <div class="panel panel-default">
-            <div class="panel-body">
-                <p class="text-danger">
+            <div class="panel-heading">
+                <h4 class="text-danger">
                     <fmt:message key="serverSettings.manageWebProjects.delete.warning"/>
-                </p>
-
+                </h4>
+            </div>
+            <div class="panel-body">
                 <form action="${flowExecutionUrl}" method="post">
-                    <table class="table table-bordered table-striped table-hover">
+                    <table class="table table-no-border">
                         <thead>
                         <tr>
                             <th>
@@ -56,12 +57,15 @@
                         </c:forEach>
                         </tbody>
                     </table>
-                    <button class="btn btn-sm btn-danger pull-right" type="submit" name="_eventId_deleteSitesConfirmed" id="${currentNode.identifier}-deleteSitesConfirmed">
-                        <fmt:message key='label.delete' />
-                    </button>
-                    <button class="btn btn-sm btn-default" type="submit" name="_eventId_cancel">
-                        <fmt:message key='label.cancel' />
-                    </button>
+
+                    <div class="form-group form-group-sm">
+                        <button class="btn btn-danger btn-raised pull-right" type="submit" name="_eventId_deleteSitesConfirmed" id="${currentNode.identifier}-deleteSitesConfirmed">
+                            <fmt:message key='label.delete' />
+                        </button>
+                        <button class="btn btn-default pull-right" type="submit" name="_eventId_cancel">
+                            <fmt:message key='label.cancel' />
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>

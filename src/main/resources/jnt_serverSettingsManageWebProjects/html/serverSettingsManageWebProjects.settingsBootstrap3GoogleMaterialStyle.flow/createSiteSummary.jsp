@@ -22,11 +22,11 @@
 <form action="${flowExecutionUrl}" method="POST">
     <div class="panel panel-default">
         <div class="panel-body">
-            <table class="table table-bordered table-striped table-hover">
+            <table class="table table-no-border">
                 <tbody>
                     <tr>
                         <td style="width: 30%">
-                            <fmt:message key="serverSettings.manageWebProjects.webProject.siteKey"/>:&nbsp;
+                            <strong><fmt:message key="serverSettings.manageWebProjects.webProject.siteKey"/></strong>
                         </td>
                         <td style="width: 70%">
                             ${siteBean.siteKey}
@@ -34,7 +34,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <fmt:message key="label.name"/>:&nbsp;
+                            <strong><fmt:message key="label.name"/></strong>&nbsp;
                         </td>
                         <td>
                             ${fn:escapeXml(siteBean.title)}
@@ -42,7 +42,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <fmt:message key="serverSettings.manageWebProjects.webProject.serverName"/>:&nbsp;
+                            <strong><fmt:message key="serverSettings.manageWebProjects.webProject.serverName"/></strong>&nbsp;
                         </td>
                         <td>
                             ${fn:escapeXml(siteBean.serverName)}
@@ -50,7 +50,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <fmt:message key="serverSettings.manageWebProjects.webProject.serverNameAliases"/>:&nbsp;
+                            <strong><fmt:message key="serverSettings.manageWebProjects.webProject.serverNameAliases"/></strong>&nbsp;
                         </td>
                         <td>
                             ${fn:escapeXml(siteBean.serverNameAliases)}
@@ -58,7 +58,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <fmt:message key="label.description"/>:&nbsp;
+                            <strong><fmt:message key="label.description"/></strong>&nbsp;
                         </td>
                         <td>
                             ${fn:escapeXml(siteBean.description)}
@@ -66,7 +66,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <fmt:message key="serverSettings.manageWebProjects.webProject.defaultSite"/>:&nbsp;
+                            <strong><fmt:message key="serverSettings.manageWebProjects.webProject.defaultSite"/></strong>&nbsp;
                         </td>
                         <td>
                             ${siteBean.defaultSite}
@@ -74,7 +74,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <fmt:message key="serverSettings.manageWebProjects.webProject.templateSet"/>:&nbsp;
+                            <strong><fmt:message key="serverSettings.manageWebProjects.webProject.templateSet"/></strong>&nbsp;
                         </td>
                         <td>
                             ${siteBean.templateSetPackage.name}&nbsp;(${siteBean.templateSet})
@@ -82,7 +82,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <fmt:message key="label.modules"/>:&nbsp;
+                            <strong><fmt:message key="label.modules"/></strong>&nbsp;
                         </td>
                         <td>
                             <p style="line-height: 2em">
@@ -94,7 +94,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <fmt:message key="serverSettings.manageWebProjects.webProject.language"/>:&nbsp;
+                            <strong><fmt:message key="serverSettings.manageWebProjects.webProject.language"/>:&nbsp;
                         </td>
                         <td>
                             ${siteBean.language}
@@ -104,7 +104,7 @@
                 </tbody>
             </table>
 
-            <button class="btn btn-primary pull-right" type="submit" name="_eventId_next" id="${currentNode.identifier}-next">
+            <button class="btn btn-primary btn-raised pull-right" type="submit" name="_eventId_next" id="${currentNode.identifier}-next">
                 <fmt:message key='label.save'/>
             </button>
             <button class="btn btn-default pull-right" type="submit" name="_eventId_previous">

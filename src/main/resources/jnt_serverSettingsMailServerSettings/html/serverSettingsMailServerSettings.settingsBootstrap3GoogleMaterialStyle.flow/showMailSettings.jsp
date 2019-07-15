@@ -153,19 +153,19 @@
                     <div class="form-group label-floating">
                         <div class="input-group">
                             <label class="control-label">
-                                <fmt:message key="serverSettings.mailServerSettings.address"/>
+                                <fmt:message key="serverSettings.mailServerSettings.address"/> <span class="text-danger"><strong>*</strong></span>
                             </label>
                             <input class="form-control" type="password" id="uriEntry" name="uri" size="70" maxlength="250" value="<c:out
                             value='${mailSettings.uri}'/>"/>
                             <span class="input-group-btn">
-                                <span onclick="toggleVisibility()" class="btn btn-fab btn-fab-xs">
+                                <span onclick="toggleVisibility()" class="btn btn-fab btn-fab-xs btn-default">
                                     <i id="visibilityIcon" class="material-icons">visibility</i>
                                 </span>
                             </span>
                             <span class="input-group-btn">
                                 <a class="btn btn-fab btn-fab-xs btn-info" id="academyBtn" target="_blank"
                                 style="cursor: pointer;">
-                                    <i class="material-icons">info</i>
+                                    <i class="material-icons">open_in_new</i>
                                 </a>
                             </span>
                         </div>
@@ -174,22 +174,21 @@
                     <div class="form-group label-floating" id="group-to" data-error="<fmt:message key="serverSettings.mailServerSettings.errors.emailList"/>">
                         <div class="input-group">
                             <label class="control-label">
-                                <fmt:message key="serverSettings.mailServerSettings.administrator"/>
+                                <fmt:message key="serverSettings.mailServerSettings.administrator"/> <span class="text-danger"><strong>*</strong></span>
                             </label>
-                            <input class="form-control" type="text" name="to" size="64" maxlength="250" value="<c:out
-                            value='${mailSettings.to}'/>">
+                            <input class="form-control" type="text" name="to" size="64" maxlength="250"
+                                   value="<c:out value='${mailSettings.to}'/>">
                             <span class="input-group-btn">
-                                <a class="btn btn-fab btn-fab-xs btn-info" href="#" data-toggle="tooltip" data-placement="left"
-                                   title="<fmt:message key="serverSettings.mailServerSettings.administratorTooltip"/>" style="cursor:pointer;">
-                                <i class="material-icons">info</i>
-                                </a>
+                                <i class="material-icons text-info" data-toggle="tooltip" data-placement="left"
+                                   title="<fmt:message key='serverSettings.mailServerSettings.administratorTooltip'/>"
+                                   style="cursor: default;" data-container="body">info_outline</i>
                             </span>
                         </div>
                     </div>
 
                     <div class="form-group label-floating" id="group-from" data-error="<fmt:message key="serverSettings.mailServerSettings.errors.email"/>">
                         <label class="control-label">
-                            <fmt:message key="serverSettings.mailServerSettings.from"/>
+                            <fmt:message key="serverSettings.mailServerSettings.from"/> <span class="text-danger"><strong>*</strong></span>
                         </label>
                         <input class="form-control" type="text" name="from" size="64" maxlength="250" value="<c:out
                         value='${mailSettings.from}'/>">
@@ -221,13 +220,13 @@
                         <input type="hidden" name="_workflowNotificationsDisabled"/>
                     </div>
 
-                    <div class="form-group form-group-sm">
-                        <button class="btn btn-sm btn-primary pull-right" type="submit" onclick="return validateForm(fieldsToValidate,displayErrors)"
+                    <div class="form-group form-group-sm text-right">
+                        <button class="btn btn-default" type="button" onclick="testSettings(); return false;">
+                            <fmt:message key="serverSettings.mailServerSettings.testSettings"/>
+                        </button>
+                        <button class="btn btn-raised btn-primary" type="submit" onclick="return validateForm(fieldsToValidate,displayErrors)"
                                 name="_eventId_submitMailSettings">
                             <fmt:message key="label.save"/>
-                        </button>
-                        <button class="btn btn-sm btn-default pull-right" type="button" onclick="testSettings(); return false;">
-                            <fmt:message key="serverSettings.mailServerSettings.testSettings"/>
                         </button>
                     </div>
                 </form>

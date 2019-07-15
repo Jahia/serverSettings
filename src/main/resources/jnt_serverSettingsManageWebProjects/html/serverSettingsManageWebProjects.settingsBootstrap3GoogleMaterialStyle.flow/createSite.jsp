@@ -82,10 +82,10 @@
                     </div>
 
                     <div class="form-group form-group-sm">
-                        <button class="btn btn-primary pull-right" type="submit" name="_eventId_next">
+                        <button class="btn btn-primary btn-raised pull-right" type="submit" name="_eventId_next">
                             <fmt:message key='label.next'/>
                         </button>
-                        <button class="btn btn-danger pull-right" type="submit" name="_eventId_cancel">
+                        <button class="btn btn-default pull-right" type="submit" name="_eventId_cancel">
                             <fmt:message key='label.cancel' />
                         </button>
                     </div>

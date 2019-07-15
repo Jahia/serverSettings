@@ -16,20 +16,24 @@
 <%--@elvariable id="memoryInfo" type="org.jahia.modules.serversettings.memoryThread.MemoryThreadInformationManagement"--%>
 <template:addResources type="javascript" resources="jquery.min.js"/>
 
-<c:if test="${not empty threadDumpResult}">
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <form action="${flowExecutionUrl}" method="POST">
-                <button class="btn btn-default" type="submit" name="_eventId_back">
-                    <fmt:message key='serverSettings.manageMemory.memory.back'/>
-                </button>
-            </form>
+<div class="page-header">
+    <h2><fmt:message key="serverSettings.manageMemory"/></h2>
+</div>
 
+<div class="panel panel-default">
+    <div class="panel-body">
+
+        <form action="${flowExecutionUrl}" method="POST">
+            <button class="btn btn-primary btn-raised" type="submit" name="_eventId_back">
+                <fmt:message key='serverSettings.manageMemory.memory.back'/>
+            </button>
+        </form>
+        <c:if test="${not empty threadDumpResult}">
             <pre>
                 <code class="java">
                     ${fn:escapeXml(threadDumpResult)}
                 </code>
             </pre>
-        </div>
+        </c:if>
     </div>
-</c:if>
+</div>

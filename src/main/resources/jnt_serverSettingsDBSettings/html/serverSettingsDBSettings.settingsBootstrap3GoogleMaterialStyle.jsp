@@ -21,40 +21,46 @@ try {
 
 <div class="panel panel-default">
     <div class="panel-body">
-        <table class="table table-striped table-bordered table-hover">
+        <table class="table table-no-border">
             <tbody>
             <tr>
-                <td><strong><fmt:message key="serverSettings.dbSettings.dbInfo"/>:</strong></td>
+                <td><strong><fmt:message key="serverSettings.dbSettings.dbInfo"/></strong></td>
                 <td>${fn:escapeXml(info.databaseProductName)}&nbsp;${fn:escapeXml(info.databaseProductVersion)}</td>
             </tr>
             <tr>
-                <td> <strong><fmt:message key="serverSettings.dbSettings.driverInfo"/>:</strong></td>
+                <td> <strong><fmt:message key="serverSettings.dbSettings.driverInfo"/></strong></td>
                 <td>${fn:escapeXml(info.driverName)}&nbsp;${fn:escapeXml(info.driverVersion)}</td>
 
             </tr>
             <c:if test="${info.driverName == 'Apache Derby Embedded JDBC Driver'}">
                 <tr>
-                    <td><strong><fmt:message key="serverSettings.dbSettings.dbHome"/>:</strong></td>
+                    <td><strong><fmt:message key="serverSettings.dbSettings.dbHome"/></strong></td>
                     <td><c:out value='<%= System.getProperty("derby.system.home") %>'/></td>
 
                 </tr>
             </c:if>
             <tr>
-                <td><strong><fmt:message key="serverSettings.dbSettings.dbUrl"/>:</strong></td>
+                <td><strong><fmt:message key="serverSettings.dbSettings.dbUrl"/></strong></td>
                 <td>${fn:escapeXml(info.URL)}</td>
 
             </tr>
             <c:if test="${ds.class.name == 'org.apache.commons.dbcp.BasicDataSource' || ds.class.name == 'org.apache.tomcat.jdbc.pool.DataSource'}">
                 <%-- Special DBCP pool case, so we can display more info --%>
                 <tr>
-                    <td><strong><fmt:message key="serverSettings.dbSettings.pool"/>:</strong></td>
+                    <td><strong><fmt:message key="serverSettings.dbSettings.pool"/></strong></td>
                     <td>
                         <ul>
-                            <li style="line-height: 2em;"><strong><fmt:message key="serverSettings.dbSettings.pool.maxActive"/>:</strong>&nbsp;<span class="label label-success">${ds.maxActive}</span></li>
+                            <li style="line-height: 2em;">
+                                <fmt:message key="serverSettings.dbSettings.pool.maxActive"/>: <span class="label label-success">${ds.maxActive}</span>
+                            </li>
 
-                            <li style="line-height: 2em;"><strong><fmt:message key="serverSettings.dbSettings.pool.numActive"/>:</strong>&nbsp;<span class="label label-info">${ds.numActive}</span></li>
+                            <li style="line-height: 2em;">
+                                <fmt:message key="serverSettings.dbSettings.pool.numActive"/>:&nbsp;<span class="label label-info">${ds.numActive}</span>
+                            </li>
 
-                            <li style="line-height: 2em;"><strong><fmt:message key="serverSettings.dbSettings.pool.numIdle"/>:</strong>&nbsp;<span class="label label-info">${ds.numIdle}</span></li>
+                            <li style="line-height: 2em;">
+                                <fmt:message key="serverSettings.dbSettings.pool.numIdle"/>:&nbsp;<span class="label label-info">${ds.numIdle}</span>
+                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -74,14 +80,20 @@ try {
                     }
                 %>
                 <tr>
-                    <td><strong><fmt:message key="serverSettings.dbSettings.pool"/>:</strong></td>
+                    <td><strong><fmt:message key="serverSettings.dbSettings.pool"/></strong></td>
                     <td>
                         <ul>
-                            <li style="line-height: 2em;"><strong><fmt:message key="serverSettings.dbSettings.pool.maxActive"/>:</strong>&nbsp;<span class="label label-success">${maxPoolSize}</span></li>
+                            <li style="line-height: 2em;">
+                                <fmt:message key="serverSettings.dbSettings.pool.maxActive"/>:&nbsp;<span class="label label-success">${maxPoolSize}</span>
+                            </li>
 
-                            <li style="line-height: 2em;"><strong><fmt:message key="serverSettings.dbSettings.pool.numActive"/>:</strong>&nbsp;<span class="label label-info">${inUseCount}</span></li>
+                            <li style="line-height: 2em;">
+                                <fmt:message key="serverSettings.dbSettings.pool.numActive"/>:&nbsp;<span class="label label-info">${inUseCount}</span>
+                            </li>
 
-                            <li style="line-height: 2em;"><strong><fmt:message key="serverSettings.dbSettings.pool.numIdle"/>:</strong>&nbsp;<span class="label label-info">${activeCount - inUseCount}</span></li>
+                            <li style="line-height: 2em;">
+                                <fmt:message key="serverSettings.dbSettings.pool.numIdle"/>:&nbsp;<span class="label label-info">${activeCount - inUseCount}</span>
+                            </li>
                         </ul>
                     </td>
                 </tr>

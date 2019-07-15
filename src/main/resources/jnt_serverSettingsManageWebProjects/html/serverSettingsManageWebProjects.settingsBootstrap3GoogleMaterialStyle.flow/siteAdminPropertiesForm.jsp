@@ -25,7 +25,7 @@
         <div class="panel-body">
             <form action="${flowExecutionUrl}" method="POST">
                 <div class="form-group label-floating">
-                    <label class="control-label" for="username"><fmt:message key="label.username"/></label>
+                    <label class="control-label" for="username"><fmt:message key="label.username"/> <strong class="text-danger">*</strong></label>
                     <input class="form-control" type="text" id="username" value="${siteBean.adminProperties.username}" name="username"/>
                 </div>
 
@@ -62,23 +62,23 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group label-floating is-empty">
-                            <label class="control-label" for="password"><fmt:message key="label.password"/></label>
+                            <label class="control-label" for="password"><fmt:message key="label.password"/> <strong class="text-danger">*</strong></label>
                             <input class="form-control" type="password" id="password" name="password" autocomplete="off"/>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group label-floating is-empty">
-                            <label class="control-label" for="passwordConfirm"><fmt:message key="label.confirmPassword"/></label>
+                            <label class="control-label" for="passwordConfirm"><fmt:message key="label.confirmPassword"/> <strong class="text-danger">*</strong></label>
                             <input class="form-control" type="password" id="passwordConfirm" name="passwordConfirm" autocomplete="off"/>
                         </div>
                     </div>
                 </div>
 
                 <div class="form-group form-group-sm">
-                    <button class="btn btn-sm btn-primary pull-right" type="submit" name="_eventId_next">
+                    <button class="btn btn-raised btn-primary pull-right" type="submit" name="_eventId_next">
                         <fmt:message key='label.next'/>
                     </button>
-                    <button class="btn btn-sm btn-default" type="submit" name="_eventId_previous">
+                    <button class="btn btn-default pull-right" type="submit" name="_eventId_previous">
                         <fmt:message key='label.previous'/>
                     </button>
                 </div>

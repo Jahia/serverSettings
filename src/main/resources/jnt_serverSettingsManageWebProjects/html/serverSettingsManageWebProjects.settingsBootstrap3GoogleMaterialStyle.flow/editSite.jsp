@@ -50,7 +50,7 @@
     <div class="col-md-offset-2 col-md-8">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <fmt:message key="serverSettings.manageWebProjects.webProject.siteKey"/>: ${fn:escapeXml(siteBean.siteKey)}
+                <h4><fmt:message key="serverSettings.manageWebProjects.webProject.siteKey"/>: <strong>${fn:escapeXml(siteBean.siteKey)}</strong></h4>
             </div>
             <form id="${currentNode.identifier}-updateSiteForm" action="${flowExecutionUrl}" method="POST">
                 <div class="panel-body">
@@ -86,10 +86,23 @@
                     <div class="form-group label-floating">
                         <label>
                             <fmt:message key="label.modules"/>
+                            <button class="btn btn-default btn-fab btn-fab-xs" data-toggle="tooltip"
+                                    data-container="body" title="<fmt:message key='serverSettings.manageWebProjects.webProject.selectModules' />"
+                                    type="submit" id="${currentNode.identifier}-editModules">
+                                <i class="material-icons">edit</i>
+                            </button>
                         </label>
                         <p style="line-height: 2em">
                             <c:forEach items="${siteBean.modulePackages}" var="module" varStatus="loopStatus">
-                                <span class="label label-info">${module.name}</span>
+                                <c:choose>
+                                    <c:when test="${module.moduleType eq 'system'}">
+                                <span data-toggle="tooltip" class="label label-default" title="${module.moduleType}"
+                                      data-placement="top" data-container="body">${module.name}</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="label label-primary">${module.name}</span>
+                                    </c:otherwise>
+                                </c:choose>
                             </c:forEach>
                         </p>
                     </div>
@@ -121,14 +134,11 @@
                     <input type="hidden" id="${currentNode.identifier}-eventId" name="_eventId" value="next" />
 
                     <div class="form-group form-group-sm">
-                        <button tabindex="0" class="btn btn-sm btn-primary pull-right" type="submit" id="${currentNode.identifier}-next">
+                        <button class="btn btn-primary btn-raised pull-right" type="submit" id="${currentNode.identifier}-next">
                             <fmt:message key='label.save'/>
                         </button>
-                        <button tabindex="1" class="btn btn-sm btn-danger" type="submit" id="${currentNode.identifier}-cancel">
+                        <button class="btn btn-default pull-right" type="submit" id="${currentNode.identifier}-cancel">
                             <fmt:message key='label.cancel' />
-                        </button>
-                        <button tabindex="2" class="btn btn-sm btn-default" type="submit" id="${currentNode.identifier}-editModules">
-                            <fmt:message key='serverSettings.manageWebProjects.webProject.selectModules' />
                         </button>
                     </div>
                 </div>

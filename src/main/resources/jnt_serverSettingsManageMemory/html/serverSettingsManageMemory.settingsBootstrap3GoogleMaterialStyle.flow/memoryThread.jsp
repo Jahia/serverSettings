@@ -47,7 +47,7 @@
         </div>
         <div id="collapseOne" class="panel-collapse collapse${memoryInfo.mode == 'memory' ? ' in' : ''}" role="tabpanel">
             <div class="panel-body">
-                <table class="table table-striped table-bordered table-hover">
+                <table class="table table-no-border">
                     <tr>
                         <td>
                             <strong title="<fmt:message key='serverSettings.manageMemory.memory.used.tooltip'/>"><fmt:message key="serverSettings.manageMemory.memory.used"/></strong>
@@ -75,20 +75,20 @@
                     <tr>
                         <td colspan="2">
                             <form action="${flowExecutionUrl}" method="POST" style="display: inline;">
-                                <button class="btn btn-default btn-sm" type="submit" name="_eventId_refresh">
+                                <button class="btn btn-default btn-raised" type="submit" name="_eventId_refresh">
                                     <fmt:message key='label.refresh'/>
                                 </button>
                             </form>
 
                             <form action="${flowExecutionUrl}" method="POST" style="display: inline;">
-                                <button class="btn btn-default btn-sm" type="submit" name="_eventId_gc">
+                                <button class="btn btn-default btn-raised" type="submit" name="_eventId_gc">
                                     <fmt:message key='serverSettings.manageMemory.memory.gc'/>
                                 </button>
                             </form>
 
                             <c:if test="${heapDumpSupported}">
                                 <form action="${flowExecutionUrl}" method="POST" style="display: inline;">
-                                    <button class="btn btn-default btn-sm" type="submit" name="_eventId_heapDump">
+                                    <button class="btn btn-default btn-raised" type="submit" name="_eventId_heapDump">
                                         <fmt:message key='serverSettings.manageMemory.memory.heapDump'/>
                                     </button>
                                 </form>
@@ -106,11 +106,11 @@
         </div>
         <div id="collapseTwo" class="panel-collapse collapse${memoryInfo.mode == 'threads' ? ' in' : ''}">
             <div class="panel-body">
-                <table class="table table-striped table-bordered table-hover">
+                <table class="table table-no-border">
                     <tr>
                         <td align="left">
                             <form action="${flowExecutionUrl}" method="POST" style="display: inline;">
-                                <button class="btn btn-default btn-sm" type="submit" name="_eventId_showTD">
+                                <button class="btn btn-default btn-raised" type="submit" name="_eventId_showTD">
                                     <fmt:message key='serverSettings.manageMemory.threads.performThreadDump.page'/>
                                 </button>
                             </form>
@@ -118,7 +118,7 @@
                     </tr>
                     <tr>
                         <td align="left">
-                            <a class="btn btn-default btn-sm" href="<c:url value='/tools/threadDump.jsp?file=true'/>" target="_blank">
+                            <a class="btn btn-default btn-raised" href="<c:url value='/tools/threadDump.jsp?file=true'/>" target="_blank">
                                 <fmt:message key="serverSettings.manageMemory.threads.performThreadDump.file.download"/>
                             </a>
                         </td>
@@ -127,7 +127,7 @@
                         <td align="left">
                             <form action="${flowExecutionUrl}" method="POST" style="display: inline;">
                                 <input type="hidden" name="threadDump" value="sysout"/>
-                                <button class="btn btn-default btn-sm" type="submit" name="_eventId_performTD">
+                                <button class="btn btn-default btn-raised" type="submit" name="_eventId_performTD">
                                     <fmt:message key='serverSettings.manageMemory.threads.performThreadDump.system.out'/>
                                 </button>
                             </form>
@@ -137,7 +137,7 @@
                         <td align="left">
                             <form action="${flowExecutionUrl}" method="POST" style="display: inline;">
                                 <input type="hidden" name="threadDump" value="file"/>
-                                <button class="btn btn-default btn-sm" type="submit" name="_eventId_performTD">
+                                <button class="btn btn-default btn-raised" type="submit" name="_eventId_performTD">
                                     <fmt:message key='serverSettings.manageMemory.threads.performThreadDump.file'/>
                                 </button>
                                 <a href="#threadshint">*</a>
@@ -148,7 +148,7 @@
                         <td align="left">
                             <form action="${flowExecutionUrl}" method="POST" class="form-inline">
                                 <input type="hidden" name="threadDump" value="file"/>
-                                <button class="btn btn-default btn-sm" type="submit" name="_eventId_scheduleTD">
+                                <button class="btn btn-default btn-raised" type="submit" name="_eventId_scheduleTD">
                                     <fmt:message key='serverSettings.manageMemory.threads.performThreadDump.multiple'/>
                                 </button>
                                 <a href="#threadshint">*</a>
@@ -180,12 +180,12 @@
 
                                 <c:choose>
                                     <c:when test="${memoryInfo.threadMonitorActivated}">
-                                        <button class="btn btn-danger btn-sm" type="submit" name="_eventId_toggleTD">
+                                        <button class="btn btn-danger btn-raised" type="submit" name="_eventId_toggleTD">
                                             <fmt:message key="serverSettings.manageMemory.threads.monitor.stop"/>
                                         </button>
                                     </c:when>
                                     <c:otherwise>
-                                        <button class="btn btn-success btn-sm" type="submit" name="_eventId_toggleTD">
+                                        <button class="btn btn-success btn-raised" type="submit" name="_eventId_toggleTD">
                                             <fmt:message key="serverSettings.manageMemory.threads.monitor.start"/>
                                         </button>
                                     </c:otherwise>
@@ -198,12 +198,12 @@
                             <form action="${flowExecutionUrl}" method="POST" style="display: inline;">
                                 <c:choose>
                                     <c:when test="${memoryInfo.errorFileDumperActivated}">
-                                        <button class="btn btn-danger btn-sm" type="submit" name="_eventId_toggleEFD">
+                                        <button class="btn btn-danger btn-raised" type="submit" name="_eventId_toggleEFD">
                                             <fmt:message key="serverSettings.manageMemory.errors.dumper.stop"/>
                                         </button>
                                     </c:when>
                                     <c:otherwise>
-                                        <button class="btn btn-success btn-sm" type="submit" name="_eventId_toggleEFD">
+                                        <button class="btn btn-success btn-raised" type="submit" name="_eventId_toggleEFD">
                                             <fmt:message key="serverSettings.manageMemory.errors.dumper.start"/>
                                         </button>
                                     </c:otherwise>

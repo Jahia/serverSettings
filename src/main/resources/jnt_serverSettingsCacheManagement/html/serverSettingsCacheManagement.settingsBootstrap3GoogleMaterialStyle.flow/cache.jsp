@@ -62,7 +62,7 @@
     <div class="col-md-12">
         <div class="panel panel-default">
             <div class="panel-body">
-                <strong><fmt:message key="serverSettings.cache.settings"/></strong>
+                <h4><fmt:message key="serverSettings.cache.settings"/></h4>
                 <form action="${flowExecutionUrl}" id="navigateForm" method="POST">
                     <input type="hidden" name="_showActions"/>
                     <input type="hidden" name="_showConfig"/>
@@ -71,25 +71,25 @@
                     <input type="hidden" id="name" name="name" value=""/>
                     <input type="hidden" id="propagate" name="propagate" value="false"/>
                     <input type="hidden" name="_eventId" value="submit"/>
-                    <div class="form-group form-group-sm" style="margin-top: 0;">
+                    <div class="form-group" style="margin-top: 0;">
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="checkbox">
-                                    <label class="input-sm" for="cbActions">
+                                    <label for="cbActions">
                                         <input id="cbActions" type="checkbox" name="showActions" ${cacheManagement.showActions?" checked":""} onclick="document.getElementById('navigateForm').submit()"/> <fmt:message key="serverSettings.cache.showActions"/>
                                     </label>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="checkbox">
-                                    <label class="input-sm" for="cbConfig">
+                                    <label for="cbConfig">
                                         <input id="cbConfig" type="checkbox" name="showConfig" ${cacheManagement.showConfig?" checked":""} onclick="document.getElementById('navigateForm').submit()"/> <fmt:message key="serverSettings.cache.showConfig"/>
                                     </label>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="checkbox">
-                                    <label class="input-sm" for="cbBytes">
+                                    <label for="cbBytes">
                                         <input id="cbBytes" type="checkbox" name="showBytes" ${cacheManagement.showBytes?" checked":""} onclick="document.getElementById('navigateForm').submit()"/> <fmt:message key="serverSettings.cache.showBytes"/>
                                     </label>
                                 </div>
@@ -100,36 +100,39 @@
 
 
                 <div>
-                    <div><strong><fmt:message key="label.actions"/></strong></div>
-                    <div class="btn-group-sm">
-                        <a class="btn btn-default" href="#refresh" onclick="go(); return false;" title="<fmt:message key='label.refresh'/>">
-                            <fmt:message key="label.refresh"/>
-                        </a>
-                        <a class="btn btn-default" href="#flushOutputCaches" onclick="go('action', 'flushOutputCaches'); return false;" title="<fmt:message key="serverSettings.cache.flushOutputCaches.title"/>">
-                            <fmt:message key="serverSettings.cache.flushOutputCaches"/>
-                        </a>
-                        <c:if test="${cacheManager.clusterActivated}">
-                            <a class="btn btn-default" href="#flushOutputCaches" onclick="go('action', 'flushOutputCaches', 'propagate', 'true'); return false;" title="<fmt:message key="serverSettings.cache.flushOutputCaches.cluster.title"/>">
-                                <fmt:message key="serverSettings.cache.flushOutputCaches.cluster"/>
+                    <h4><fmt:message key="label.actions"/></h4>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <a class="btn btn-default btn-raised" href="#refresh" onclick="go(); return false;" title="<fmt:message key='label.refresh'/>">
+                                <fmt:message key="label.refresh"/>
                             </a>
-                        </c:if>
-                        <a class="btn btn-default" href="#flushAllCaches" onclick="go('action', 'flushAllCaches'); return false;" title="<fmt:message key="serverSettings.cache.flushAllCaches.title"/>">
-                            <fmt:message key="serverSettings.cache.flushAllCaches"/>
-                        </a>
-                        <c:if test="${cacheManager.clusterActivated}">
-                            <a class="btn btn-default" href="#flushAllCaches" onclick="go('action', 'flushAllCaches', 'propagate', 'true'); return false;" title="<fmt:message key="serverSettings.cache.flushAllCaches.cluster.title"/>">
-                                <fmt:message key="serverSettings.cache.flushAllCaches.cluster"/>
+                            <a class="btn btn-default btn-raised" href="#flushOutputCaches" onclick="go('action', 'flushOutputCaches'); return false;" title="<fmt:message key="serverSettings.cache.flushOutputCaches.title"/>">
+                                <fmt:message key="serverSettings.cache.flushOutputCaches"/>
                             </a>
-                        </c:if>
+                            <c:if test="${cacheManager.clusterActivated}">
+                                <a class="btn btn-default btn-raised" href="#flushOutputCaches" onclick="go('action', 'flushOutputCaches', 'propagate', 'true'); return false;" title="<fmt:message key="serverSettings.cache.flushOutputCaches.cluster.title"/>">
+                                    <fmt:message key="serverSettings.cache.flushOutputCaches.cluster"/>
+                                </a>
+                            </c:if>
+                            <a class="btn btn-default btn-raised" href="#flushAllCaches" onclick="go('action', 'flushAllCaches'); return false;" title="<fmt:message key="serverSettings.cache.flushAllCaches.title"/>">
+                                <fmt:message key="serverSettings.cache.flushAllCaches"/>
+                            </a>
+                            <c:if test="${cacheManager.clusterActivated}">
+                                <a class="btn btn-default btn-raised" href="#flushAllCaches" onclick="go('action', 'flushAllCaches', 'propagate', 'true'); return false;" title="<fmt:message key="serverSettings.cache.flushAllCaches.cluster.title"/>">
+                                    <fmt:message key="serverSettings.cache.flushAllCaches.cluster"/>
+                                </a>
+                            </c:if>
+                        </div>
                     </div>
                 </div>
 
                 <c:forEach items="${cacheManagers}" var="entry" varStatus="managerStatus">
+                    <hr/>
                     <c:set var="manager" value="${entry.value}"/>
-                    <h3><fmt:message key="serverSettings.cache.cacheManager"/>: ${manager.name}
+                    <h4><fmt:message key="serverSettings.cache.cacheManager"/>: ${manager.name}
                         <c:if test="${cacheManagement.showConfig}">
-                            <a class="btn btn-info btn-fab btn-fab-ms configLink" title="<fmt:message key='serverSettings.cache.configLink.title'/>" href="#managerconfig-${managerStatus.index}">
-                                <i class="material-icons">info_outline</i>
+                            <a class="btn btn-info btn-fab btn-fab-xs configLink" title="<fmt:message key='serverSettings.cache.configLink.title'/>" href="#managerconfig-${managerStatus.index}">
+                                <i class="material-icons">notes</i>
                             </a>
                             <div style="display: none;">
                                 <div id="managerconfig-${managerStatus.index}">
@@ -138,20 +141,20 @@
                                 </div>
                             </div>
                         </c:if>
-                    </h3>
+                    </h4>
                     <c:if test="${cacheManagement.showActions}">
                         <p>
-                            <a class="btn btn-default" href="#flushCaches" onclick="go('action', 'flushCaches', 'name', '${manager.name}'); return false;" title="<fmt:message key="serverSettings.cache.flushCaches.title"/>">
+                            <a class="btn btn-default btn-raised" href="#flushCaches" onclick="go('action', 'flushCaches', 'name', '${manager.name}'); return false;" title="<fmt:message key="serverSettings.cache.flushCaches.title"/>">
                                 <fmt:message key="serverSettings.cache.flushCaches"/>&nbsp;${manager.name}
                             </a>
                             <c:if test="${cacheManager.clusterActivated}">
-                                <a class="btn btn-default" href="#flushCaches" onclick="go('action', 'flushCaches', 'name', '${manager.name}', 'propagate', 'true'); return false;" title="<fmt:message key="serverSettings.cache.flushCaches.cluster.title"/>">
+                                <a class="btn btn-default btn-raised" href="#flushCaches" onclick="go('action', 'flushCaches', 'name', '${manager.name}', 'propagate', 'true'); return false;" title="<fmt:message key="serverSettings.cache.flushCaches.cluster.title"/>">
                                     <fmt:message key="serverSettings.cache.flushCaches.cluster"/>&nbsp;${manager.name}
                                 </a>
                             </c:if>
                         </p>
                     </c:if>
-                    <table class="table table-bordered table-hover table-striped">
+                    <table class="table table-bordered table-striped">
                         <thead>
                         <tr>
                             <th rowspan="2">#</th>
@@ -198,7 +201,7 @@
                                 <c:if test="${cacheManagement.showConfig}">
                                     <td align="center">
                                         <a class="btn btn-info btn-fab btn-fab-xs configLink" title="<fmt:message key='serverSettings.cache.showDetail'/>" href="#config-${managerStatus.index}-${status.index}">
-                                            <i class="material-icons">info_outline</i>
+                                            <i class="material-icons">notes</i>
                                         </a>
                                         <div style="display: none;">
                                             <div id="config-${managerStatus.index}-${status.index}">
@@ -248,14 +251,15 @@
 
                                 <c:if test="${cacheManagement.showActions}">
                                     <td align="center">
-                                        <a class="btn btn-default btn-fab btn-fab-xs" href="#flush" onclick="go('action', 'flush', 'name', '${cache.name}'); return false;" title="<fmt:message key='serverSettings.cache.flush'/>&nbsp;${cache.name}">
+                                        <a class="btn btn-danger btn-fab btn-fab-xs" href="#flush" onclick="go('action', 'flush', 'name', '${cache.name}'); return false;" title="<fmt:message key='serverSettings.cache.flush'/>&nbsp;${cache.name}">
                                             <i class="material-icons">delete</i>
                                         </a>
                                     </td>
                                 </c:if>
                             </tr>
                         </c:forEach>
-
+                        </tbody>
+                        <tfoot>
                         <tr class="info">
                             <td colspan="${cacheManagement.showConfig ? '3' : '2'}"><fmt:message key="serverSettings.cache.total"/></td>
                             <td align="center">${manager.size}</td>
@@ -279,8 +283,7 @@
                                 <td align="center">&nbsp;</td>
                             </c:if>
                         </tr>
-
-                        </tbody>
+                        </tfoot>
                     </table>
                 </c:forEach>
             </div>

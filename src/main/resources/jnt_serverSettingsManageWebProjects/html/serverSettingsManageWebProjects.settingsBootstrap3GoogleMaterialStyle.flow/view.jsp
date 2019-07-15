@@ -127,18 +127,26 @@
 
 <div class="page-header">
     <h2>
-        <fmt:message key="serverSettings.manageWebProjects.virtualSitesListe"/>
+        <fmt:message key="serverSettings.manageWebProjects"/>
     </h2>
 </div>
+
+<c:forEach var="msg" items="${flowRequestContext.messageContext.allMessages}">
+    <div class="alert ${msg.severity == 'ERROR' ? ' validationError alert-danger' : ' alert-success'}">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+            ${fn:escapeXml(msg.text)}
+    </div>
+</c:forEach>
 
 <form id="sitesForm" action="${flowExecutionUrl}" method="post">
     <div class="panel panel-default">
         <div class="panel-heading">
-            <fmt:message key="serverSettings.manageWebProjects.sitesManagement"/>
+            <h4><fmt:message key="serverSettings.manageWebProjects.sitesManagement"/></h4>
         </div>
         <div class="panel-body">
             <input type="hidden" id="sitesFormAction" name="_eventId" value="" />
-            <a href="#create" id="createSite" class="btn btn-primary sitesAction">
+
+            <a href="#create" id="createSite" class="btn btn-primary btn-raised sitesAction">
                 <fmt:message key="serverSettings.manageWebProjects.add"/>
             </a>
             <a href="#export" id="exportSites" class="btn btn-default sitesAction-hide">
@@ -151,14 +159,7 @@
                 <fmt:message key="label.delete"/>
             </a>
 
-            <c:forEach var="msg" items="${flowRequestContext.messageContext.allMessages}">
-                <div class="alert ${msg.severity == 'ERROR' ? ' validationError alert-danger' : ' alert-success'}">
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
-                    ${fn:escapeXml(msg.text)}
-                </div>
-            </c:forEach>
-
-            <table id="sitesTable" class="table table-bordered table-striped table-hover">
+            <table id="sitesTable" class="table table-bordered table-striped">
                 <thead>
                     <tr>
                         <th class="{sorter: false}">&nbsp;</th>
@@ -195,7 +196,7 @@
                                 <td>
                                     ${loopStatus.index + 1}
                                     <c:if test="${site.identifier == defaultSite.string}">
-                                        <i class="material-icons material-icons-small">star_rate</i>
+                                        <i class="material-icons material-icons-small" style="vertical-align: text-top;">star_rate</i>
                                     </c:if>
                                 </td>
                                 <td><a href="#edit" onclick="submitSiteForm('editSite', '${site.name}'); return false;">${fn:escapeXml(site.title)}</a></td>
@@ -266,7 +267,7 @@
         <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <fmt:message key="serverSettings.manageWebProjects.systemsite"/>
+                    <h4><fmt:message key="serverSettings.manageWebProjects.systemsite"/></h4>
                 </div>
                 <div class="panel-body">
                     <div class="form-group is-empty">
@@ -288,7 +289,7 @@
         <div class="${colSizeClass}">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <fmt:message key="serverSettings.manageWebProjects.importprepackaged"/>
+                    <h4><fmt:message key="serverSettings.manageWebProjects.importprepackaged"/></h4>
                 </div>
                 <div class="panel-body">
                     <div class="form-group is-empty">
@@ -314,7 +315,7 @@
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        <fmt:message key="serverSettings.manageWebProjects.multipleimport"/>
+        <h4><fmt:message key="serverSettings.manageWebProjects.multipleimport"/></h4>
     </div>
     <div class="panel-body">
         <form id="importForm" action="${flowExecutionUrl}" method="post" enctype="multipart/form-data">
