@@ -148,7 +148,14 @@
 
             <div class="form-group form-group-sm">
                 <button class="btn btn-primary btn-raised pull-right" type="submit" name="_eventId_next" onclick="manageSelectedModules.selectValue()">
-                    <fmt:message key='label.next'/>
+                    <c:choose>
+                        <c:when test="${not editingModules}">
+                            <fmt:message key='label.next'/>
+                        </c:when>
+                        <c:otherwise>
+                            <fmt:message key='label.save'/>
+                        </c:otherwise>
+                    </c:choose>
                 </button>
                 <button class="btn btn-default pull-right" type="submit" name="_eventId_previous">
                     <fmt:message key='label.previous'/>
