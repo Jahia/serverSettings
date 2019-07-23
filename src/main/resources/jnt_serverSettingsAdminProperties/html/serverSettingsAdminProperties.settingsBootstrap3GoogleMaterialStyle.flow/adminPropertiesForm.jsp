@@ -72,11 +72,13 @@
 
                   <div class="row">
                       <div class="col-md-6">
-                          <div class="checkbox">
-                              <label for="emailNotifications">
-                                  <form:checkbox cssClass="input-sm" id="emailNotifications" path="emailNotificationsDisabled" />
-                                  <fmt:message key="siteSettings.user.emailNotifications"/>
-                              </label>
+                          <div class="form-group">
+                              <div class="checkbox">
+                                  <label for="emailNotifications">
+                                      <form:checkbox id="emailNotifications" path="emailNotificationsDisabled" />
+                                      &nbsp;<fmt:message key="siteSettings.user.emailNotifications"/>
+                                  </label>
+                              </div>
                           </div>
                       </div>
                       <div class="col-md-6">
