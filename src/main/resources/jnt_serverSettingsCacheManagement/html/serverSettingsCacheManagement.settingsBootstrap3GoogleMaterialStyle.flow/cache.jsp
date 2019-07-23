@@ -71,23 +71,27 @@
                     <input type="hidden" id="name" name="name" value=""/>
                     <input type="hidden" id="propagate" name="propagate" value="false"/>
                     <input type="hidden" name="_eventId" value="submit"/>
-                    <div class="form-group" style="margin-top: 0;">
-                        <div class="row">
-                            <div class="col-md-4">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group" style="margin-top: 0;">
                                 <div class="checkbox">
                                     <label for="cbActions">
                                         <input id="cbActions" type="checkbox" name="showActions" ${cacheManagement.showActions?" checked":""} onclick="document.getElementById('navigateForm').submit()"/> <fmt:message key="serverSettings.cache.showActions"/>
                                     </label>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group" style="margin-top: 0;">
                                 <div class="checkbox">
                                     <label for="cbConfig">
                                         <input id="cbConfig" type="checkbox" name="showConfig" ${cacheManagement.showConfig?" checked":""} onclick="document.getElementById('navigateForm').submit()"/> <fmt:message key="serverSettings.cache.showConfig"/>
                                     </label>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group" style="margin-top: 0;">
                                 <div class="checkbox">
                                     <label for="cbBytes">
                                         <input id="cbBytes" type="checkbox" name="showBytes" ${cacheManagement.showBytes?" checked":""} onclick="document.getElementById('navigateForm').submit()"/> <fmt:message key="serverSettings.cache.showBytes"/>
