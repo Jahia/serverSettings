@@ -263,51 +263,25 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h4><fmt:message key="serverSettings.manageWebProjects.systemsite"/></h4>
-                </div>
-                <div class="panel-body">
-                    <div class="form-group is-empty">
-                        <div class="input-group">
-                            <span class="input-group-btn">
-                                <a class="btn btn-default" href="<c:url value='/cms/export/default/systemsite_export_${now}.zip?exportformat=site&live=true&sitebox=systemsite' />">
-                                    <fmt:message key='label.export' />
-                                </a>
-                                <a class="btn btn-default" href="<c:url value='/cms/export/default/systemsite_staging_export_${now}.zip?exportformat=site&live=false&sitebox=systemsite' />">
-                                    <fmt:message key="label.export"/> (<fmt:message key="label.stagingContent"/>)
-                                </a>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4><fmt:message key="serverSettings.manageWebProjects.importprepackaged"/></h4>
         </div>
-        <c:set value="col-md-6" var="colSizeClass"/>
-        <div class="${colSizeClass}">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h4><fmt:message key="serverSettings.manageWebProjects.importprepackaged"/></h4>
+        <div class="panel-body">
+            <div class="form-group is-empty">
+                <div class="input-group">
+                    <select class="form-control" name="selectedPrepackagedSite">
+                        <c:forEach items="${webprojectHandler.prepackagedSites}" var="file">
+                            <option value="${file.key}"${file.value == defaultPrepackagedSite ? ' selected="selected"':''}>${fn:escapeXml(file.value)}</option>
+                        </c:forEach>
+                    </select>
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary btn-raised" type="submit" name="importPrepackaged" onclick="submitSiteForm('importPrepackaged'); return false;">
+                            <fmt:message key='label.next'/>
+                        </button>
+                    </span>
                 </div>
-                <div class="panel-body">
-                    <div class="form-group is-empty">
-                        <div class="input-group">
-                            <select class="form-control" name="selectedPrepackagedSite">
-                                <c:forEach items="${webprojectHandler.prepackagedSites}" var="file">
-                                    <option value="${file.key}"${file.value == defaultPrepackagedSite ? ' selected="selected"':''}>${fn:escapeXml(file.value)}</option>
-                                </c:forEach>
-                            </select>
-                            <span class="input-group-btn">
-                                <button class="btn btn-primary" type="submit" name="importPrepackaged" onclick="submitSiteForm('importPrepackaged'); return false;">
-                                    <fmt:message key='label.next'/>
-                                </button>
-                            </span>
-                        </div>
-                        <span class="material-input"></span>
-                    </div>
-                </div>
+                <span class="material-input"></span>
             </div>
         </div>
     </div>
@@ -338,7 +312,7 @@
                             <label class="control-label"><fmt:message key="serverSettings.manageWebProjects.multipleimport.fileinput"/></label>
                             <input class="form-control" type="text" name="importPath" id="importPath"/>
                             <span class="input-group-btn">
-                                <button class="btn btn-primary" type="button" onclick="validateUploadForm()">
+                                <button class="btn btn-primary btn-raised" type="button" onclick="validateUploadForm()">
                                     <fmt:message key='serverSettings.manageWebProjects.import.upload'/>
                                 </button>
                             </span>
@@ -349,3 +323,24 @@
         </form>
     </div>
 </div>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<h4><fmt:message key="serverSettings.manageWebProjects.systemsite"/></h4>
+	</div>
+	<div class="panel-body">
+		<div class="form-group is-empty">
+			<div class="input-group">
+				<span class="input-group-btn">
+					<a class="btn btn-default" href="<c:url value='/cms/export/default/systemsite_export_${now}.zip?exportformat=site&live=true&sitebox=systemsite' />">
+						<fmt:message key='label.export' />
+					</a>
+					<a class="btn btn-default" href="<c:url value='/cms/export/default/systemsite_staging_export_${now}.zip?exportformat=site&live=false&sitebox=systemsite' />">
+						<fmt:message key="label.export"/> (<fmt:message key="label.stagingContent"/>)
+					</a>
+				</span>
+			</div>
+		</div>
+	</div>
+</div>
+
