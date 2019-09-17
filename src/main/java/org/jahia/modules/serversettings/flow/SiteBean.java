@@ -280,7 +280,9 @@ public class SiteBean implements Serializable {
     }
 
     public void validateCreateSiteSelectModules(ValidationContext context) {
-        // Fix an issue with an empty modules value
+        // Fix issue https://jira.jahia.org/browse/QA-12044
+        // For some reason when an empty value is received from the user the setModules method is not call,
+        // So I'm using the validate method to check the field and update the model accordingly.
         if (context.getUserValue(MODULES_FIELD) == null) {
             this.modules = new ArrayList<>();
         }

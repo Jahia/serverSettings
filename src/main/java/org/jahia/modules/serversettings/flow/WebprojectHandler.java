@@ -303,8 +303,7 @@ public class WebprojectHandler implements Serializable {
                     } catch (JahiaException | IOException e) {
                         logger.error(e.getMessage(), e);
                     }
-                    return null; // To change body of implemented methods use File | Settings | File
-                    // Templates.
+                    return null;
                 }
             });
         } catch (RepositoryException e) {
