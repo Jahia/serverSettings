@@ -57,35 +57,38 @@ import org.springframework.binding.message.MessageContext;
 import org.springframework.binding.validation.ValidationContext;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class SiteBean implements Serializable {
-    private static final Logger logger = LoggerFactory.getLogger(SiteBean.class);
     private static final long serialVersionUID = 2151226556427659305L;
+
+    private static final Logger logger = LoggerFactory.getLogger(SiteBean.class);
+
+    static final String SITE_KEY_FIELD = "siteKey";
+    static final String SERVER_NAME_FIELD = "serverName";
+    static final String SERVER_NAME_ALIASES_FIELD = "serverNameAliases";
+
+    private static final String TITLE_FIELD = "title";
+    private static final String TEMPLATE_SET_FIELD = "templateSet";
+    private static final String MODULES_FIELD = "modules";
+
     private AdminProperties adminProperties;
+
     private boolean createAdmin = false;
     private boolean editModules = false;
     private boolean defaultSite = false;
-    private String description;
-
-    private String language;
-
-    private List<String> modules = new ArrayList<String>();
-    private String serverName = "localhost";
-    private String serverNameAliases = "";
-
-    private String siteKey = "mySite";
-
-    private String templateSet;
 
     private String title = "My Site";
-
+    private String siteKey = "mySite";
+    private String description;
+    private String templateSet;
+    private String language;
+    private String serverName = "localhost";
+    private String serverNameAliases = "";
     private String templatePackageName;
     private String templateFolder;
+
+    private List<String> modules = new ArrayList<>();
 
     public AdminProperties getAdminProperties() {
         if (adminProperties == null) {
@@ -104,7 +107,7 @@ public class SiteBean implements Serializable {
     }
 
     public List<JahiaTemplatesPackage> getModulePackages() {
-        List<JahiaTemplatesPackage> packs = new LinkedList<JahiaTemplatesPackage>();
+        List<JahiaTemplatesPackage> packs = new LinkedList<>();
         JahiaTemplateManagerService templateManagerService = ServicesRegistry.getInstance()
                 .getJahiaTemplateManagerService();
         for (String module : modules) {
@@ -181,7 +184,7 @@ public class SiteBean implements Serializable {
 
     public void setModules(List<String> modules) {
         if (modules == null) {
-            this.modules = new ArrayList<String>();
+            this.modules = new ArrayList<>();
         } else {
             this.modules = modules;
         }
@@ -230,45 +233,46 @@ public class SiteBean implements Serializable {
     }
 
     public void validateCreateSite(ValidationContext context) {
-        // check validity...
-        String title = (String) context.getUserValue("title");
-        String serverName = (String) context.getUserValue("serverName");
-        String siteKey = (String) context.getUserValue("siteKey");
-
-        MessageContext messages = context.getMessageContext();
-
-        JahiaSitesService sitesService = ServicesRegistry.getInstance().getJahiaSitesService();
-
         try {
-
+            MessageContext messages = context.getMessageContext();
             JahiaTemplateManagerService templateManagerService = ServicesRegistry.getInstance().getJahiaTemplateManagerService();
 
             if (templateManagerService.getNonSystemTemplateSetPackages().isEmpty()) {
                 messages.addMessage(new MessageBuilder()
                         .error()
-                        .code("serverSettings.manageWebProjects.warningMsg.noTemplateSets").build());
+                        .code("serverSettings.manageWebProjects.warningMsg.noTemplateSets")
+                        .build());
             }
 
-            if (title != null && (title.length() > 0) && serverName != null && (serverName.length() > 0)
-                    && siteKey != null && (siteKey.length() > 0)) {
-                if (!sitesService.isSiteKeyValid(siteKey)) {
-                    messages.addMessage(new MessageBuilder().error().source("siteKey")
-                            .code("serverSettings.manageWebProjects.warningMsg.onlyLettersDigitsUnderscore").build());
-                }
+            String userSiteKey = (String) context.getUserValue(SITE_KEY_FIELD);
+            String userTitle = (String) context.getUserValue(TITLE_FIELD);
+            String userServerName = (String) context.getUserValue(SERVER_NAME_FIELD);
+            if (StringUtils.isNotBlank(userTitle) && StringUtils.isNotBlank(userServerName) && StringUtils.isNotBlank(userSiteKey)) {
+                JahiaSitesService sitesService = ServicesRegistry.getInstance().getJahiaSitesService();
 
-                testServerNames(messages, sitesService);
-
-                if (sitesService.getSiteByKey(siteKey) != null) {
+                if (!sitesService.isSiteKeyValid(userSiteKey)) {
                     messages.addMessage(new MessageBuilder()
                             .error()
-                            .source("siteKey")
-                            .code("serverSettings.manageWebProjects.warningMsg.chooseAnotherSiteKey").build());
+                            .source(SITE_KEY_FIELD)
+                            .code("serverSettings.manageWebProjects.warningMsg.onlyLettersDigitsUnderscore")
+                            .build());
+                }
+
+                testServerNames(messages);
+
+                if (sitesService.getSiteByKey(userSiteKey) != null) {
+                    messages.addMessage(new MessageBuilder()
+                            .error()
+                            .source(SITE_KEY_FIELD)
+                            .code("serverSettings.manageWebProjects.warningMsg.chooseAnotherSiteKey")
+                            .build());
                 }
             } else {
                 messages.addMessage(new MessageBuilder()
                         .error()
-                        .source("siteKey")
-                        .code("serverSettings.manageWebProjects.warningMsg.completeRequestInfo").build());
+                        .source(SITE_KEY_FIELD)
+                        .code("serverSettings.manageWebProjects.warningMsg.completeRequestInfo")
+                        .build());
             }
         } catch (JahiaException e) {
             logger.error(e.getMessage(), e);
@@ -276,39 +280,41 @@ public class SiteBean implements Serializable {
     }
 
     public void validateCreateSiteSelectModules(ValidationContext context) {
-        MessageContext messages = context.getMessageContext();
+        // Fix issue https://jira.jahia.org/browse/QA-12044
+        // For some reason when an empty value is received from the user the setModules method is not call,
+        // So I'm using the validate method to check the field and update the model accordingly.
+        if (context.getUserValue(MODULES_FIELD) == null) {
+            this.modules = new ArrayList<>();
+        }
 
         JahiaTemplateManagerService templateManagerService = ServicesRegistry.getInstance().getJahiaTemplateManagerService();
-
         if (templateManagerService.getNonSystemTemplateSetPackages().isEmpty()) {
+            MessageContext messages = context.getMessageContext();
             messages.addMessage(new MessageBuilder()
                     .error()
-                    .source("templateSet")
+                    .source(TEMPLATE_SET_FIELD)
                     .code("serverSettings.manageWebProjects.warningMsg.noTemplateSets").build());
         }
     }
 
     public void validateEditSite(ValidationContext context) {
-        // check validity...
-        MessageContext messages = context.getMessageContext();
-
-        JahiaSitesService sitesService = ServicesRegistry.getInstance().getJahiaSitesService();
-
         try {
+            MessageContext messages = context.getMessageContext();
             if (StringUtils.isNotBlank(title) && StringUtils.isNotBlank(serverName)) {
-                testServerNames(messages, sitesService);
+                testServerNames(messages);
             } else {
                 messages.addMessage(new MessageBuilder()
                         .error()
-                        .source("siteKey")
-                        .code("serverSettings.manageWebProjects.warningMsg.completeRequestInfo").build());
+                        .source(SITE_KEY_FIELD)
+                        .code("serverSettings.manageWebProjects.warningMsg.completeRequestInfo")
+                        .build());
             }
         } catch (JahiaException e) {
             logger.error(e.getMessage(), e);
         }
     }
 
-    private void testServerNames(MessageContext messages, JahiaSitesService sitesService) throws JahiaException {
+    private void testServerNames(MessageContext messages) throws JahiaException {
         WebprojectHandler.validateServerNames(serverName, serverNameAliases, siteKey, messages);
     }
 }

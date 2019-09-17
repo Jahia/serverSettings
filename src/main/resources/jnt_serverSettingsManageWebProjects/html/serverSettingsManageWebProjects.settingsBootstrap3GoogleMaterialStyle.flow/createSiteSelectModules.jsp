@@ -11,22 +11,36 @@
         var manageSelectedModules = {
             selectAll: function() {
                 $('#unselectedModules option').detach().appendTo($('#selectedModules'));
+                setTimeout(function () {
+                    $('#selectedModules option:selected').prop('selected', false);
+                }, 50);
             },
             select: function() {
                 $('#unselectedModules option:selected').detach().appendTo($('#selectedModules'));
-                $('#selectedModules option:selected').prop('selected', false);
+                setTimeout(function () {
+                    $('#selectedModules option:selected').prop('selected', false);
+                }, 50);
             },
             deselectAll: function() {
                 $('#selectedModules option').detach().appendTo($('#unselectedModules'));
+                setTimeout(function () {
+                    $('#unselectedModules option:selected').prop('selected', false);
+                }, 50);
             },
             deselect: function() {
                 $('#selectedModules option:selected').detach().appendTo($('#unselectedModules'));
-                $('#unselectedModules option:selected').prop('selected', false);
+                setTimeout(function () {
+                    $('#unselectedModules option:selected').prop('selected', false);
+                }, 50);
             },
             selectValue: function() {
                 $('#selectedModules option').prop('selected', true);
             }
         };
+
+        $(document).ready(function () {
+            document.getElementById('formSelectModule').addEventListener('submit', manageSelectedModules.selectValue);
+        })
     </script>
 </template:addResources>
 
@@ -53,7 +67,7 @@
     </c:forEach>
 </c:if>
 
-<form action="${flowExecutionUrl}" method="POST">
+<form id="formSelectModule" action="${flowExecutionUrl}" method="POST">
     <div class="panel panel-default">
         <div class="panel-body">
             <c:if test="${not editingModules}">
@@ -147,7 +161,7 @@
             </div>
 
             <div class="form-group form-group-sm">
-                <button class="btn btn-primary btn-raised pull-right" type="submit" name="_eventId_next" onclick="manageSelectedModules.selectValue()">
+                <button class="btn btn-primary btn-raised pull-right" type="submit" name="_eventId_next">
                     <c:choose>
                         <c:when test="${not editingModules}">
                             <fmt:message key='label.next'/>
