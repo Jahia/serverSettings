@@ -265,6 +265,7 @@
                             </dbSettings>
                             <search-settings j:applyOn="jnt:globalSettings"
                                    j:defaultTemplate="false"
+                                             j:requiredPermissionNames="searchSettings"
                                    j:hiddenTemplate="false"
                                    j:icon="/modules/serverSettings/templates/files/serveradmin/configurations/search_x0020_settings/recherche-16x16.png"
                                    j:view="serverSettings"
@@ -479,7 +480,7 @@
                                 <db-settings jcr:primaryType="jnt:serverSettingsDBSettings" jcr:mixinTypes="jmix:renderable" j:view="settingsBootstrap3GoogleMaterialStyle"/>
                             </pagecontent>
                         </dbSettings-jahia-anthracite>
-                        <search-settings-jahia-anthracite j:applyOn="jnt:globalSettings"
+                        <search-settings-jahia-anthracite j:applyOn="jnt:globalSettings" j:requiredPermissionNames="searchSettings"
                                          j:defaultTemplate="false"
                                          j:hiddenTemplate="false"
                                          j:icon="/modules/serverSettings/templates/files/serveradmin/configurations/search_x0020_settings/recherche-16x16.png"

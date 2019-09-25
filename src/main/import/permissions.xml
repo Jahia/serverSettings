@@ -2,6 +2,9 @@
 <permissions xmlns:jcr="http://www.jcp.org/jcr/1.0">
     <admin jcr:primaryType="jnt:permission" >
         <administrationAccess jcr:primaryType="jnt:permission" />
+        <licenseUpdate jcr:primaryType="jnt:permission" />
+        <searchSettings jcr:primaryType="jnt:permission" />
+        <privateAppStore jcr:primaryType="jnt:permission" />
         <adminServerRoles jcr:primaryType="jnt:permission" />
         <adminVirtualSites jcr:primaryType="jnt:permission" />
         <adminPortlets jcr:primaryType="jnt:permission" />
