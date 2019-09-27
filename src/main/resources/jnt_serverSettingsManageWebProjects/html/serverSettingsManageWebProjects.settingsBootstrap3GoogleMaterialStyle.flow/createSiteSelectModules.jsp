@@ -35,6 +35,15 @@
             },
             selectValue: function() {
                 $('#selectedModules option').prop('selected', true);
+            },
+            previous: function () {
+                var inputPrevious = Object.assign(document.createElement('input'), {
+                    type: 'hidden',
+                    name: '_eventId',
+                    value: 'previous'
+                });
+                document.getElementById('formSelectModule').appendChild(inputPrevious);
+                document.getElementById('formSelectModule').submit();
             }
         };
 
@@ -171,7 +180,7 @@
                         </c:otherwise>
                     </c:choose>
                 </button>
-                <button class="btn btn-default pull-right" type="submit" name="_eventId_previous">
+                <button class="btn btn-default pull-right" type="button" value="previous" onclick="manageSelectedModules.previous()">
                     <fmt:message key='label.previous'/>
                 </button>
             </div>
