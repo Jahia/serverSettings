@@ -37,11 +37,10 @@
                 $('#selectedModules option').prop('selected', true);
             },
             previous: function () {
-                var inputPrevious = Object.assign(document.createElement('input'), {
-                    type: 'hidden',
-                    name: '_eventId',
-                    value: 'previous'
-                });
+                var inputPrevious = document.createElement('input');
+                inputPrevious.setAttribute('type', 'hidden');
+                inputPrevious.setAttribute('name', '_eventId');
+                inputPrevious.setAttribute('value', 'previous');
                 document.getElementById('formSelectModule').appendChild(inputPrevious);
                 document.getElementById('formSelectModule').submit();
             }
