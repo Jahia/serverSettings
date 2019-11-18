@@ -251,18 +251,6 @@
                                     <mailServer-settings jcr:primaryType="jnt:serverSettingsMailServerSettings"/>
                                 </pagecontent>
                             </mailServerSettings>
-                            <dbSettings j:applyOn="jnt:globalSettings"
-                              j:defaultTemplate="false"
-                              j:hiddenTemplate="false"
-                              j:icon="/modules/serverSettings/templates/files/serveradmin/configurations/db_x0020_settings/db_settings.png"
-                              j:requiredPermissionNames="adminDBSettings"
-                              j:titleKey="serverSettings.dbSettings"
-                              jcr:mixinTypes="jmix:rbTitle"
-                              jcr:primaryType="jnt:contentTemplate">
-                                <pagecontent jcr:primaryType="jnt:contentList">
-                                    <db-settings jcr:primaryType="jnt:serverSettingsDBSettings"/>
-                                </pagecontent>
-                            </dbSettings>
                             <search-settings j:applyOn="jnt:globalSettings"
                                    j:defaultTemplate="false"
                                              j:requiredPermissionNames="searchSettings"
@@ -468,18 +456,6 @@
                                 <mailServer-settings jcr:primaryType="jnt:serverSettingsMailServerSettings" jcr:mixinTypes="jmix:renderable" j:view="settingsBootstrap3GoogleMaterialStyle"/>
                             </pagecontent>
                         </mailServerSettings-jahia-anthracite>
-                        <dbSettings-jahia-anthracite j:applyOn="jnt:globalSettings"
-                                    j:defaultTemplate="false"
-                                    j:hiddenTemplate="false"
-                                    j:icon="/modules/serverSettings/templates/files/serveradmin/configurations/db_x0020_settings/db_settings.png"
-                                    j:requiredPermissionNames="adminDBSettings"
-                                    j:titleKey="serverSettings.dbSettings"
-                                    jcr:mixinTypes="jmix:rbTitle"
-                                    jcr:primaryType="jnt:contentTemplate">
-                            <pagecontent jcr:primaryType="jnt:contentList">
-                                <db-settings jcr:primaryType="jnt:serverSettingsDBSettings" jcr:mixinTypes="jmix:renderable" j:view="settingsBootstrap3GoogleMaterialStyle"/>
-                            </pagecontent>
-                        </dbSettings-jahia-anthracite>
                         <search-settings-jahia-anthracite j:applyOn="jnt:globalSettings" j:requiredPermissionNames="searchSettings"
                                          j:defaultTemplate="false"
                                          j:hiddenTemplate="false"
