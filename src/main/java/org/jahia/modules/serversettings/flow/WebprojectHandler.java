@@ -56,6 +56,7 @@ import org.jahia.exceptions.JahiaException;
 import org.jahia.modules.sitesettings.users.management.UserProperties;
 import org.jahia.osgi.BundleResource;
 import org.jahia.registries.ServicesRegistry;
+import org.jahia.security.license.LicenseCheckerService;
 import org.jahia.services.cache.CacheHelper;
 import org.jahia.services.content.*;
 import org.jahia.services.content.decorator.JCRSiteNode;
@@ -91,7 +92,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.webflow.execution.RequestContext;
 
-import javax.annotation.Nullable;
 import javax.jcr.RepositoryException;
 import javax.servlet.ServletContext;
 import java.io.*;
@@ -196,6 +196,9 @@ public class WebprojectHandler implements Serializable {
 
     @Autowired
     private transient JCRTemplate template;
+
+    @Autowired
+    private transient LicenseCheckerService licenseCheckerService;
 
     private transient MultipartFile importFile;
     private String importPath;
@@ -1227,5 +1230,14 @@ public class WebprojectHandler implements Serializable {
      */
     public int getNumberOfSites() throws JahiaException {
         return sitesService.getNbSites() - 1;
+    }
+
+    /**
+     * This method is calling the LicenseCheckerService to know if the site limit has been reached
+     *
+     * @return <code>true</code> if the limit is reached, <code>false</code> otherwise
+     */
+    public boolean isSiteLimitReached() {
+        return licenseCheckerService.isSiteLimitReached();
     }
 }
