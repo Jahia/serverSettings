@@ -197,9 +197,6 @@ public class WebprojectHandler implements Serializable {
     @Autowired
     private transient JCRTemplate template;
 
-    @Autowired
-    private transient LicenseCheckerService licenseCheckerService;
-
     private transient MultipartFile importFile;
     private String importPath;
     private Properties importProperties;
@@ -1233,11 +1230,17 @@ public class WebprojectHandler implements Serializable {
     }
 
     /**
-     * This method is calling the LicenseCheckerService to know if the site limit has been reached
+     * This method is calling the LicenseCheckerService to get the site limit value
+     * and check if the limit has been reached
      *
      * @return <code>true</code> if the limit is reached, <code>false</code> otherwise
      */
-    public boolean isSiteLimitReached() {
-        return licenseCheckerService.isSiteLimitReached();
+    public boolean isSiteLimitReached() throws JahiaException {
+        Optional<Long> value = LicenseCheckerService.Stub.getSiteLimit();
+        if (value.isPresent()) {
+            return (sitesService.getNbSites() - 1) >= value.get();
+        }
+
+        return false;
     }
 }
