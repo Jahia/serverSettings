@@ -7,6 +7,9 @@
     <var name="webprojectHandler" class="org.jahia.modules.serversettings.flow.WebprojectHandler"/>
 
     <view-state id="view" model="webprojectHandler">
+        <on-entry>
+            <set name="flashScope.isSiteLimitReached" value="webprojectHandler.isSiteLimitReached()"/>
+        </on-entry>
 
         <transition on="createSite" to="createSite">
             <set name="flowScope.siteBean" value="webprojectHandler.newSite"/>

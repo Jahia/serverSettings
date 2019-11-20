@@ -19,6 +19,7 @@
 <template:addResources type="javascript" resources="jquery.min.js,workInProgress.js"/>
 <template:addResources type="javascript" resources="datatables/jquery.dataTables.js,i18n/jquery.dataTables-${currentResource.locale}.js,datatables/dataTables.bootstrap-ext.js,settings/dataTables.initializer.js"/>
 <template:addResources type="css" resources="datatables/css/bootstrap-theme.css"/>
+<template:addResources type="css" resources="manageWebProjects.css"/>
 <jsp:useBean id="nowDate" class="java.util.Date" />
 <fmt:formatDate value="${nowDate}" pattern="yyyy-MM-dd-HH-mm" var="now"/>
 <fmt:message key="label.workInProgressTitle" var="i18nWaiting"/><c:set var="i18nWaiting" value="${functions:escapeJavaScript(i18nWaiting)}"/>
@@ -146,7 +147,7 @@
         <div class="panel-body">
             <input type="hidden" id="sitesFormAction" name="_eventId" value="" />
 
-            <a href="#create" id="createSite" class="btn btn-primary btn-raised sitesAction">
+            <a href="#create" id="createSite" class="btn btn-primary btn-raised sitesAction" ${isSiteLimitReached ? 'disabled' : '' }>
                 <fmt:message key="serverSettings.manageWebProjects.add"/>
             </a>
             <a href="#export" id="exportSites" class="btn btn-default sitesAction-hide">
@@ -263,7 +264,7 @@
         </div>
     </div>
 
-    <div class="panel panel-default">
+    <div class="panel panel-default ${isSiteLimitReached ? 'site-limit-reached' : ''}">
         <div class="panel-heading">
             <h4><fmt:message key="serverSettings.manageWebProjects.importprepackaged"/></h4>
         </div>
@@ -287,7 +288,7 @@
     </div>
 </form>
 
-<div class="panel panel-default">
+<div class="panel panel-default ${isSiteLimitReached ? 'site-limit-reached' : ''}">
     <div class="panel-heading">
         <h4><fmt:message key="serverSettings.manageWebProjects.multipleimport"/></h4>
     </div>

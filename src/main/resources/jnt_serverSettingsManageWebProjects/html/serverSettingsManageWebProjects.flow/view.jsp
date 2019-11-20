@@ -19,6 +19,7 @@
 <template:addResources type="javascript" resources="jquery.min.js,jquery-ui.min.js,admin-bootstrap.js,bootstrap-filestyle.min.js,jquery.metadata.js,jquery.tablesorter.js,jquery.tablecloth.js,workInProgress.js"/>
 <template:addResources type="css" resources="jquery-ui.smoothness.css,jquery-ui.smoothness-jahia.css,tablecloth.css"/>
 <template:addResources type="javascript" resources="datatables/jquery.dataTables.js,i18n/jquery.dataTables-${currentResource.locale}.js,datatables/dataTables.bootstrap-ext.js"/>
+<template:addResources type="css" resources="manageWebProjects.css"/>
 <jsp:useBean id="nowDate" class="java.util.Date" />
 <fmt:formatDate value="${nowDate}" pattern="yyyy-MM-dd-HH-mm" var="now"/>
 <fmt:message key="label.workInProgressTitle" var="i18nWaiting"/><c:set var="i18nWaiting" value="${functions:escapeJavaScript(i18nWaiting)}"/>
@@ -104,10 +105,10 @@
 </script>
 <form id="sitesForm" action="${flowExecutionUrl}" method="post">
     <fieldset>
-        <h2><fmt:message key="label.virtualSitesManagement"/></h2>
+        <h2><fmt:message key="label.virtualSitesManagement"/> - ${isSiteLimitReached}</h2>
         <input type="hidden" id="sitesFormAction" name="_eventId" value="" />
         <div class="btn-group">
-            <a href="#create" id="createSite" class="btn sitesAction">
+            <a href="#create" id="createSite" class="btn sitesAction" ${isSiteLimitReached ? 'disabled' : '' }>
                 <i class="icon-plus"></i>
                 <fmt:message key="serverSettings.manageWebProjects.add"/>
             </a>
@@ -247,7 +248,7 @@
         </div>
     </fieldset>
 
-    <fieldset>
+    <fieldset ${isSiteLimitReached ? 'class="site-limit-reached"' : '' }>
         <h2><fmt:message key="serverSettings.manageWebProjects.importprepackaged"/></h2>
         <select class="span5" name="selectedPrepackagedSite">
             <c:forEach items="${webprojectHandler.prepackagedSites}" var="file">
@@ -261,7 +262,7 @@
     </fieldset>
 
 </form>
-    <fieldset>
+    <fieldset ${isSiteLimitReached ? 'class="site-limit-reached"' : '' }>
         <h2><fmt:message key="serverSettings.manageWebProjects.multipleimport"/></h2>
         <form action="${flowExecutionUrl}" method="post" enctype="multipart/form-data">
             <div class="alert alert-info">
