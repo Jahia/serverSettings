@@ -1226,7 +1226,7 @@ public class WebprojectHandler implements Serializable {
      * @throws JahiaException in case of an error
      */
     public int getNumberOfSites() throws JahiaException {
-        return sitesService.getNbSites() - 1;
+        return Math.toIntExact(sitesService.getSiteCount(false));
     }
 
     /**
@@ -1235,10 +1235,10 @@ public class WebprojectHandler implements Serializable {
      *
      * @return <code>true</code> if the limit is reached, <code>false</code> otherwise
      */
-    public boolean isSiteLimitReached() throws JahiaException {
+    public boolean isSiteLimitReached() {
         Optional<Long> value = LicenseCheckerService.Stub.getSiteLimit();
         if (value.isPresent()) {
-            return (sitesService.getNbSites() - 1) >= value.get();
+            return sitesService.getSiteCount(false) >= value.get();
         }
 
         return false;
