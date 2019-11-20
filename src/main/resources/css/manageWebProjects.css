@@ -1,3 +1,12 @@
 .higher-select {
     height: 160px !important;
 }
+
+.panel.site-limit-exceeded {
+    cursor: not-allowed;
+}
+
+.panel.site-limit-exceeded .panel-body {
+    filter: blur(2px);
+    pointer-events: none;
+}
