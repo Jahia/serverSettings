@@ -2,11 +2,21 @@
     height: 160px !important;
 }
 
-.panel.site-limit-exceeded {
+/* fieldset selector is for the legacy UI */
+.panel.site-limit-reached,
+fieldset.site-limit-reached {
     cursor: not-allowed;
 }
 
-.panel.site-limit-exceeded .panel-body {
+/* fieldset selector are for the legacy UI */
+.panel.site-limit-reached .panel-body,
+fieldset.site-limit-reached select,
+fieldset.site-limit-reached form,
+fieldset.site-limit-reached button {
     filter: blur(2px);
+    pointer-events: none;
+}
+
+#createSite[disabled] {
     pointer-events: none;
 }
