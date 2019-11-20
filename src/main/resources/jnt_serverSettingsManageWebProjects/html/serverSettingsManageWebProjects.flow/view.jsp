@@ -105,7 +105,7 @@
 </script>
 <form id="sitesForm" action="${flowExecutionUrl}" method="post">
     <fieldset>
-        <h2><fmt:message key="label.virtualSitesManagement"/> - ${isSiteLimitReached}</h2>
+        <h2><fmt:message key="label.virtualSitesManagement"/></h2>
         <input type="hidden" id="sitesFormAction" name="_eventId" value="" />
         <div class="btn-group">
             <a href="#create" id="createSite" class="btn sitesAction" ${isSiteLimitReached ? 'disabled' : '' }>
