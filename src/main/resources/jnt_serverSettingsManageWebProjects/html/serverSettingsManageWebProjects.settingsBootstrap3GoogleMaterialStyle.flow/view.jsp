@@ -139,6 +139,15 @@
     </div>
 </c:forEach>
 
+<c:if test="${isSiteLimitReached}">
+    <div class="alert alert-warning">
+        <fmt:message key="serverSettings.manageWebProjects.reachedLicenseLimit"/>
+        <u><a href="https://www.jahia.com/contact" title="Get a quote" target="_blank">
+            <fmt:message key="serverSettings.manageWebProjects.contactUs"/></a></u>
+        <fmt:message key="serverSettings.manageWebProjects.newLicense"/>
+    </div>
+</c:if>
+
 <form id="sitesForm" action="${flowExecutionUrl}" method="post">
     <div class="panel panel-default">
         <div class="panel-heading">
