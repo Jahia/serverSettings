@@ -1,22 +1,22 @@
+/* Anthracite UI */
 .higher-select {
     height: 160px !important;
-}
-
-/* fieldset selector is for the legacy UI */
-.panel.site-limit-reached,
-fieldset.site-limit-reached {
-    cursor: not-allowed;
 }
 
 /* fieldset selector are for the legacy UI */
 .panel.site-limit-reached .panel-body,
 fieldset.site-limit-reached select,
 fieldset.site-limit-reached form,
-fieldset.site-limit-reached button {
-    filter: blur(2px);
+fieldset.site-limit-reached button[disabled] {
+    opacity: .3;
+}
+
+/* Code for the legacy UI under this line */
+#createSite[disabled] {
     pointer-events: none;
 }
 
-#createSite[disabled] {
+fieldset.site-limit-reached .bootstrap-filestyle label {
     pointer-events: none;
+    cursor: default;
 }

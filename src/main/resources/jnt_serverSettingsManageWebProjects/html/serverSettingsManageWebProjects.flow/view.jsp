@@ -260,38 +260,39 @@
 
     <fieldset ${isSiteLimitReached ? 'class="site-limit-reached"' : '' }>
         <h2><fmt:message key="serverSettings.manageWebProjects.importprepackaged"/></h2>
-        <select class="span5" name="selectedPrepackagedSite">
+        <select class="span5" name="selectedPrepackagedSite" ${isSiteLimitReached ? 'disabled' : '' }>
             <c:forEach items="${webprojectHandler.prepackagedSites}" var="file">
                 <option value="${file.key}"${file.value == defaultPrepackagedSite ? ' selected="selected"':''}>${fn:escapeXml(file.value)}</option>
             </c:forEach>
         </select>
-        <button class="btn btn-primary" type="submit" name="importPrepackaged" onclick="submitSiteForm('importPrepackaged'); return false;">
+        <button class="btn btn-primary" type="submit" name="importPrepackaged"
+                onclick="submitSiteForm('importPrepackaged'); return false;" ${isSiteLimitReached ? 'disabled' : '' }>
             <i class="icon-ok icon-white"></i>
             &nbsp;<fmt:message key='label.next'/>
         </button>
     </fieldset>
-
 </form>
-    <fieldset ${isSiteLimitReached ? 'class="site-limit-reached"' : '' }>
-        <h2><fmt:message key="serverSettings.manageWebProjects.multipleimport"/></h2>
-        <form action="${flowExecutionUrl}" method="post" enctype="multipart/form-data">
-            <div class="alert alert-info">
-                <p><fmt:message key="serverSettings.manageWebProjects.multipleimport.fileselect"/></p>
-                <input type="file" name="importFile"/>
-                <button class="btn btn-primary" type="submit" name="_eventId_import" onclick="">
-                    <i class="icon-download icon-white"></i>
-                    &nbsp;<fmt:message key='serverSettings.manageWebProjects.import.upload'/>
-                </button>
-            </div>
-            <div class="box-1">
-                <p><fmt:message key="serverSettings.manageWebProjects.multipleimport.fileinput"/></p>
-                <input class="span5" type="text"  name="importPath"/>
-                <button class="btn btn-primary" type="submit" name="_eventId_import" onclick="">
-                    <i class="icon-download icon-white"></i>
-                    &nbsp;<fmt:message key='serverSettings.manageWebProjects.import.upload'/>
-                </button>
-            </div>
 
-
-        </form>
-    </fieldset>
+<fieldset ${isSiteLimitReached ? 'class="site-limit-reached"' : '' }>
+    <h2><fmt:message key="serverSettings.manageWebProjects.multipleimport"/></h2>
+    <form action="${flowExecutionUrl}" method="post" enctype="multipart/form-data">
+        <div class="alert alert-info">
+            <p><fmt:message key="serverSettings.manageWebProjects.multipleimport.fileselect"/></p>
+            <input type="file" name="importFile" ${isSiteLimitReached ? 'disabled' : '' } />
+            <button class="btn btn-primary" type="submit" name="_eventId_import"
+                    onclick="" ${isSiteLimitReached ? 'disabled' : '' }>
+                <i class="icon-download icon-white"></i>
+                &nbsp;<fmt:message key='serverSettings.manageWebProjects.import.upload'/>
+            </button>
+        </div>
+        <div class="box-1">
+            <p><fmt:message key="serverSettings.manageWebProjects.multipleimport.fileinput"/></p>
+            <input class="span5" type="text"  name="importPath" ${isSiteLimitReached ? 'disabled' : '' } />
+            <button class="btn btn-primary" type="submit" name="_eventId_import"
+                    onclick="" ${isSiteLimitReached ? 'disabled' : '' }>
+                <i class="icon-download icon-white"></i>
+                &nbsp;<fmt:message key='serverSettings.manageWebProjects.import.upload'/>
+            </button>
+        </div>
+    </form>
+</fieldset>
