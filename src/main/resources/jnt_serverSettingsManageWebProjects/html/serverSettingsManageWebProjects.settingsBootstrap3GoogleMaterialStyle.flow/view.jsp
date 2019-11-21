@@ -280,13 +280,14 @@
         <div class="panel-body">
             <div class="form-group is-empty">
                 <div class="input-group">
-                    <select class="form-control" name="selectedPrepackagedSite">
+                    <select class="form-control" name="selectedPrepackagedSite" ${isSiteLimitReached ? 'disabled' : ''}>
                         <c:forEach items="${webprojectHandler.prepackagedSites}" var="file">
                             <option value="${file.key}"${file.value == defaultPrepackagedSite ? ' selected="selected"':''}>${fn:escapeXml(file.value)}</option>
                         </c:forEach>
                     </select>
                     <span class="input-group-btn">
-                        <button class="btn btn-primary btn-raised" type="submit" name="importPrepackaged" onclick="submitSiteForm('importPrepackaged'); return false;">
+                        <button class="btn btn-primary btn-raised" type="submit" name="importPrepackaged"
+                                onclick="submitSiteForm('importPrepackaged'); return false;" ${isSiteLimitReached ? 'disabled' : ''}>
                             <fmt:message key='label.next'/>
                         </button>
                     </span>
@@ -307,11 +308,11 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group is-empty is-fileinput label-floating">
-                        <input type="file" name="importFile" id="importFile"/>
+                        <input type="file" name="importFile" id="importFile" ${isSiteLimitReached ? 'disabled' : ''} />
                         <div class="input-group">
                             <span class="input-group-addon"><i class="material-icons">touch_app</i></span>
                             <label class="control-label"><fmt:message key="serverSettings.manageWebProjects.multipleimport.fileselect"/></label>
-                            <input class="form-control" type="text" readonly>
+                            <input class="form-control" type="text" readonly ${isSiteLimitReached ? 'disabled' : ''}>
                         </div>
                         <span class="material-input"></span>
                     </div>
@@ -320,9 +321,11 @@
                     <div class="form-group is-empty label-floating">
                         <div class="input-group">
                             <label class="control-label"><fmt:message key="serverSettings.manageWebProjects.multipleimport.fileinput"/></label>
-                            <input class="form-control" type="text" name="importPath" id="importPath"/>
+                            <input class="form-control" type="text" name="importPath"
+                                   id="importPath" ${isSiteLimitReached ? 'disabled' : ''} />
                             <span class="input-group-btn">
-                                <button class="btn btn-primary btn-raised" type="button" onclick="validateUploadForm()">
+                                <button class="btn btn-primary btn-raised" type="button"
+                                        onclick="validateUploadForm()" ${isSiteLimitReached ? 'disabled' : ''}>
                                     <fmt:message key='serverSettings.manageWebProjects.import.upload'/>
                                 </button>
                             </span>
