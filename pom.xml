@@ -74,6 +74,7 @@
         <export-package>org.jahia.modules.serversettings.forge</export-package>
         <jahia-module-type>system</jahia-module-type>
         <jahia-deploy-on-site>system</jahia-deploy-on-site>
+        <jahia-module-signature>MC0CFQCS6CnA2gvCPE2h51dr7n3yHR5ejwIUSPznUaTixtD3BTw9Wa/HgNw3ITA=</jahia-module-signature>
     </properties>
 
     <repositories>
