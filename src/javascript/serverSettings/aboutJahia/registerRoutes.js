@@ -1,6 +1,4 @@
-import React from 'react';
 import {registry} from '@jahia/registry';
-import Info from '@jahia/moonstone/dist/icons/Info';
 
 export const registerRoutes = function () {
     const level = 'server';
@@ -12,7 +10,7 @@ export const registerRoutes = function () {
         path: path,
         route: 'aboutJahia',
         defaultPath: path,
-        icon: <Info/>,
+        icon: null,
         label: 'About Jahia',
         childrenTarget: null,
         isSelectable: true,
