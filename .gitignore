@@ -5,3 +5,12 @@
 /.idea
 *.iml
 repository.xml.generated
+/src/main/resources/javascript/bundles
+/src/main/resources/javascript/apps
+/node
+/node_modules
+/yarn-error.log
+/.yalc
+
+# macOS
+.DS_Store
