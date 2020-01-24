@@ -44,61 +44,158 @@
         please contact the sales department at sales@jahia.com.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <parent>
-        <groupId>org.jahia.modules</groupId>
-        <artifactId>jahia-modules</artifactId>
-        <version>7.5.0.0-SNAPSHOT</version>
-        <relativePath />
-    </parent>
-
-    <artifactId>serverSettings</artifactId>
-    <version>9.0.0-SNAPSHOT</version>
-    <packaging>bundle</packaging>
-    <name>Jahia Server Settings</name>
-    <description>Server settings</description>
-
-    <scm>
-        <connection>scm:git:git@github.com:Jahia/serverSettings.git</connection>
-        <developerConnection>scm:git:git@github.com:Jahia/serverSettings.git</developerConnection>
-        <url>scm:git:git@github.com:Jahia/serverSettings.git</url>
-        <tag>HEAD</tag>
-    </scm>
-
-    <properties>
-        <jahia-depends>default,siteSettings,tabularList</jahia-depends>
-        <export-package>org.jahia.modules.serversettings.forge</export-package>
-        <jahia-module-type>system</jahia-module-type>
-        <jahia-deploy-on-site>system</jahia-deploy-on-site>
-        <jahia-module-signature>MC0CFQCS6CnA2gvCPE2h51dr7n3yHR5ejwIUSPznUaTixtD3BTw9Wa/HgNw3ITA=</jahia-module-signature>
-    </properties>
-
-    <repositories>
-        <repository>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <id>jahia-public</id>
-            <name>Jahia Public Repository</name>
-            <url>https://devtools.jahia.com/nexus/content/groups/public</url>
-        </repository>
-    </repositories>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.jahia.modules</groupId>
-            <artifactId>siteSettings</artifactId>
-            <version>7.2.2</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.jahia.modules</groupId>
+    <artifactId>jahia-modules</artifactId>
+    <version>7.5.0.0-SNAPSHOT</version>
+    <relativePath></relativePath>
+  </parent>
+  <artifactId>serverSettings</artifactId>
+  <version>9.0.0-SNAPSHOT</version>
+  <packaging>bundle</packaging>
+  <name>Jahia Server Settings</name>
+  <description>Server settings</description>
+  <scm>
+    <connection>scm:git:git@github.com:Jahia/serverSettings.git</connection>
+    <developerConnection>scm:git:git@github.com:Jahia/serverSettings.git</developerConnection>
+    <url>scm:git:git@github.com:Jahia/serverSettings.git</url>
+  </scm>
+  <properties>
+    <yarn.arguments>build:production</yarn.arguments>
+    <jahia-module-signature>MC0CFQCS6CnA2gvCPE2h51dr7n3yHR5ejwIUSPznUaTixtD3BTw9Wa/HgNw3ITA=</jahia-module-signature>
+    <jahia-deploy-on-site>system</jahia-deploy-on-site>
+    <export-package>org.jahia.modules.serversettings.forge</export-package>
+    <jahia-module-type>system</jahia-module-type>
+    <jahia-depends>dx-commons-webpack,jahia-ui-root,default,siteSettings,tabularList</jahia-depends>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.jahia.modules</groupId>
+      <artifactId>siteSettings</artifactId>
+      <version>7.2.2</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jahia.modules</groupId>
+      <artifactId>dx-commons-webpack</artifactId>
+      <version>1.4.0-SNAPSHOT</version>
+      <type>json</type>
+      <classifier>manifest</classifier>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jahia.modules</groupId>
+      <artifactId>dx-commons-webpack</artifactId>
+      <version>1.4.0-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  <repositories>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>jahia-public</id>
+      <name>Jahia Public Repository</name>
+      <url>https://devtools.jahia.com/nexus/content/groups/public</url>
+    </repository>
+  </repositories>
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>src/main/resources/javascript/apps</directory>
+              <includes>
+                <include>*</include>
+              </includes>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>1.8.0</version>
+        <executions>
+          <execution>
+            <id>npm install node and yarn</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>install-node-and-yarn</goal>
+            </goals>
+            <configuration>
+              <nodeVersion>v13.2.0</nodeVersion>
+              <yarnVersion>v1.19.1</yarnVersion>
+            </configuration>
+          </execution>
+          <execution>
+            <id>yarn install</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>yarn</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>yarn post-install</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>yarn</goal>
+            </goals>
+            <configuration>
+              <arguments>${yarn.arguments}</arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Import-Package>${jahia.plugin.projectPackageImport},*</Import-Package>
+            <_dsannotations>*</_dsannotations>
+          </instructions>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <artifactItems>
+            <artifactItem>
+              <groupId>org.jahia.modules</groupId>
+              <artifactId>dx-commons-webpack</artifactId>
+              <type>json</type>
+              <classifier>manifest</classifier>
+            </artifactItem>
+          </artifactItems>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
