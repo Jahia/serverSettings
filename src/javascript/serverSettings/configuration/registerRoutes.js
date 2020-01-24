@@ -1,5 +1,4 @@
-import React from 'react';
-import { registry } from '@jahia/registry';
+import {registry} from '@jahia/registry';
 
 export const registerRoutes = function () {
     const level = 'server';
