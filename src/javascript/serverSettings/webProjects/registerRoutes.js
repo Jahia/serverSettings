@@ -1,6 +1,4 @@
-import React from 'react';
 import {registry} from '@jahia/registry';
-import Language from '@jahia/moonstone/dist/icons/Language';
 
 export const registerRoutes = function () {
     const level = 'server';
@@ -12,7 +10,7 @@ export const registerRoutes = function () {
         path: path,
         route: 'webProjectSettings',
         defaultPath: path,
-        icon: <Language/>,
+        icon: null,
         label: 'Web Projects',
         childrenTarget: null,
         isSelectable: true,
