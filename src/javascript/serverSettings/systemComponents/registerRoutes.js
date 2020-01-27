@@ -19,11 +19,13 @@ export const registerRoutes = function () {
     });
 
     const mpPath = '/administration/managePortlets';
+    const mpRouteId = 'managePortlets';
     registry.add(`${level}-${mpPath.toLowerCase()}`, {
+        id: mpRouteId,
         type: 'route',
         target: [`${parentTarget}-systemcomponents:0`],
         path: mpPath,
-        route: 'managePortlets',
+        route: mpRouteId,
         defaultPath: mpPath,
         icon: null,
         label: 'Portlets',

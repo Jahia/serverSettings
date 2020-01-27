@@ -19,11 +19,13 @@ export const registerRoutes = function () {
     });
 
     const cmPath = '/administration/cacheManagement';
+    const cmRouteId = 'cacheManagement';
     registry.add(`${level}-${cmPath.toLowerCase()}`, {
+        id: cmRouteId,
         type: 'route',
         target: [`${parentTarget}-systemhealth:0`],
         path: cmPath,
-        route: 'cacheManagement',
+        route: cmRouteId,
         defaultPath: cmPath,
         icon: null,
         label: 'Cache Management',
@@ -34,11 +36,13 @@ export const registerRoutes = function () {
 
     // TODO fix issue with label being used for tree item selection (compare this to cacheManagement)
     const mmPath = '/administration/manageMemory';
+    const mmRouteId = 'manageMemory';
     registry.add(`${level}-${mmPath.toLowerCase()}`, {
+        id: mmRouteId,
         type: 'route',
         target: [`${parentTarget}-systemhealth:1`],
         path: mmPath,
-        route: 'manageMemory',
+        route: mmRouteId,
         defaultPath: mmPath,
         icon: null,
         label: 'Memory Management',
@@ -48,11 +52,13 @@ export const registerRoutes = function () {
     });
 
     const riPath = '/administration/reportAnIssue';
+    const riRouteId = 'reportAnIssue';
     registry.add(`${level}-${riPath.toLowerCase()}`, {
+        id: riRouteId,
         type: 'route',
         target: [`${parentTarget}-systemhealth:2`],
         path: riPath,
-        route: 'reportAnIssue',
+        route: riRouteId,
         defaultPath: riPath,
         icon: null,
         label: 'Report an Issue',
@@ -62,11 +68,13 @@ export const registerRoutes = function () {
     });
 
     const siPath = '/administration/systemInfos';
+    const siRouteId = 'systemInfos';
     registry.add(`${level}-${siPath.toLowerCase()}`, {
+        id: siRouteId,
         type: 'route',
         target: [`${parentTarget}-systemhealth:3`],
         path: siPath,
-        route: 'systemInfos',
+        route: siRouteId,
         defaultPath: siPath,
         icon: null,
         label: 'System Information',

@@ -19,11 +19,13 @@ export const registerRoutes = function () {
     });
 
     const apPath = '/administration/adminProperties';
+    const apRouteId = 'adminProperties';
     registry.add(`${level}-${apPath.toLowerCase()}`, {
+        id: apRouteId,
         type: 'route',
         target: [`${parentTarget}-usersandroles:0`],
         path: apPath,
-        route: 'adminProperties',
+        route: apRouteId,
         defaultPath: apPath,
         icon: null,
         label: 'Admin Properties',
