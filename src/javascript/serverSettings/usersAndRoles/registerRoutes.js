@@ -1,6 +1,6 @@
 import {registry} from '@jahia/registry';
 
-export const registerRoutes = function () {
+export const registerRoutes = function (t) {
     const level = 'server';
     const parentTarget = 'administration-server';
 
@@ -12,7 +12,7 @@ export const registerRoutes = function () {
         route: null,
         defaultPath: urPath,
         icon: null,
-        label: 'Users and Roles',
+        label: t('usersAndRoles.label'),
         childrenTarget: 'usersandroles',
         isSelectable: false,
         level: level
@@ -28,7 +28,7 @@ export const registerRoutes = function () {
         route: apRouteId,
         defaultPath: apPath,
         icon: null,
-        label: 'Admin Properties',
+        label: t('usersAndRoles.adminProperties'),
         childrenTarget: null,
         isSelectable: true,
         level: level

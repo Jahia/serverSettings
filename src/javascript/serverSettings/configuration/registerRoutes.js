@@ -1,6 +1,6 @@
 import {registry} from '@jahia/registry';
 
-export const registerRoutes = function () {
+export const registerRoutes = function (t) {
     const level = 'server';
     const parentTarget = 'administration-server';
 
@@ -12,7 +12,7 @@ export const registerRoutes = function () {
         route: null,
         defaultPath: cPath,
         icon: null,
-        label: 'Configuration',
+        label: t('configuration.label'),
         childrenTarget: 'configuration',
         isSelectable: false,
         level: level
@@ -28,7 +28,7 @@ export const registerRoutes = function () {
         route: mssRouteId,
         defaultPath: mssPath,
         icon: null,
-        label: 'Mail Server Settings',
+        label: t('configuration.mailServerSettings'),
         childrenTarget: null,
         isSelectable: true,
         level: level
@@ -44,7 +44,7 @@ export const registerRoutes = function () {
         route: ssRouteId,
         defaultPath: ssPath,
         icon: null,
-        label: 'Search Settings',
+        label: t('configuration.searchSettings'),
         childrenTarget: null,
         isSelectable: true,
         level: level
