@@ -1,0 +1,29 @@
+{
+  "label": "pt Server Settings",
+  "aboutJahia": {
+    "label": "pt About Jahia"
+  },
+  "configuration": {
+    "label": "pt Configuration",
+    "mailServerSettings": "pt Mail Server Settings",
+    "searchSettings": "pt Search Settings"
+  },
+  "systemComponents": {
+    "label": "pt System Components",
+    "portlets": "pt Portlets"
+  },
+  "systemHealth": {
+    "label": "pt System Health",
+    "cacheManagement": "pt Cache Management",
+    "memoryManagement": "pt Memory Management",
+    "reportAnIssue": "pt Report an Issue",
+    "systemInfo": "pt System Information"
+  },
+  "usersAndRoles": {
+    "label": "pt Users and Roles",
+    "adminProperties": "pt Admin Properties"
+  },
+  "webProjects": {
+    "label": "pt Web projects"
+  }
+}

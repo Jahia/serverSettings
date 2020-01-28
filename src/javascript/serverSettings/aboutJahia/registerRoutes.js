@@ -1,6 +1,6 @@
 import {registry} from '@jahia/registry';
 
-export const registerRoutes = function () {
+export const registerRoutes = function (t) {
     const level = 'server';
     const path = '/administration/aboutJahia';
 
@@ -13,7 +13,7 @@ export const registerRoutes = function () {
         route: routeId,
         defaultPath: path,
         icon: null,
-        label: 'About Jahia',
+        label: t('aboutJahia.label'),
         childrenTarget: null,
         isSelectable: true,
         level: level

@@ -1,6 +1,6 @@
 import {registry} from '@jahia/registry';
 
-export const registerRoutes = function () {
+export const registerRoutes = function (t) {
     const level = 'server';
     const parentTarget = 'administration-server';
 
@@ -12,7 +12,7 @@ export const registerRoutes = function () {
         route: null,
         defaultPath: shPath,
         icon: null,
-        label: 'System Health',
+        label: t('systemHealth.label'),
         childrenTarget: 'systemhealth',
         isSelectable: false,
         level: level
@@ -28,7 +28,7 @@ export const registerRoutes = function () {
         route: cmRouteId,
         defaultPath: cmPath,
         icon: null,
-        label: 'Cache Management',
+        label: t('systemHealth.cacheManagement'),
         childrenTarget: null,
         isSelectable: true,
         level: level
@@ -45,7 +45,7 @@ export const registerRoutes = function () {
         route: mmRouteId,
         defaultPath: mmPath,
         icon: null,
-        label: 'Memory Management',
+        label: t('systemHealth.memoryManagement'),
         childrenTarget: null,
         isSelectable: true,
         level: level
@@ -61,7 +61,7 @@ export const registerRoutes = function () {
         route: riRouteId,
         defaultPath: riPath,
         icon: null,
-        label: 'Report an Issue',
+        label: t('systemHealth.reportAnIssue'),
         childrenTarget: null,
         isSelectable: true,
         level: level
@@ -77,7 +77,7 @@ export const registerRoutes = function () {
         route: siRouteId,
         defaultPath: siPath,
         icon: null,
-        label: 'System Information',
+        label: t('systemHealth.systemInformation'),
         childrenTarget: null,
         isSelectable: true,
         level: level
