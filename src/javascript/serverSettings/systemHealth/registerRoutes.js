@@ -5,7 +5,7 @@ export const registerRoutes = function (t) {
     const parentTarget = 'administration-server';
 
     const shPath = '/administration/systemHealth';
-    registry.add('route', `${level}-${shPath.toLowerCase()}`, {
+    registry.add('adminRoute', `${level}-${shPath.toLowerCase()}`, {
         targets: [`${parentTarget}:3`],
         path: shPath,
         route: null,
@@ -19,7 +19,7 @@ export const registerRoutes = function (t) {
 
     const cmPath = '/administration/cacheManagement';
     const cmRouteId = 'cacheManagement';
-    registry.add('route', `${level}-${cmPath.toLowerCase()}`, {
+    registry.add('adminRoute', `${level}-${cmPath.toLowerCase()}`, {
         id: cmRouteId,
         targets: [`${parentTarget}-systemhealth:0`],
         path: cmPath,
@@ -35,7 +35,7 @@ export const registerRoutes = function (t) {
     // TODO fix issue with label being used for tree item selection (compare this to cacheManagement)
     const mmPath = '/administration/manageMemory';
     const mmRouteId = 'manageMemory';
-    registry.add('route', `${level}-${mmPath.toLowerCase()}`, {
+    registry.add('adminRoute', `${level}-${mmPath.toLowerCase()}`, {
         id: mmRouteId,
         targets: [`${parentTarget}-systemhealth:1`],
         path: mmPath,
@@ -50,7 +50,7 @@ export const registerRoutes = function (t) {
 
     const riPath = '/administration/reportAnIssue';
     const riRouteId = 'reportAnIssue';
-    registry.add('route', `${level}-${riPath.toLowerCase()}`, {
+    registry.add('adminRoute', `${level}-${riPath.toLowerCase()}`, {
         id: riRouteId,
         targets: [`${parentTarget}-systemhealth:2`],
         path: riPath,
@@ -65,7 +65,7 @@ export const registerRoutes = function (t) {
 
     const siPath = '/administration/systemInfos';
     const siRouteId = 'systemInfos';
-    registry.add('route', `${level}-${siPath.toLowerCase()}`, {
+    registry.add('adminRoute', `${level}-${siPath.toLowerCase()}`, {
         id: siRouteId,
         targets: [`${parentTarget}-systemhealth:3`],
         path: siPath,

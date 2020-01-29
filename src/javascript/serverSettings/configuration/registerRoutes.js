@@ -5,7 +5,7 @@ export const registerRoutes = function (t) {
     const parentTarget = 'administration-server';
 
     const cPath = '/administration/configuration';
-    registry.add('route', `${level}-${cPath.toLowerCase()}`, {
+    registry.add('adminRoute', `${level}-${cPath.toLowerCase()}`, {
         targets: [`${parentTarget}:1`],
         path: cPath,
         route: null,
@@ -19,7 +19,7 @@ export const registerRoutes = function (t) {
 
     const mssPath = '/administration/mailServerSettings';
     const mssRouteId = 'mailServerSettings';
-    registry.add('route', `${level}-${mssPath.toLowerCase()}`, {
+    registry.add('adminRoute', `${level}-${mssPath.toLowerCase()}`, {
         id: mssRouteId,
         targets: [`${parentTarget}-configuration:0`],
         path: mssPath,
@@ -34,7 +34,7 @@ export const registerRoutes = function (t) {
 
     const ssPath = '/administration/search-settings';
     const ssRouteId = 'search-settings';
-    registry.add('route', `${level}-${ssPath.toLowerCase()}`, {
+    registry.add('adminRoute', `${level}-${ssPath.toLowerCase()}`, {
         id: ssRouteId,
         targets: [`${parentTarget}-configuration:1`],
         path: ssPath,

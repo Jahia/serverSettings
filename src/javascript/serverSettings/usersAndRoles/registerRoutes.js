@@ -5,7 +5,7 @@ export const registerRoutes = function (t) {
     const parentTarget = 'administration-server';
 
     const urPath = '/administration/usersAndRoles';
-    registry.add('route', `${level}-${urPath.toLowerCase()}`, {
+    registry.add('adminRoute', `${level}-${urPath.toLowerCase()}`, {
         targets: [`${parentTarget}:4`],
         path: urPath,
         route: null,
@@ -19,7 +19,7 @@ export const registerRoutes = function (t) {
 
     const apPath = '/administration/adminProperties';
     const apRouteId = 'adminProperties';
-    registry.add('route', `${level}-${apPath.toLowerCase()}`, {
+    registry.add('adminRoute', `${level}-${apPath.toLowerCase()}`, {
         id: apRouteId,
         targets: [`${parentTarget}-usersandroles:0`],
         path: apPath,
