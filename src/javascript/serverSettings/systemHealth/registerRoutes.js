@@ -1,13 +1,12 @@
-import {registry} from '@jahia/registry';
+import {registry} from '@jahia/ui-extender';
 
 export const registerRoutes = function (t) {
     const level = 'server';
     const parentTarget = 'administration-server';
 
     const shPath = '/administration/systemHealth';
-    registry.add(`${level}-${shPath.toLowerCase()}`, {
-        type: 'route',
-        target: [`${parentTarget}:3`],
+    registry.add('route', `${level}-${shPath.toLowerCase()}`, {
+        targets: [`${parentTarget}:3`],
         path: shPath,
         route: null,
         defaultPath: shPath,
@@ -20,10 +19,9 @@ export const registerRoutes = function (t) {
 
     const cmPath = '/administration/cacheManagement';
     const cmRouteId = 'cacheManagement';
-    registry.add(`${level}-${cmPath.toLowerCase()}`, {
+    registry.add('route', `${level}-${cmPath.toLowerCase()}`, {
         id: cmRouteId,
-        type: 'route',
-        target: [`${parentTarget}-systemhealth:0`],
+        targets: [`${parentTarget}-systemhealth:0`],
         path: cmPath,
         route: cmRouteId,
         defaultPath: cmPath,
@@ -37,10 +35,9 @@ export const registerRoutes = function (t) {
     // TODO fix issue with label being used for tree item selection (compare this to cacheManagement)
     const mmPath = '/administration/manageMemory';
     const mmRouteId = 'manageMemory';
-    registry.add(`${level}-${mmPath.toLowerCase()}`, {
+    registry.add('route', `${level}-${mmPath.toLowerCase()}`, {
         id: mmRouteId,
-        type: 'route',
-        target: [`${parentTarget}-systemhealth:1`],
+        targets: [`${parentTarget}-systemhealth:1`],
         path: mmPath,
         route: mmRouteId,
         defaultPath: mmPath,
@@ -53,10 +50,9 @@ export const registerRoutes = function (t) {
 
     const riPath = '/administration/reportAnIssue';
     const riRouteId = 'reportAnIssue';
-    registry.add(`${level}-${riPath.toLowerCase()}`, {
+    registry.add('route', `${level}-${riPath.toLowerCase()}`, {
         id: riRouteId,
-        type: 'route',
-        target: [`${parentTarget}-systemhealth:2`],
+        targets: [`${parentTarget}-systemhealth:2`],
         path: riPath,
         route: riRouteId,
         defaultPath: riPath,
@@ -69,10 +65,9 @@ export const registerRoutes = function (t) {
 
     const siPath = '/administration/systemInfos';
     const siRouteId = 'systemInfos';
-    registry.add(`${level}-${siPath.toLowerCase()}`, {
+    registry.add('route', `${level}-${siPath.toLowerCase()}`, {
         id: siRouteId,
-        type: 'route',
-        target: [`${parentTarget}-systemhealth:3`],
+        targets: [`${parentTarget}-systemhealth:3`],
         path: siPath,
         route: siRouteId,
         defaultPath: siPath,

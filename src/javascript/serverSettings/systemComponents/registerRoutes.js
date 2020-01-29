@@ -1,13 +1,12 @@
-import {registry} from '@jahia/registry';
+import {registry} from '@jahia/ui-extender';
 
 export const registerRoutes = function (t) {
     const level = 'server';
     const parentTarget = 'administration-server';
 
     const scPath = '/administration/systemComponents';
-    registry.add(`${level}-${scPath.toLowerCase()}`, {
-        type: 'route',
-        target: [`${parentTarget}:2`],
+    registry.add('route', `${level}-${scPath.toLowerCase()}`, {
+        targets: [`${parentTarget}:2`],
         path: scPath,
         route: null,
         defaultPath: scPath,
@@ -20,10 +19,9 @@ export const registerRoutes = function (t) {
 
     const mpPath = '/administration/managePortlets';
     const mpRouteId = 'managePortlets';
-    registry.add(`${level}-${mpPath.toLowerCase()}`, {
+    registry.add('route', `${level}-${mpPath.toLowerCase()}`, {
         id: mpRouteId,
-        type: 'route',
-        target: [`${parentTarget}-systemcomponents:0`],
+        targets: [`${parentTarget}-systemcomponents:0`],
         path: mpPath,
         route: mpRouteId,
         defaultPath: mpPath,

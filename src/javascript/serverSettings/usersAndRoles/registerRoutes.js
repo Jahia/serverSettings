@@ -1,13 +1,12 @@
-import {registry} from '@jahia/registry';
+import {registry} from '@jahia/ui-extender';
 
 export const registerRoutes = function (t) {
     const level = 'server';
     const parentTarget = 'administration-server';
 
     const urPath = '/administration/usersAndRoles';
-    registry.add(`${level}-${urPath.toLowerCase()}`, {
-        type: 'route',
-        target: [`${parentTarget}:4`],
+    registry.add('route', `${level}-${urPath.toLowerCase()}`, {
+        targets: [`${parentTarget}:4`],
         path: urPath,
         route: null,
         defaultPath: urPath,
@@ -20,10 +19,9 @@ export const registerRoutes = function (t) {
 
     const apPath = '/administration/adminProperties';
     const apRouteId = 'adminProperties';
-    registry.add(`${level}-${apPath.toLowerCase()}`, {
+    registry.add('route', `${level}-${apPath.toLowerCase()}`, {
         id: apRouteId,
-        type: 'route',
-        target: [`${parentTarget}-usersandroles:0`],
+        targets: [`${parentTarget}-usersandroles:0`],
         path: apPath,
         route: apRouteId,
         defaultPath: apPath,

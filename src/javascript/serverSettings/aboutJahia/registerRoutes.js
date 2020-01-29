@@ -1,14 +1,13 @@
-import {registry} from '@jahia/registry';
+import {registry} from '@jahia/ui-extender';
 
 export const registerRoutes = function (t) {
     const level = 'server';
     const path = '/administration/aboutJahia';
 
     const routeId = 'aboutJahia';
-    registry.add(`${level}-${path.toLowerCase()}`, {
+    registry.add('route', `${level}-${path.toLowerCase()}`, {
         id: routeId,
-        type: 'route',
-        target: ['administration-server:0'],
+        targets: ['administration-server:0'],
         path: path,
         route: routeId,
         defaultPath: path,
