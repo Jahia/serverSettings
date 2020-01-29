@@ -4,7 +4,7 @@ export const registerRoutes = function (t) {
     const level = 'server';
     const path = '/administration/webProjectSettings';
     const routeId = 'webProjectSettings';
-    registry.add('adminRoute', `${level}-${path.toLowerCase()}`, {
+    registry.addOrReplace('adminRoute', `${level}-${path.toLowerCase()}`, {
         id: routeId,
         targets: ['administration-server:5'],
         path: path,

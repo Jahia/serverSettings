@@ -5,7 +5,7 @@ export const registerRoutes = function (t) {
     const parentTarget = 'administration-server';
 
     const scPath = '/administration/systemComponents';
-    registry.add('adminRoute', `${level}-${scPath.toLowerCase()}`, {
+    registry.addOrReplace('adminRoute', `${level}-${scPath.toLowerCase()}`, {
         targets: [`${parentTarget}:2`],
         path: scPath,
         route: null,
@@ -19,9 +19,9 @@ export const registerRoutes = function (t) {
 
     const mpPath = '/administration/managePortlets';
     const mpRouteId = 'managePortlets';
-    registry.add('adminRoute', `${level}-${mpPath.toLowerCase()}`, {
+    registry.addOrReplace('adminRoute', `${level}-${mpPath.toLowerCase()}`, {
         id: mpRouteId,
-        targets: [`${parentTarget}-systemcomponents:0`],
+        targets: [`${parentTarget}-systemcomponents:4`],
         path: mpPath,
         route: mpRouteId,
         defaultPath: mpPath,

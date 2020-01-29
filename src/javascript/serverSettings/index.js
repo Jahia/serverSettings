@@ -1,4 +1,3 @@
-import {useEffect} from 'react';
 import {registerRoutes as registerAboutRoutes} from './aboutJahia/registerRoutes';
 import {registerRoutes as registerSystemHealthRoutes} from './systemHealth/registerRoutes';
 import {registerRoutes as registerConfigurationRoutes} from './configuration/registerRoutes';
@@ -10,15 +9,12 @@ import {useTranslation} from 'react-i18next';
 export default function () {
     const {t} = useTranslation('serverSettings');
 
-    useEffect(function () {
-        registerAboutRoutes(t);
-        registerSystemHealthRoutes(t);
-        registerConfigurationRoutes(t);
-        registerSystemComponentsRoutes(t);
-        registerUsersAndRolesRoutes(t);
-        registerWebProjectsRoutes(t);
-        /* eslint-disable-next-line */ // If not disabled --fix injects t into []
-    }, []);
+    registerAboutRoutes(t);
+    registerSystemHealthRoutes(t);
+    registerConfigurationRoutes(t);
+    registerSystemComponentsRoutes(t);
+    registerUsersAndRolesRoutes(t);
+    registerWebProjectsRoutes(t);
 
     return null;
 }

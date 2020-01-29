@@ -5,7 +5,7 @@ export const registerRoutes = function (t) {
     const path = '/administration/aboutJahia';
 
     const routeId = 'aboutJahia';
-    registry.add('adminRoute', `${level}-${path.toLowerCase()}`, {
+    registry.addOrReplace('adminRoute', `${level}-${path.toLowerCase()}`, {
         id: routeId,
         targets: ['administration-server:0'],
         path: path,
