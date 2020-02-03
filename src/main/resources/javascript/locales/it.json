@@ -21,7 +21,8 @@
   },
   "usersAndRoles": {
     "label": "it Users and Roles",
-    "adminProperties": "it Admin Properties"
+    "adminProperties": "it Admin Properties",
+    "passwordPolicy": "Password Policy"
   },
   "webProjects": {
     "label": "it Web projects"

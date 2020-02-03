@@ -31,4 +31,19 @@ export const registerRoutes = function (t) {
         isSelectable: true,
         level: level
     });
+
+    const ppPath = '/administration/passwordPolicy';
+    const ppRouteId = 'passwordPolicy';
+    registry.addOrReplace('adminRoute', `${level}-${ppPath.toLowerCase()}`, {
+        id: ppRouteId,
+        targets: [`${parentTarget}-usersandroles:5`],
+        path: ppPath,
+        route: ppRouteId,
+        defaultPath: ppPath,
+        icon: null,
+        label: t('usersAndRoles.passwordPolicy'),
+        childrenTarget: null,
+        isSelectable: true,
+        level: level
+    });
 };
