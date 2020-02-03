@@ -22,7 +22,8 @@
   "usersAndRoles": {
     "label": "de Users and Roles",
     "adminProperties": "de Admin Properties",
-    "passwordPolicy": "Password Policy"
+    "passwordPolicy": "Password Policy",
+    "serverRoles": "Server Roles"
   },
   "webProjects": {
     "label": "de Web projects"

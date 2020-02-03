@@ -46,4 +46,19 @@ export const registerRoutes = function (t) {
         isSelectable: true,
         level: level
     });
+
+    const srPath = '/administration/manageServerRoles';
+    const srRouteId = 'manageServerRoles';
+    registry.addOrReplace('adminRoute', `${level}-${srPath.toLowerCase()}`, {
+        id: srRouteId,
+        targets: [`${parentTarget}-usersandroles:2`],
+        path: srPath,
+        route: srRouteId,
+        defaultPath: srPath,
+        icon: null,
+        label: t('usersAndRoles.serverRoles'),
+        childrenTarget: null,
+        isSelectable: true,
+        level: level
+    });
 };
