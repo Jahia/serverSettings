@@ -1,17 +1,17 @@
 import {registry} from '@jahia/ui-extender';
 
-export const registerRoutes = function (t) {
+export const registerRoutes = function () {
     const level = 'server';
     const parentTarget = 'administration-server';
 
     const cPath = '/administration/configuration';
-    registry.addOrReplace('adminRoute', `${level}-${cPath.toLowerCase()}`, {
+    registry.add('adminRoute', `${level}-${cPath.toLowerCase()}`, {
         targets: [`${parentTarget}:1`],
         path: cPath,
         route: null,
         defaultPath: cPath,
         icon: null,
-        label: t('configuration.label'),
+        label: 'serverSettings:configuration.label',
         childrenTarget: 'configuration',
         isSelectable: false,
         level: level
@@ -19,14 +19,14 @@ export const registerRoutes = function (t) {
 
     const mssPath = '/administration/mailServerSettings';
     const mssRouteId = 'mailServerSettings';
-    registry.addOrReplace('adminRoute', `${level}-${mssPath.toLowerCase()}`, {
+    registry.add('adminRoute', `${level}-${mssPath.toLowerCase()}`, {
         id: mssRouteId,
         targets: [`${parentTarget}-configuration:0`],
         path: mssPath,
         route: mssRouteId,
         defaultPath: mssPath,
         icon: null,
-        label: t('configuration.mailServerSettings'),
+        label: 'serverSettings:configuration.mailServerSettings',
         childrenTarget: null,
         isSelectable: true,
         level: level
@@ -34,14 +34,14 @@ export const registerRoutes = function (t) {
 
     const ssPath = '/administration/search-settings';
     const ssRouteId = 'search-settings';
-    registry.addOrReplace('adminRoute', `${level}-${ssPath.toLowerCase()}`, {
+    registry.add('adminRoute', `${level}-${ssPath.toLowerCase()}`, {
         id: ssRouteId,
         targets: [`${parentTarget}-configuration:1`],
         path: ssPath,
         route: ssRouteId,
         defaultPath: ssPath,
         icon: null,
-        label: t('configuration.searchSettings'),
+        label: 'serverSettings:configuration.searchSettings',
         childrenTarget: null,
         isSelectable: true,
         level: level

@@ -1,8 +1,12 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import ServerSettingsRegistrationComponent from './serverSettings';
+import {registry} from '@jahia/ui-extender';
+import registrations from './serverSettings';
+import i18next from 'i18next';
 
-var mountElement = document.createElement('div');
-ReactDOM.render(<ServerSettingsRegistrationComponent/>, mountElement);
-
-console.log('%c Server Settings routes have been registered', 'color: #3c8cba');
+registry.add('callback', 'serverSettings', {
+    targets: ['jahiaApp-init:50'],
+    callback: async () => {
+        await i18next.loadNamespaces('serverSettings');
+        registrations();
+        console.log('%c Server Settings routes have been registered', 'color: #3c8cba');
+    }
+});
