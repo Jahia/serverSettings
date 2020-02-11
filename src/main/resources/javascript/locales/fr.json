@@ -1,0 +1,31 @@
+{
+  "label": "Paramètres du serveur",
+  "aboutJahia": {
+    "label": "À propos de Jahia"
+  },
+  "configuration": {
+    "label": "Configuration",
+    "mailServerSettings": "Serveur de messagerie (mail server settings)",
+    "searchSettings": "Configuration de la recherche (search settings)"
+  },
+  "systemComponents": {
+    "label": "Composants système",
+    "portlets": "Portlets"
+  },
+  "systemHealth": {
+    "label": "Etat du système (system health)",
+    "cacheManagement": "Gestion du cache",
+    "memoryManagement": "Gestion de la mémoire",
+    "reportAnIssue": "Signaler un problème",
+    "systemInfo": "Informations système"
+  },
+  "usersAndRoles": {
+    "label": "Utilisateurs et Rôles",
+    "adminProperties": "Propriétés de l'administrateur",
+    "passwordPolicy": "Politique de mots de passe",
+    "serverRoles": "Rôles serveur"
+  },
+  "webProjects": {
+    "label": "Projets web"
+  }
+}
