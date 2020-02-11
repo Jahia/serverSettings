@@ -7,6 +7,6 @@ registry.add('callback', 'serverSettings', {
     callback: async () => {
         await i18next.loadNamespaces('serverSettings');
         registrations();
-        console.log('%c Server Settings routes have been registered', 'color: #3c8cba');
+        console.debug('%c Server Settings routes have been registered', 'color: #3c8cba');
     }
 });
