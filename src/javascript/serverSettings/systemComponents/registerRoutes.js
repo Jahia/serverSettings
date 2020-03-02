@@ -25,6 +25,7 @@ export const registerRoutes = function () {
         path: mpPath,
         route: mpRouteId,
         defaultPath: mpPath,
+        requiredPermission: 'adminPortlets',
         icon: null,
         label: 'serverSettings:systemComponents.portlets',
         childrenTarget: null,

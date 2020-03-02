@@ -10,6 +10,7 @@ export const registerRoutes = function () {
         path: path,
         route: routeId,
         defaultPath: path,
+        requiredPermission: 'adminVirtualSites',
         icon: null,
         label: 'serverSettings:webProjects.label',
         childrenTarget: null,
