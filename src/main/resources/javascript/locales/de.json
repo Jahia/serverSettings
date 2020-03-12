@@ -1,31 +1,31 @@
 {
-  "label": "de Server Settings",
+  "label": "Server Einstellungen",
   "aboutJahia": {
-    "label": "de About Jahia"
+    "label": "Über Jahia"
   },
   "configuration": {
-    "label": "de Configuration",
-    "mailServerSettings": "de Mail Server Settings",
-    "searchSettings": "de Search Settings"
+    "label": "Konfiguration",
+    "mailServerSettings": "Mail-Server Einstellungen",
+    "searchSettings": "Search Einstellungen"
   },
   "systemComponents": {
-    "label": "de System Components",
-    "portlets": "de Portlets"
+    "label": "Systemkomponenten",
+    "portlets": "Portlet-Verwaltung"
   },
   "systemHealth": {
-    "label": "de System Health",
-    "cacheManagement": "de Cache Management",
-    "memoryManagement": "de Memory Management",
-    "reportAnIssue": "de Report an Issue",
-    "systemInfo": "de System Information"
+    "label": "Systemzustand",
+    "cacheManagement": "Cache-Verwaltung",
+    "memoryManagement": "Speicher",
+    "reportAnIssue": "Problem melden",
+    "systemInfo": "Systeminformationen"
   },
   "usersAndRoles": {
-    "label": "de Users and Roles",
-    "adminProperties": "de Admin Properties",
-    "passwordPolicy": "Password Policy",
-    "serverRoles": "Server Roles"
+    "label": "Benutzer und Rollen",
+    "adminProperties": "Super Administrator-Eigenschaften",
+    "passwordPolicy": "Passwortregeln verwalten",
+    "serverRoles": "Serverrollen"
   },
   "webProjects": {
-    "label": "de Web projects"
+    "label": "Webprojekte"
   }
 }
