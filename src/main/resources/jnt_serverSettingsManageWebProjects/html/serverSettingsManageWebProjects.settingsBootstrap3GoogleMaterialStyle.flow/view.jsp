@@ -121,14 +121,23 @@
     })
 </script>
 <script type="text/javascript" charset="utf-8">
+    const webProjectsSitesList = [];
+    let defaultSiteKey;
+    <c:forEach items="${webprojectHandler.allSites}" var="site">
+     webProjectsSitesList.push('${site.name}');
+        <c:if test="${site.identifier == defaultSite.string}">
+     defaultSiteKey = '${site.name}';
+        </c:if>
+    </c:forEach>
     $(document).ready(function() {
         dataTablesSettings.init('sitesTable', 10, [], null, null);
+        window.top.postMessage({msg:'updatedSitesList', sites:webProjectsSitesList, defaultSite: defaultSiteKey }, window.location.origin);
     });
 </script>
 
 <div class="page-header">
     <h2>
-        <fmt:message key="serverSettings.manageWebProjects"/>
+        <fmt:message key="serverSettings.manageWebProjects"/> TEST
     </h2>
 </div>
 
