@@ -137,7 +137,7 @@
 
 <div class="page-header">
     <h2>
-        <fmt:message key="serverSettings.manageWebProjects"/> TEST
+        <fmt:message key="serverSettings.manageWebProjects"/>
     </h2>
 </div>
 
