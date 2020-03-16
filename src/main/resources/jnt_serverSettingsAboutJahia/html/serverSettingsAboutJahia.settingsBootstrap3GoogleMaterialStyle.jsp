@@ -15,7 +15,7 @@
 <%--@elvariable id="url" type="org.jahia.services.render.URLGenerator"--%>
 
 <div class="page-header">
-    <h2>
+    <h2 style="user-select: text">
         <%= Jahia.getFullProductVersion() %>
         <c:if test="${ licensePackage.customTermsAndConditions eq 'true' }">
             / <fmt:message key="serverSettings.aboutJahia.LicenceInfo.customTermsAndConditionsNotice" />
