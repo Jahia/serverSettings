@@ -1,84 +1,47 @@
 import {registry} from '@jahia/ui-extender';
 
 export const registerRoutes = function () {
-    const level = 'server';
-    const parentTarget = 'administration-server';
-
-    const shPath = '/administration/systemHealth';
-    registry.add('adminRoute', `${level}-${shPath.toLowerCase()}`, {
-        targets: [`${parentTarget}:3`],
-        path: shPath,
-        route: null,
-        defaultPath: shPath,
+    registry.add('adminRoute', 'systemHealth', {
+        targets: ['administration-server:3'],
         requiredPermission: 'adminSystemInfos',
         icon: null,
         label: 'serverSettings:systemHealth.label',
-        childrenTarget: 'systemhealth',
-        isSelectable: false,
-        level: level
+        isSelectable: false
     });
 
-    const cmPath = '/administration/cacheManagement';
-    const cmRouteId = 'cacheManagement';
-    registry.add('adminRoute', `${level}-${cmPath.toLowerCase()}`, {
-        id: cmRouteId,
-        targets: [`${parentTarget}-systemhealth:0`],
-        path: cmPath,
-        route: cmRouteId,
-        defaultPath: cmPath,
+    registry.add('adminRoute', 'cacheManagement', {
+        targets: ['administration-server-systemHealth:0'],
         requiredPermission: 'adminCache',
         icon: null,
         label: 'serverSettings:systemHealth.cacheManagement',
-        childrenTarget: null,
         isSelectable: true,
-        level: level
+        iframeUrl: window.contextJsParameters.contextPath + '/cms/adminframe/default/en/settings.cacheManagement.html?redirect=false'
     });
 
     // TODO fix issue with label being used for tree item selection (compare this to cacheManagement)
-    const mmPath = '/administration/manageMemory';
-    const mmRouteId = 'manageMemory';
-    registry.add('adminRoute', `${level}-${mmPath.toLowerCase()}`, {
-        id: mmRouteId,
-        targets: [`${parentTarget}-systemhealth:1`],
-        path: mmPath,
-        route: mmRouteId,
-        defaultPath: mmPath,
+    registry.add('adminRoute', 'manageMemory', {
+        targets: ['administration-server-systemHealth:1'],
         requiredPermission: 'adminManageMemory',
         icon: null,
         label: 'serverSettings:systemHealth.memoryManagement',
-        childrenTarget: null,
         isSelectable: true,
-        level: level
+        iframeUrl: window.contextJsParameters.contextPath + '/cms/adminframe/default/en/settings.manageMemory.html?redirect=false'
     });
 
-    const riPath = '/administration/reportAnIssue';
-    const riRouteId = 'reportAnIssue';
-    registry.add('adminRoute', `${level}-${riPath.toLowerCase()}`, {
-        id: riRouteId,
-        targets: [`${parentTarget}-systemhealth:2`],
-        path: riPath,
-        route: riRouteId,
-        defaultPath: riPath,
+    registry.add('adminRoute', 'reportAnIssue', {
+        targets: ['administration-server-systemHealth:2'],
         requiredPermission: 'adminIssueTracking',
         icon: null,
         label: 'serverSettings:systemHealth.reportAnIssue',
-        childrenTarget: null,
         isSelectable: true,
-        level: level
+        iframeUrl: window.contextJsParameters.contextPath + '/cms/adminframe/default/en/settings.reportAnIssue.html?redirect=false'
     });
 
-    const siPath = '/administration/systemInfos';
-    const siRouteId = 'systemInfos';
-    registry.add('adminRoute', `${level}-${siPath.toLowerCase()}`, {
-        id: siRouteId,
-        targets: [`${parentTarget}-systemhealth:3`],
-        path: siPath,
-        route: siRouteId,
-        defaultPath: siPath,
+    registry.add('adminRoute', 'systemInfos', {
+        targets: ['administration-server-systemHealth:3'],
         icon: null,
         label: 'serverSettings:systemHealth.systemInfo',
-        childrenTarget: null,
         isSelectable: true,
-        level: level
+        iframeUrl: window.contextJsParameters.contextPath + '/cms/adminframe/default/en/settings.systemInfos.html?redirect=false'
     });
 };
