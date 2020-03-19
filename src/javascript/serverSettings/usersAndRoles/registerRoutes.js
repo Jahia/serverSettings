@@ -1,67 +1,37 @@
 import {registry} from '@jahia/ui-extender';
 
 export const registerRoutes = function () {
-    const level = 'server';
-    const parentTarget = 'administration-server';
-
-    const urPath = '/administration/usersAndRoles';
-    registry.add('adminRoute', `${level}-${urPath.toLowerCase()}`, {
-        targets: [`${parentTarget}:4`],
-        path: urPath,
-        route: null,
-        defaultPath: urPath,
+    registry.add('adminRoute', 'usersAndRoles', {
+        targets: ['administration-server:4'],
         icon: null,
         label: 'serverSettings:usersAndRoles.label',
-        childrenTarget: 'usersandroles',
-        isSelectable: false,
-        level: level
+        isSelectable: false
     });
 
-    const apPath = '/administration/adminProperties';
-    const apRouteId = 'adminProperties';
-    registry.add('adminRoute', `${level}-${apPath.toLowerCase()}`, {
-        id: apRouteId,
-        targets: [`${parentTarget}-usersandroles:0`],
-        path: apPath,
-        route: apRouteId,
-        defaultPath: apPath,
+    registry.add('adminRoute', 'adminProperties', {
+        targets: ['administration-server-usersAndRoles:0'],
         requiredPermission: 'adminRootUser',
         icon: null,
         label: 'serverSettings:usersAndRoles.adminProperties',
-        childrenTarget: null,
         isSelectable: true,
-        level: level
+        iframeUrl: window.contextJsParameters.contextPath + '/cms/adminframe/default/en/settings.adminProperties.html?redirect=false'
     });
 
-    const ppPath = '/administration/passwordPolicy';
-    const ppRouteId = 'passwordPolicy';
-    registry.add('adminRoute', `${level}-${ppPath.toLowerCase()}`, {
-        id: ppRouteId,
-        targets: [`${parentTarget}-usersandroles:5`],
-        path: ppPath,
-        route: ppRouteId,
-        defaultPath: ppPath,
+    registry.add('adminRoute', 'passwordPolicy', {
+        targets: ['administration-server-usersAndRoles:5'],
         requiredPermission: 'adminPasswordPolicy',
         icon: null,
         label: 'serverSettings:usersAndRoles.passwordPolicy',
-        childrenTarget: null,
         isSelectable: true,
-        level: level
+        iframeUrl: window.contextJsParameters.contextPath + '/cms/adminframe/default/en/settings.passwordPolicy.html?redirect=false'
     });
 
-    const srPath = '/administration/manageServerRoles';
-    const srRouteId = 'manageServerRoles';
-    registry.add('adminRoute', `${level}-${srPath.toLowerCase()}`, {
-        id: srRouteId,
-        targets: [`${parentTarget}-usersandroles:2`],
-        path: srPath,
-        route: srRouteId,
-        defaultPath: srPath,
+    registry.add('adminRoute', 'manageServerRoles', {
+        targets: ['administration-server-usersAndRoles:2'],
         requiredPermission: 'adminServerRoles',
         icon: null,
         label: 'serverSettings:usersAndRoles.serverRoles',
-        childrenTarget: null,
         isSelectable: true,
-        level: level
+        iframeUrl: window.contextJsParameters.contextPath + '/cms/adminframe/default/en/settings.manageServerRoles.html?redirect=false'
     });
 };
