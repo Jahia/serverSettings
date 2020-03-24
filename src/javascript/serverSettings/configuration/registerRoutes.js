@@ -1,9 +1,11 @@
+import React from 'react';
 import {registry} from '@jahia/ui-extender';
+import Build from '@jahia/moonstone/dist/icons/Build';
 
 export const registerRoutes = function () {
     registry.add('adminRoute', 'configuration', {
         targets: ['administration-server:1'],
-        icon: null,
+        icon: <Build/>,
         label: 'serverSettings:configuration.label',
         isSelectable: false
     });
