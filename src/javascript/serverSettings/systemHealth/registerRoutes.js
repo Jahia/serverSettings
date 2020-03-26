@@ -1,10 +1,12 @@
+import React from 'react';
 import {registry} from '@jahia/ui-extender';
+import Heal from '@jahia/moonstone/dist/icons/Heal';
 
 export const registerRoutes = function () {
     registry.add('adminRoute', 'systemHealth', {
         targets: ['administration-server:3'],
         requiredPermission: 'adminSystemInfos',
-        icon: null,
+        icon: <Heal/>,
         label: 'serverSettings:systemHealth.label',
         isSelectable: false
     });
