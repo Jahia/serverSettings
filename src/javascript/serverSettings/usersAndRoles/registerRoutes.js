@@ -1,9 +1,11 @@
+import React from 'react';
 import {registry} from '@jahia/ui-extender';
+import Groups from '@jahia/moonstone/dist/icons/Group';
 
 export const registerRoutes = function () {
     registry.add('adminRoute', 'usersAndRoles', {
         targets: ['administration-server:4'],
-        icon: null,
+        icon: <Groups/>,
         label: 'serverSettings:usersAndRoles.label',
         isSelectable: false
     });
