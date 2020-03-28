@@ -1,7 +1,9 @@
 {
   "label": "it it Server Settings",
   "aboutJahia": {
-    "label": "it About Jahia"
+    "label": "it About Jahia",
+    "licenses": "Licenza",
+    "reportAnIssue": "it Report an Issue"
   },
   "configuration": {
     "label": "it Configuration",
@@ -16,7 +18,6 @@
     "label": "it System Health",
     "cacheManagement": "it Cache Management",
     "memoryManagement": "it Memory Management",
-    "reportAnIssue": "it Report an Issue",
     "systemInfo": "it System Information"
   },
   "usersAndRoles": {

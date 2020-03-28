@@ -4,14 +4,14 @@ import Puzzle from '@jahia/moonstone/dist/icons/Puzzle';
 
 export const registerRoutes = function () {
     registry.add('adminRoute', 'systemComponents', {
-        targets: ['administration-server:2'],
+        targets: ['administration-server:30'],
         icon: <Puzzle/>,
         label: 'serverSettings:systemComponents.label',
         isSelectable: false
     });
 
     registry.add('adminRoute', 'managePortlets', {
-        targets: ['administration-server-systemComponents:4'],
+        targets: ['administration-server-systemComponents:50'],
         requiredPermission: 'adminPortlets',
         icon: null,
         label: 'serverSettings:systemComponents.portlets',

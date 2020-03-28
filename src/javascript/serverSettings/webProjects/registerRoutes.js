@@ -4,7 +4,7 @@ import WebProjects from '@jahia/moonstone/dist/icons/WebProject';
 
 export const registerRoutes = function () {
     registry.add('adminRoute', 'webProjectSettings', {
-        targets: ['administration-server:5'],
+        targets: ['administration-server:10'],
         requiredPermission: 'adminVirtualSites',
         icon: <WebProjects/>,
         label: 'serverSettings:webProjects.label',
