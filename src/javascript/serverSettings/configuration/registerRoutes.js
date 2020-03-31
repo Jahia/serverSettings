@@ -4,7 +4,7 @@ import Build from '@jahia/moonstone/dist/icons/Build';
 
 export const registerRoutes = function () {
     registry.add('adminRoute', 'configuration', {
-        targets: ['administration-server:1'],
+        targets: ['administration-server:40'],
         icon: <Build/>,
         label: 'serverSettings:configuration.label',
         isSelectable: false

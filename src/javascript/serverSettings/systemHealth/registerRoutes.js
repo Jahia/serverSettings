@@ -4,7 +4,7 @@ import Heal from '@jahia/moonstone/dist/icons/Heal';
 
 export const registerRoutes = function () {
     registry.add('adminRoute', 'systemHealth', {
-        targets: ['administration-server:3'],
+        targets: ['administration-server:50'],
         requiredPermission: 'adminSystemInfos',
         icon: <Heal/>,
         label: 'serverSettings:systemHealth.label',
@@ -28,15 +28,6 @@ export const registerRoutes = function () {
         label: 'serverSettings:systemHealth.memoryManagement',
         isSelectable: true,
         iframeUrl: window.contextJsParameters.contextPath + '/cms/adminframe/default/en/settings.manageMemory.html?redirect=false'
-    });
-
-    registry.add('adminRoute', 'reportAnIssue', {
-        targets: ['administration-server-systemHealth:2'],
-        requiredPermission: 'adminIssueTracking',
-        icon: null,
-        label: 'serverSettings:systemHealth.reportAnIssue',
-        isSelectable: true,
-        iframeUrl: window.contextJsParameters.contextPath + '/cms/adminframe/default/en/settings.reportAnIssue.html?redirect=false'
     });
 
     registry.add('adminRoute', 'systemInfos', {

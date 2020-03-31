@@ -1,7 +1,9 @@
 {
   "label": "Server Einstellungen",
   "aboutJahia": {
-    "label": "Über Jahia"
+    "label": "Über Jahia",
+    "licenses": "Lizenz",
+    "reportAnIssue": "Problem melden"
   },
   "configuration": {
     "label": "Konfiguration",
@@ -16,7 +18,6 @@
     "label": "Systemzustand",
     "cacheManagement": "Cache-Verwaltung",
     "memoryManagement": "Speicher",
-    "reportAnIssue": "Problem melden",
     "systemInfo": "Systeminformationen"
   },
   "usersAndRoles": {

@@ -4,14 +4,14 @@ import Groups from '@jahia/moonstone/dist/icons/Group';
 
 export const registerRoutes = function () {
     registry.add('adminRoute', 'usersAndRoles', {
-        targets: ['administration-server:4'],
+        targets: ['administration-server:20'],
         icon: <Groups/>,
         label: 'serverSettings:usersAndRoles.label',
         isSelectable: false
     });
 
     registry.add('adminRoute', 'adminProperties', {
-        targets: ['administration-server-usersAndRoles:0'],
+        targets: ['administration-server-usersAndRoles:70'],
         requiredPermission: 'adminRootUser',
         icon: null,
         label: 'serverSettings:usersAndRoles.adminProperties',
@@ -20,7 +20,7 @@ export const registerRoutes = function () {
     });
 
     registry.add('adminRoute', 'passwordPolicy', {
-        targets: ['administration-server-usersAndRoles:5'],
+        targets: ['administration-server-usersAndRoles:50'],
         requiredPermission: 'adminPasswordPolicy',
         icon: null,
         label: 'serverSettings:usersAndRoles.passwordPolicy',
@@ -29,7 +29,7 @@ export const registerRoutes = function () {
     });
 
     registry.add('adminRoute', 'manageServerRoles', {
-        targets: ['administration-server-usersAndRoles:2'],
+        targets: ['administration-server-usersAndRoles:40'],
         requiredPermission: 'adminServerRoles',
         icon: null,
         label: 'serverSettings:usersAndRoles.serverRoles',
