@@ -16,7 +16,7 @@ registry.add('adminRoute', 'license', {
     icon: null,
     label: 'serverSettings:aboutJahia.licenses',
     isSelectable: true,
-    iframeUrl: window.contextJsParameters.contextPath + '/cms/adminframe/default/en/settings.aboutJahia.html?redirect=false'
+    iframeUrl: window.contextJsParameters.contextPath + '/cms/adminframe/default/$lang/settings.aboutJahia.html?redirect=false'
 });
 
 registry.add('adminRoute', 'reportAnIssue', {
@@ -25,5 +25,5 @@ registry.add('adminRoute', 'reportAnIssue', {
     icon: null,
     label: 'serverSettings:aboutJahia.reportAnIssue',
     isSelectable: true,
-    iframeUrl: window.contextJsParameters.contextPath + '/cms/adminframe/default/en/settings.reportAnIssue.html?redirect=false'
+    iframeUrl: window.contextJsParameters.contextPath + '/cms/adminframe/default/$lang/settings.reportAnIssue.html?redirect=false'
 });
