@@ -7,23 +7,23 @@
   },
   "configuration": {
     "label": "Configuration",
-    "mailServerSettings": "Serveur de messagerie (mail server settings)",
-    "searchSettings": "Configuration de la recherche (search settings)"
+    "mailServerSettings": "Serveur de messagerie",
+    "searchSettings": "Recherche"
   },
   "systemComponents": {
-    "label": "Composants système",
+    "label": "Modules et Extensions",
     "portlets": "Portlets"
   },
   "systemHealth": {
-    "label": "Etat du système (system health)",
+    "label": "Système",
     "cacheManagement": "Gestion du cache",
     "memoryManagement": "Gestion de la mémoire",
     "systemInfo": "Informations système"
   },
   "usersAndRoles": {
     "label": "Utilisateurs et Rôles",
-    "adminProperties": "Propriétés de l'administrateur",
-    "passwordPolicy": "Politique de mots de passe",
+    "adminProperties": "Utilisateur root",
+    "passwordPolicy": "Règles de mots de passe",
     "serverRoles": "Rôles serveur"
   },
   "webProjects": {
