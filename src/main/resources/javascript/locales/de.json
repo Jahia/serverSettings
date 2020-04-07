@@ -8,23 +8,23 @@
   "configuration": {
     "label": "Konfiguration",
     "mailServerSettings": "Mail-Server Einstellungen",
-    "searchSettings": "Search Einstellungen"
+    "searchSettings": "Sucheinstellungen"
   },
   "systemComponents": {
-    "label": "Systemkomponenten",
+    "label": "Module und Erweiterungen",
     "portlets": "Portlet-Verwaltung"
   },
   "systemHealth": {
-    "label": "Systemzustand",
+    "label": "System",
     "cacheManagement": "Cache-Verwaltung",
-    "memoryManagement": "Speicher",
+    "memoryManagement": "Speicher-Verwaltung",
     "systemInfo": "Systeminformationen"
   },
   "usersAndRoles": {
     "label": "Benutzer und Rollen",
-    "adminProperties": "Super Administrator-Eigenschaften",
+    "adminProperties": "Root-User Eigenschaften",
     "passwordPolicy": "Passwortregeln verwalten",
-    "serverRoles": "Serverrollen"
+    "serverRoles": "Server Rollen"
   },
   "webProjects": {
     "label": "Webprojekte"
