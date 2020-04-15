@@ -1243,4 +1243,32 @@ public class WebprojectHandler implements Serializable {
 
         return false;
     }
+
+    public List<TemplateSetPreview> getTemplateSetsPreview() {
+        List<TemplateSetPreview> templateSetPreviews = new ArrayList<>();
+        List<JahiaTemplatesPackage> templatesPackages = templateManagerService.getNonSystemTemplateSetPackages();
+        for (JahiaTemplatesPackage jahiaTemplatesPackage : templatesPackages) {
+            List<String> previewResources = new ArrayList<>();
+            Bundle templateSetBundle = jahiaTemplatesPackage.getBundle();
+            previewResources.addAll(findPreviewResources(templateSetBundle, "/img/template-preview","*.png"));
+            previewResources.addAll(findPreviewResources(templateSetBundle, "/images/template-preview","*.png"));
+            previewResources.addAll(findPreviewResources(templateSetBundle, "/images/template-preview","*.gif"));
+            previewResources.addAll(findPreviewResources(templateSetBundle, "/img/template-preview", "*.gif"));
+            templateSetPreviews.add(new TemplateSetPreview(jahiaTemplatesPackage, previewResources));
+        }
+        return templateSetPreviews;
+    }
+
+    private List<String> findPreviewResources(Bundle templateSetBundle, String path, String filePattern) {
+        Enumeration<URL> resourceURLs = templateSetBundle.findEntries(path, filePattern, true);
+        List<String> previewResources = new ArrayList<>();
+        if (resourceURLs != null) {
+            while (resourceURLs.hasMoreElements()) {
+                URL resourceURL = resourceURLs.nextElement();
+                previewResources.add(resourceURL.getPath());
+            }
+        }
+        return previewResources;
+    }
+
 }

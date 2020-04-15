@@ -9,31 +9,31 @@
 <template:addResources>
     <script type="application/javascript">
         var manageSelectedModules = {
-            selectAll: function() {
+            selectAll: function () {
                 $('#unselectedModules option').detach().appendTo($('#selectedModules'));
                 setTimeout(function () {
                     $('#selectedModules option:selected').prop('selected', false);
                 }, 50);
             },
-            select: function() {
+            select: function () {
                 $('#unselectedModules option:selected').detach().appendTo($('#selectedModules'));
                 setTimeout(function () {
                     $('#selectedModules option:selected').prop('selected', false);
                 }, 50);
             },
-            deselectAll: function() {
+            deselectAll: function () {
                 $('#selectedModules option').detach().appendTo($('#unselectedModules'));
                 setTimeout(function () {
                     $('#unselectedModules option:selected').prop('selected', false);
                 }, 50);
             },
-            deselect: function() {
+            deselect: function () {
                 $('#selectedModules option:selected').detach().appendTo($('#unselectedModules'));
                 setTimeout(function () {
                     $('#unselectedModules option:selected').prop('selected', false);
                 }, 50);
             },
-            selectValue: function() {
+            selectValue: function () {
                 $('#selectedModules option').prop('selected', true);
             },
             previous: function () {
@@ -48,7 +48,13 @@
 
         $(document).ready(function () {
             document.getElementById('formSelectModule').addEventListener('submit', manageSelectedModules.selectValue);
-        })
+            $('.bs-card').click(function () {
+                $('.bs-card-selected').removeClass('bs-card-selected');
+                $(this).addClass('bs-card-selected');
+                $('#templateSet').val($(this).attr('data-templateset-id'));
+            })
+        });
+
     </script>
 </template:addResources>
 
@@ -76,26 +82,51 @@
 </c:if>
 
 <form id="formSelectModule" action="${flowExecutionUrl}" method="POST">
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <c:if test="${not editingModules}">
+    <c:if test="${not editingModules}">
+        <div class="panel panel-default">
+            <div class="panel-body">
                 <div class="row">
-                    <div class="col-sm-12 col-md-6">
-                        <div class="form-group label-floating">
-                            <label class="control-label" for="templateSet"><fmt:message key="serverSettings.webProjectSettings.pleaseChooseTemplateSet"/></label>
+                    <div class="col-sm-12 col-md-12">
+                        <h4><fmt:message key="serverSettings.webProjectSettings.pleaseChooseTemplateSet"/></h4>
 
-                            <select class="form-control" name="templateSet" id="templateSet">
-                                <c:forEach items="${templateSets}" var="module">
-                                    <option value="${module.id}" ${siteBean.templateSet eq module.id || empty siteBean.templateSet && module.id eq defaultTemplateSetId ? 'selected="true"' : ''}>${module.name}&nbsp;(${module.id})</option>
-                                </c:forEach>
-                            </select>
+                        <div class="bs-card-container">
+                            <c:forEach items="${templateSetsPreview}" var="templateSetPreview" varStatus="loop">
+                                <div class="bs-card ${siteBean.templateSet eq templateSetPreview.id || empty siteBean.templateSet && templateSetPreview.id eq defaultTemplateSetId || empty siteBean.templateSet && loop.index == 0 ? 'bs-card-selected' : ''}"
+                                     id="template-set-${templateSetPreview.id}"
+                                     data-templateset-id="${templateSetPreview.id}">
+                                    <div class="bs-card-image">
+                                        <c:choose>
+                                            <c:when test="${empty templateSetPreview.previewResources}">
+                                                <img class="img-responsive"
+                                                     src='<c:url value="/modules/serverSettings/images/template-preview-placeholder.png"/>'>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <img class="img-responsive"
+                                                     src='<c:url value="/modules/${templateSetPreview.id}${templateSetPreview.previewResources[0]}"/>'/>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div><!-- card image -->
+
+                                    <div class="bs-card-content">
+                                        <span class="bs-card-title">${templateSetPreview.jahiaTemplatesPackage.name}</span>
+                                        <i class="material-icons bs-card-check">check_circle</i>
+                                    </div><!-- card content -->
+                                </div>
+                            </c:forEach>
                         </div>
+                        <input type="hidden" name="templateSet" id="templateSet"
+                               value="${empty siteBean.templateSet ? templateSetsPreview[0].id : siteBean.templateSet}"/>
                     </div>
-
-                    <div class="col-sm-12 col-md-6">
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
                         <div class="form-group label-floating">
-                            <label class="control-label" for="language"><fmt:message key="serverSettings.manageWebProjects.webProject.selectLanguage"/></label>
-
+                            <label class="control-label" for="language"><fmt:message
+                                    key="serverSettings.manageWebProjects.webProject.selectLanguage"/></label>
                             <select class="form-control" name="language" id="language">
                                 <c:forEach items="${allLocales}" var="locale">
                                     <option value="${locale}" ${siteBean.language eq locale ? 'selected="true"' : ''}>${locale.displayName}</option>
@@ -106,7 +137,11 @@
                 </div>
 
                 <hr/>
-            </c:if>
+            </div>
+        </div>
+    </c:if>
+    <div class="panel panel-default">
+        <div class="panel-body">
 
             <div class="row">
                 <div class="col-md-12">
@@ -114,7 +149,8 @@
                 </div>
                 <div class="col-sm-5 col-md-5">
                     <div class="form-group label-floating">
-                        <label><fmt:message key="jnt_serverSettingsManageWebProjects.createSiteSelectModules.label.unselectedModules"/></label>
+                        <label><fmt:message
+                                key="jnt_serverSettingsManageWebProjects.createSiteSelectModules.label.unselectedModules"/></label>
                         <select id="unselectedModules" class="form-control higher-select" multiple>
                             <c:forEach items="${modules}" var="module">
                                 <c:if test="${not functions:contains(siteBean.modules,module.id)}">
@@ -156,7 +192,8 @@
                 </div>
                 <div class="col-sm-6 col-md-6">
                     <div class="form-group label-floating">
-                        <label><fmt:message key="jnt_serverSettingsManageWebProjects.createSiteSelectModules.label.selectedModules"/></label>
+                        <label><fmt:message
+                                key="jnt_serverSettingsManageWebProjects.createSiteSelectModules.label.selectedModules"/></label>
                         <select id="selectedModules" class="form-control higher-select" name="modules" multiple>
                             <c:forEach items="${modules}" var="module">
                                 <c:if test="${functions:contains(siteBean.modules,module.id)}">
@@ -179,7 +216,8 @@
                         </c:otherwise>
                     </c:choose>
                 </button>
-                <button class="btn btn-default pull-right" type="button" value="previous" onclick="manageSelectedModules.previous()">
+                <button class="btn btn-default pull-right" type="button" value="previous"
+                        onclick="manageSelectedModules.previous()">
                     <fmt:message key='label.previous'/>
                 </button>
             </div>
