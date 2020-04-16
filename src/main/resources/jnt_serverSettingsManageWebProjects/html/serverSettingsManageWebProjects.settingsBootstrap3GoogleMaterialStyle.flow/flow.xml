@@ -70,6 +70,7 @@
             <evaluate expression="JahiaTemplateManagerService.nonSystemModulePackages" result="flashScope.modules"/>
             <evaluate expression="webprojectHandler.defaultTemplateSetId" result="flashScope.defaultTemplateSetId"/>
             <evaluate expression="T(org.jahia.utils.LanguageCodeConverters).getSortedLocaleList(externalContext.requestMap.currentResource.locale)" result="flashScope.allLocales"/>
+            <evaluate expression="webprojectHandler.templateSetsPreview" result="flashScope.templateSetsPreview"/>
         </on-render>
 
         <transition on="previous" to="createSiteAdministratorConditionPrevious" />
