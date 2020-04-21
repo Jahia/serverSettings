@@ -9,13 +9,4 @@ export const registerRoutes = function () {
         label: 'serverSettings:systemComponents.label',
         isSelectable: false
     });
-
-    registry.add('adminRoute', 'managePortlets', {
-        targets: ['administration-server-systemComponents:50'],
-        requiredPermission: 'adminPortlets',
-        icon: null,
-        label: 'serverSettings:systemComponents.portlets',
-        isSelectable: true,
-        iframeUrl: window.contextJsParameters.contextPath + '/cms/adminframe/default/en/settings.managePortlets.html?redirect=false'
-    });
 };
