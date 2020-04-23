@@ -188,7 +188,7 @@
                             <td>
                                 <c:set var="i18nExportStaging"><fmt:message key="label.export"/> (<fmt:message key="label.stagingContent"/>)</c:set>
                                 <c:set var="i18nExportStaging" value="${fn:escapeXml(i18nExportStaging)}"/>
-                                <c:if test="${jcr:hasPermission(site,'editModeAccess')}">
+                                <c:if test="${jcr:hasPermission(site,'jContentAccess')}">
                                     <c:choose>
                                         <c:when test="${renderContext.settings.distantPublicationServerMode}">
                                             <c:url var="editUrl" value="/cms/settings/default/${site.defaultLanguage}${site.path}.manageLanguages.html"/>
