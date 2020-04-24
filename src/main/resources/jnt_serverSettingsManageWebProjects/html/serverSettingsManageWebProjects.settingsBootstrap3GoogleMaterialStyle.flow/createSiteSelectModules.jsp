@@ -91,7 +91,7 @@
 
                         <div class="bs-card-container">
                             <c:forEach items="${templateSetsPreview}" var="templateSetPreview" varStatus="loop">
-                                <div class="bs-card ${siteBean.templateSet eq templateSetPreview.id || empty siteBean.templateSet && templateSetPreview.id eq defaultTemplateSetId || empty siteBean.templateSet && loop.index == 0 ? 'bs-card-selected' : ''}"
+                                <div class="bs-card ${siteBean.templateSet eq templateSetPreview.id || empty siteBean.templateSet && defaultTemplateSetId != null && templateSetPreview.id eq defaultTemplateSetId || empty siteBean.templateSet && defaultTemplateSetId == null && loop.index == 0 ? 'bs-card-selected' : ''}"
                                      id="template-set-${templateSetPreview.id}"
                                      data-templateset-id="${templateSetPreview.id}">
                                     <div class="bs-card-image">
@@ -115,7 +115,7 @@
                             </c:forEach>
                         </div>
                         <input type="hidden" name="templateSet" id="templateSet"
-                               value="${empty siteBean.templateSet ? templateSetsPreview[0].id : siteBean.templateSet}"/>
+                               value="${empty siteBean.templateSet ? (defaultTemplateSetId != null ? defaultTemplateSetId : templateSetsPreview[0].id) : siteBean.templateSet}"/>
                     </div>
                 </div>
             </div>
@@ -135,8 +135,6 @@
                         </div>
                     </div>
                 </div>
-
-                <hr/>
             </div>
         </div>
     </c:if>
