@@ -513,6 +513,21 @@
                                                      jcr:mixinTypes="jmix:renderable" j:view="settingsBootstrap3GoogleMaterialStyle"/>
                             </pagecontent>
                         </manageServerRoles-jahia-anthracite>
+                        <manageSystemRoles-jahia-anthracite j:applyOn="jnt:globalSettings"
+                                           j:defaultTemplate="false"
+                                           j:hiddenTemplate="false"
+                                           j:icon="/modules/serverSettings/templates/files/serveradmin/users_x0020_and_x0020_roles/manage_x0020_users/manage_users.png"
+                                           j:requiredPermissionNames="systemToolsAccess"
+                                           j:titleKey="serverSettings.manageSystemRoles"
+                                           jcr:mixinTypes="jmix:rbTitle"
+                                           jcr:primaryType="jnt:contentTemplate">
+                            <pagecontent jcr:primaryType="jnt:contentList">
+                                <manage-tools-roles contextNodePath="/tools"
+                                                    jcr:primaryType="jnt:manageRoles"
+                                                    roleGroup="tools-role"
+                                                    jcr:mixinTypes="jmix:renderable jmix:requiredPermissions" j:view="settingsBootstrap3GoogleMaterialStyle"/>
+                            </pagecontent>
+                        </manageSystemRoles-jahia-anthracite>
                         <manageUsers-jahia-anthracite j:applyOn="jnt:globalSettings"
                                      j:defaultTemplate="false"
                                      j:hiddenTemplate="false"

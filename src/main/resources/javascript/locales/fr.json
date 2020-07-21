@@ -24,7 +24,8 @@
     "label": "Utilisateurs et Rôles",
     "adminProperties": "Utilisateur root",
     "passwordPolicy": "Règles de mots de passe",
-    "serverRoles": "Rôles serveur"
+    "serverRoles": "Rôles serveur",
+    "systemRoles": "Rôles système (tools)"
   },
   "webProjects": {
     "label": "Projets"
