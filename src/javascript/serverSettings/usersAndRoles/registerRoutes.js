@@ -36,4 +36,13 @@ export const registerRoutes = function () {
         isSelectable: true,
         iframeUrl: window.contextJsParameters.contextPath + '/cms/adminframe/default/en/settings.manageServerRoles.html?redirect=false'
     });
+
+    registry.add('adminRoute', 'manageSystemRoles', {
+        targets: ['administration-server-usersAndRoles:41'],
+        requiredPermission: 'systemToolsAccess',
+        icon: null,
+        label: 'serverSettings:usersAndRoles.systemRoles',
+        isSelectable: true,
+        iframeUrl: window.contextJsParameters.contextPath + '/cms/adminframe/default/en/settings.manageSystemRoles.html?redirect=false'
+    });
 };
