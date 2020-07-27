@@ -522,9 +522,9 @@
                                            jcr:mixinTypes="jmix:rbTitle"
                                            jcr:primaryType="jnt:contentTemplate">
                             <pagecontent jcr:primaryType="jnt:contentList">
-                                <manage-tools-roles contextNodePath="/tools"
+                                <manage-system-roles contextNodePath="/tools"
                                                     jcr:primaryType="jnt:manageRoles"
-                                                    roleGroup="tools-role"
+                                                    roleGroup="system-role"
                                                     jcr:mixinTypes="jmix:renderable jmix:requiredPermissions" j:view="settingsBootstrap3GoogleMaterialStyle"/>
                             </pagecontent>
                         </manageSystemRoles-jahia-anthracite>
