@@ -25,7 +25,7 @@
     "adminProperties": "Root-User Eigenschaften",
     "passwordPolicy": "Passwortregeln verwalten",
     "serverRoles": "Server Rollen",
-    "systemRoles": "System Rollen (tools)"
+    "systemRoles": "System Rollen"
   },
   "webProjects": {
     "label": "Projekte"
