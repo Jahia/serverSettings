@@ -17,6 +17,7 @@
         <adminUsers jcr:primaryType="jnt:permission" />
         <adminGroups jcr:primaryType="jnt:permission" />
         <adminDBSettings jcr:primaryType="jnt:permission" />
+        <adminSearchSettings jcr:primaryType="jnt:permission" />
         <adminSystemInfos jcr:primaryType="jnt:permission" />
         <adminManageMemory jcr:primaryType="jnt:permission" />
         <adminMountPoints jcr:primaryType="jnt:permission" />

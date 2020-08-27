@@ -256,6 +256,7 @@
                                              j:requiredPermissionNames="searchSettings"
                                    j:hiddenTemplate="false"
                                    j:icon="/modules/serverSettings/templates/files/serveradmin/configurations/search_x0020_settings/recherche-16x16.png"
+                                   j:requiredPermissionNames="adminSearchSettings"
                                    j:view="serverSettings"
                                    jcr:primaryType="jnt:contentTemplate"
                                    j:titleKey="serverSettings.searchServerSettings"
