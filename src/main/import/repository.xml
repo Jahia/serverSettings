@@ -251,24 +251,6 @@
                                     <mailServer-settings jcr:primaryType="jnt:serverSettingsMailServerSettings"/>
                                 </pagecontent>
                             </mailServerSettings>
-                            <search-settings j:applyOn="jnt:globalSettings"
-                                   j:defaultTemplate="false"
-                                             j:requiredPermissionNames="searchSettings"
-                                   j:hiddenTemplate="false"
-                                   j:icon="/modules/serverSettings/templates/files/serveradmin/configurations/search_x0020_settings/recherche-16x16.png"
-                                   j:view="serverSettings"
-                                   jcr:primaryType="jnt:contentTemplate"
-                                   j:titleKey="serverSettings.searchServerSettings"
-                                   jcr:mixinTypes="jmix:rbTitle">
-                                <pagecontent jcr:primaryType="jnt:contentList">
-                                    <search-settings jcr:primaryType="jnt:serverSettingsSearchConfig">
-                                        <j:translation_en jcr:language="en"
-                                             jcr:mixinTypes="mix:title"
-                                             jcr:primaryType="jnt:translation"
-                                             jcr:title="search settings"/>
-                            </search-settings>
-                                </pagecontent>
-                            </search-settings>
                         </configurations>
                         <system-components j:hiddenTemplate="false"
                                   j:icon="/modules/serverSettings/templates/files/serveradmin/system_x0020_components/system_components.png"
@@ -456,24 +438,6 @@
                                 <mailServer-settings jcr:primaryType="jnt:serverSettingsMailServerSettings" jcr:mixinTypes="jmix:renderable" j:view="settingsBootstrap3GoogleMaterialStyle"/>
                             </pagecontent>
                         </mailServerSettings-jahia-anthracite>
-                        <search-settings-jahia-anthracite j:applyOn="jnt:globalSettings" j:requiredPermissionNames="searchSettings"
-                                         j:defaultTemplate="false"
-                                         j:hiddenTemplate="false"
-                                         j:icon="/modules/serverSettings/templates/files/serveradmin/configurations/search_x0020_settings/recherche-16x16.png"
-                                         jcr:primaryType="jnt:contentTemplate">
-                            <j:translation_en jcr:language="en"
-                                              jcr:mixinTypes="mix:title"
-                                              jcr:primaryType="jnt:translation"
-                                              jcr:title="Search settings"/>
-                            <pagecontent jcr:primaryType="jnt:contentList">
-                                <search-settings jcr:primaryType="jnt:serverSettingsSearchConfig" jcr:mixinTypes="jmix:renderable" j:view="settingsBootstrap3GoogleMaterialStyle">
-                                    <j:translation_en jcr:language="en"
-                                                      jcr:mixinTypes="mix:title"
-                                                      jcr:primaryType="jnt:translation"
-                                                      jcr:title="search settings"/>
-                                </search-settings>
-                            </pagecontent>
-                        </search-settings-jahia-anthracite>
                     </configurations-jahia-anthracite>
                     <system-components-jahia-anthracite j:hiddenTemplate="false"
                                        j:icon="/modules/serverSettings/templates/files/serveradmin/system_x0020_components/system_components.png"

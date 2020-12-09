@@ -18,13 +18,4 @@ export const registerRoutes = function () {
         isSelectable: true,
         iframeUrl: window.contextJsParameters.contextPath + '/cms/adminframe/default/en/settings.mailServerSettings.html?redirect=false'
     });
-
-    registry.add('adminRoute', 'search-settings', {
-        targets: ['administration-server-configuration:1'],
-        requiredPermission: 'searchSettings',
-        icon: null,
-        label: 'serverSettings:configuration.searchSettings',
-        isSelectable: true,
-        iframeUrl: window.contextJsParameters.contextPath + '/cms/adminframe/default/en/settings.search-settings.html?redirect=false'
-    });
 };
