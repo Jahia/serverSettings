@@ -3,7 +3,7 @@
     <forgesSettings jcr:primaryType="jnt:forgesServerSettings">
         <j:acl j:inherit="false" jcr:primaryType="jnt:acl"/>
         <httpstorejahiacomensitesprivate j:password=""
-                                         j:url="http://store.jahia.com/en/sites/private-app-store"
+                                         j:url="https://store.jahia.com/en/sites/private-app-store"
                                          j:user=""
                                          jcr:primaryType="jnt:forgeServerSettings"/>
     </forgesSettings>
