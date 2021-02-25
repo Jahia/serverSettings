@@ -56,7 +56,8 @@ import org.jahia.exceptions.JahiaException;
 import org.jahia.modules.sitesettings.users.management.UserProperties;
 import org.jahia.osgi.BundleResource;
 import org.jahia.registries.ServicesRegistry;
-import org.jahia.security.license.LicenseCheckerService;
+import org.jahia.security.spi.LicenseCheckUtil;
+import org.jahia.security.spi.LicenseCheckerService;
 import org.jahia.services.cache.CacheHelper;
 import org.jahia.services.content.*;
 import org.jahia.services.content.decorator.JCRSiteNode;
@@ -1236,7 +1237,7 @@ public class WebprojectHandler implements Serializable {
      * @return <code>true</code> if the limit is reached, <code>false</code> otherwise
      */
     public boolean isSiteLimitReached() {
-        Optional<Long> value = LicenseCheckerService.Stub.getSiteLimit();
+        Optional<Long> value = LicenseCheckUtil.getSiteLimit();
         if (value.isPresent()) {
             return sitesService.getSiteCount(false) >= value.get();
         }
