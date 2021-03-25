@@ -25,6 +25,7 @@
 <fmt:message key="label.workInProgressTitle" var="i18nWaiting"/><c:set var="i18nWaiting" value="${functions:escapeJavaScript(i18nWaiting)}"/>
 <fmt:message key="serverSettings.manageWebProjects.noWebProjectSelected" var="i18nNoSiteSelected"/>
 <fmt:message key="serverSettings.manageWebProjects.exportPath.error" var="i18nNoExportPath"/>
+<fmt:message key="serverSettings.manageWebProjects.exportPath.invalid" var="i18nInvalidExportPath"/>
 <fmt:message key="serverSettings.manageWebProjects.fileImport.error" var="i18nNothingToImport"/>
 <c:set var="i18nNoSiteSelected" value="${functions:escapeJavaScript(i18nNoSiteSelected)}"/>
 <script type="text/javascript">
@@ -68,6 +69,14 @@
             if ((act === 'exportToFile' || act === 'exportToFileStaging') && !$('#exportPath').val().trim()) {
                 $.snackbar({
                     content: "${i18nNoExportPath}",
+                    style: "error"
+                });
+                return false;
+            }
+            if ((act === 'exportToFile' || act === 'exportToFileStaging') && $('#exportPath').val().match(/[(*?:"<>|)]/)) {
+                console.log($('#exportPath').val())
+                $.snackbar({
+                    content: "${i18nInvalidExportPath}",
                     style: "error"
                 });
                 return false;
