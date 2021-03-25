@@ -74,7 +74,6 @@
                 return false;
             }
             if ((act === 'exportToFile' || act === 'exportToFileStaging') && $('#exportPath').val().match(/[(*?:"<>|)]/)) {
-                console.log($('#exportPath').val())
                 $.snackbar({
                     content: "${i18nInvalidExportPath}",
                     style: "error"
