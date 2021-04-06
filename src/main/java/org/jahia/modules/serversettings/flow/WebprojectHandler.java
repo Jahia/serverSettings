@@ -392,7 +392,7 @@ public class WebprojectHandler implements Serializable {
         } catch (JahiaForbiddenAccessException e) {
             logger.error(e.getMessage());
             requestContext.getMessageContext().addMessage(new MessageBuilder().error()
-                .code("serverSettings.manageWebProjects.exportPath.invalidEmptyFolder")
+                .code("serverSettings.manageWebProjects.exportPath.invalidExportPath")
                 .build());
         }
     }
