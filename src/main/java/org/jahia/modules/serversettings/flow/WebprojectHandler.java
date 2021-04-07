@@ -52,7 +52,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jahia.commons.Version;
 import org.jahia.data.templates.JahiaTemplatesPackage;
+import org.jahia.exceptions.JahiaBadRequestException;
 import org.jahia.exceptions.JahiaException;
+import org.jahia.exceptions.JahiaForbiddenAccessException;
 import org.jahia.modules.sitesettings.users.management.UserProperties;
 import org.jahia.osgi.BundleResource;
 import org.jahia.registries.ServicesRegistry;
@@ -385,8 +387,14 @@ public class WebprojectHandler implements Serializable {
                 siteList.add((JCRSiteNode) site);
             }
         }
-
-        importExportBaseService.exportSites(new ByteArrayOutputStream(), params, siteList);
+        try {
+            importExportBaseService.exportSites(new ByteArrayOutputStream(), params, siteList);
+        } catch (JahiaForbiddenAccessException e) {
+            logger.error(e.getMessage());
+            requestContext.getMessageContext().addMessage(new MessageBuilder().error()
+                .code("serverSettings.manageWebProjects.exportPath.invalidExportPath")
+                .build());
+        }
     }
 
     public MultipartFile getImportFile() {
