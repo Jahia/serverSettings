@@ -1,3 +1,4 @@
+<%@ page import="org.jahia.settings.SettingsBean" %>
 <%@ taglib prefix="template" uri="http://www.jahia.org/tags/templateLib" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -275,7 +276,13 @@
 
             <div class="form-group label-floating is-empty">
                 <div class="input-group">
-                    <label class="control-label"><fmt:message key="serverSettings.manageWebProjects.exportServerDirectory"/></label>
+                    <label class="control-label">
+                        <fmt:message key="serverSettings.manageWebProjects.exportServerDirectory">
+                            <fmt:param>
+                                <%= SettingsBean.getInstance().getJahiaExportsDiskPath() %>
+                            </fmt:param>
+                        </fmt:message>
+                    </label>
                     <input class="form-control" type="text" name="exportPath" id="exportPath"/>
                     <span class="input-group-btn">
                         <a class="btn btn-default sitesAction" id="exportToFile" href="#exportToFile" title="<fmt:message key='label.export'/>">
