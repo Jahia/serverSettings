@@ -27,6 +27,13 @@
 <fmt:message key="serverSettings.manageWebProjects.noWebProjectSelected" var="i18nNoSiteSelected"/>
 <c:set var="i18nNoSiteSelected" value="${functions:escapeJavaScript(i18nNoSiteSelected)}"/>
 <script type="text/javascript">
+    function stringShortener(input) {
+        if (input.length > 110) {
+            return input.substr(0,75) + "..." + input.substr(-29);
+        } else {
+            return input;
+        }
+    }
     function submitSiteForm(act, site) {
     	if (typeof site != 'undefined') {
     		$("<input type='hidden' name='sitesKey' />").attr("value", site).appendTo('#sitesForm');
@@ -89,6 +96,7 @@
             $(this).target = "_blank";
             window.open("${url.context}/cms/export/default/"+name+ '_staging_export_${now}.zip?exportformat=site&live=false'+sitebox);
         });
+        $("#export-path").innerText = stringShortener($("#export-path").text().trim());
         $(":file").filestyle({classButton: "btn",classIcon: "icon-folder-open"/*,buttonText:"Translation"*/});
     })
 </script>
@@ -230,7 +238,7 @@
         </table>
 
         <div class="box-1">
-            <p>
+            <p id="export-path">
                 <fmt:message key="serverSettings.manageWebProjects.exportServerDirectory">
                     <fmt:param>
                         <%= SettingsBean.getInstance().getJahiaExportsDiskPath() %>
