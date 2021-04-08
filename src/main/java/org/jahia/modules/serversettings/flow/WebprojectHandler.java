@@ -388,7 +388,7 @@ public class WebprojectHandler implements Serializable {
         }
         try {
             importExportBaseService.exportSites(new ByteArrayOutputStream(), params, siteList);
-        } catch (JahiaForbiddenAccessException e) {
+        } catch (Exception e) {
             logger.error(e.getMessage());
             requestContext.getMessageContext().addMessage(new MessageBuilder().error()
                 .code("serverSettings.manageWebProjects.exportPath.invalidExportPath")
