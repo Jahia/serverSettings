@@ -17,7 +17,7 @@
 <jcr:node var="sites" path="/sites"/>
 <jcr:nodeProperty name="j:defaultSite" node="${sites}" var="defaultSite"/>
 <c:set var="defaultPrepackagedSite" value="acmespaceelektra.zip"/>
-<template:addResources type="javascript" resources="jquery.min.js,workInProgress.js"/>
+<template:addResources type="javascript" resources="jquery.min.js,workInProgress.js,stringUtils.js"/>
 <template:addResources type="javascript" resources="datatables/jquery.dataTables.js,i18n/jquery.dataTables-${currentResource.locale}.js,datatables/dataTables.bootstrap-ext.js,settings/dataTables.initializer.js"/>
 <template:addResources type="css" resources="datatables/css/bootstrap-theme.css"/>
 <template:addResources type="css" resources="manageWebProjects.css"/>
@@ -127,6 +127,7 @@
             $(this).target = "_blank";
             window.open("${url.context}/cms/export/default/"+name+ '_staging_export_${now}.zip?exportformat=site&live=false'+sitebox);
         });
+        $("#export-path").text(stringShortener($("#export-path").text().trim()));
     })
 </script>
 <script type="text/javascript" charset="utf-8">
@@ -276,7 +277,7 @@
 
             <div class="form-group label-floating is-empty">
                 <div class="input-group">
-                    <label class="control-label">
+                    <label id="export-path" class="control-label">
                         <fmt:message key="serverSettings.manageWebProjects.exportServerDirectory">
                             <fmt:param>
                                 <%= SettingsBean.getInstance().getJahiaExportsDiskPath() %>

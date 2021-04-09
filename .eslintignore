@@ -4,6 +4,7 @@ target
 src/main/resources/javascript/apps
 src/main/resources/javascript/locales
 src/main/resources/javascript/regexValidation.js
+src/main/resources/javascript/stringUtils.js
 src/main/resources/META-INF/jahiaActionLists
 src/javascript/__tests__
 src/main/resources/javascript/polyfills.js
