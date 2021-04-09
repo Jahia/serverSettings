@@ -17,7 +17,7 @@
 <jcr:node var="sites" path="/sites"/>
 <jcr:nodeProperty name="j:defaultSite" node="${sites}" var="defaultSite"/>
 <c:set var="defaultPrepackagedSite" value="acmespaceelektra.zip"/>
-<template:addResources type="javascript" resources="jquery.min.js,jquery-ui.min.js,admin-bootstrap.js,bootstrap-filestyle.min.js,jquery.metadata.js,jquery.tablesorter.js,jquery.tablecloth.js,workInProgress.js"/>
+<template:addResources type="javascript" resources="jquery.min.js,jquery-ui.min.js,admin-bootstrap.js,bootstrap-filestyle.min.js,jquery.metadata.js,jquery.tablesorter.js,jquery.tablecloth.js,workInProgress.js,stringUtils.js"/>
 <template:addResources type="css" resources="jquery-ui.smoothness.css,jquery-ui.smoothness-jahia.css,tablecloth.css"/>
 <template:addResources type="javascript" resources="datatables/jquery.dataTables.js,i18n/jquery.dataTables-${currentResource.locale}.js,datatables/dataTables.bootstrap-ext.js"/>
 <jsp:useBean id="nowDate" class="java.util.Date" />
@@ -88,6 +88,7 @@
             $(this).target = "_blank";
             window.open("${url.context}/cms/export/default/"+name+ '_staging_export_${now}.zip?exportformat=site&live=false'+sitebox);
         });
+        $("#export-path").innerText = stringShortener($("#export-path").text().trim());
         $(":file").filestyle({classButton: "btn",classIcon: "icon-folder-open"/*,buttonText:"Translation"*/});
     })
 </script>
@@ -219,7 +220,7 @@
         </table>
 
         <div class="box-1">
-            <p>
+            <p id="export-path">
                 <fmt:message key="serverSettings.manageWebProjects.exportServerDirectory">
                     <fmt:param>
                         <%= SettingsBean.getInstance().getJahiaExportsDiskPath() %>
