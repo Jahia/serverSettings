@@ -232,11 +232,7 @@
 
         <div class="box-1">
             <p id="export-path">
-                <fmt:message key="serverSettings.manageWebProjects.exportServerDirectory">
-                    <fmt:param>
-                        <%= SettingsBean.getInstance().getJahiaExportsDiskPath() %>
-                    </fmt:param>
-                </fmt:message>
+                <fmt:message key="serverSettings.manageWebProjects.exportServerDirectory"/>
             </p>
             <input class="span5" type="text"  name="exportPath"/>
 
