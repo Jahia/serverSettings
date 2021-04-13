@@ -259,11 +259,7 @@
             <div class="form-group label-floating is-empty">
                 <div class="input-group">
                     <label id="export-path" class="control-label">
-                        <fmt:message key="serverSettings.manageWebProjects.exportServerDirectory">
-                            <fmt:param>
-                                <%= SettingsBean.getInstance().getJahiaExportsDiskPath() %>
-                            </fmt:param>
-                        </fmt:message>
+                        <fmt:message key="serverSettings.manageWebProjects.exportServerDirectory"/>
                     </label>
                     <input class="form-control" type="text" name="exportPath" id="exportPath"/>
                     <span class="input-group-btn">
