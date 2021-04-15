@@ -261,7 +261,8 @@
                     <label id="export-path" class="control-label">
                         <fmt:message key="serverSettings.manageWebProjects.exportServerDirectory"/>
                     </label>
-                    <input class="form-control" type="text" name="exportPath" id="exportPath"/>
+                    <input class="form-control" type="text" name="exportPath" id="exportPath"
+                           title="<fmt:message key="serverSettings.manageWebProjects.exportServerDirectory.tooltip"/>"/>
                     <span class="input-group-btn">
                         <a class="btn btn-default sitesAction" id="exportToFile" href="#exportToFile" title="<fmt:message key='label.export'/>">
                             <fmt:message key='label.export'/>
