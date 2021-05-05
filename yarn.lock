@@ -1025,7 +1025,7 @@
     eslint-plugin-react "^7.16.0"
     eslint-plugin-react-hooks "^2.2.0"
 
-"@jahia/moonstone@^0.15.4":
+"@jahia/moonstone@^0.16.2":
   version "0.16.2"
   resolved "https://registry.yarnpkg.com/@jahia/moonstone/-/moonstone-0.16.2.tgz#00c3dfb1305c8cf2ed0239f0e9925ad27966013d"
   integrity sha512-PnQlL27+2D7dJrHDKfru7ERFC8+4o9mywjPPdJrxsBYqh+PPyFalZ6ctSHXCvaH0bKKUp1qYDitAblY+n/K2RQ==
@@ -1036,10 +1036,10 @@
     react-is "^16.12.0"
     to-px "^1.1.0"
 
-"@jahia/ui-extender@^0.4.0":
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/@jahia/ui-extender/-/ui-extender-0.5.1.tgz#d5295b7572a453da6ae158799d20efb23a0ed49f"
-  integrity sha512-1UfHVStcbZxbnzyYzMeJS82JHkFrplMAeaiB+duusMZsmX8CLpnT+tASLg6OzuJah+1xwi+zTB14gc92oIp51A==
+"@jahia/ui-extender@^0.5.1":
+  version "0.5.4"
+  resolved "https://registry.yarnpkg.com/@jahia/ui-extender/-/ui-extender-0.5.4.tgz#2a8d8798acb998f2b3111693e36dec8e8416650b"
+  integrity sha512-aMQpZwtEjEkSZ+/P6Wr4aPreqs/mv1XYeJY8aSwB+adjlNB79c/eKGNomF4TwvQsLiS6oOVdetTNiiSIQsPHIQ==
   dependencies:
     prop-types "^15.6.1"
     react "^16.12.0"
