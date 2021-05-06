@@ -716,10 +716,6 @@ public class WebprojectHandler implements Serializable {
         importInfos.setSelected(Boolean.TRUE);
         if (importProperties != null && !importProperties.isEmpty()) {
             importInfos.setOriginatingJahiaRelease(importProperties.getProperty("JahiaRelease"));
-            final String buildNumber = importProperties.getProperty("BuildNumber");
-            if (buildNumber != null) {
-                importInfos.setOriginatingBuildNumber(buildNumber);
-            }
         }
         if (filename.endsWith(".xml")) {
             importInfos.setType("xml");
