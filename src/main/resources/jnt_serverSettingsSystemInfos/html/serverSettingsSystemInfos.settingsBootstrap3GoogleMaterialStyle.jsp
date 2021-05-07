@@ -26,12 +26,14 @@
                 <table class="table table-bordered table-striped">
                     <c:forEach items="${systemProperties}" var="prop" varStatus="loopStatus">
                         <tr class="${(loopStatus.index + 1) % 2 == 0 ? 'evenLine' : 'oddLine'}">
-                            <td style="width: 30%;" title="${fn:escapeXml(prop.key)}">
-                                <strong>${fn:escapeXml(prop.key)}</strong>
-                            </td>
-                            <td style="width: 70%; word-break: break-all;" title="${fn:escapeXml(prop.value)}">
-                                    ${fn:escapeXml(prop.value)}
-                            </td>
+                            <c:if test="${not fn:containsIgnoreCase(prop.key,'pass') or fn:containsIgnoreCase(prop.key, 'secret')}" >
+                                <td style="width: 30%;" title="${fn:escapeXml(prop.key)}">
+                                    <strong>${fn:escapeXml(prop.key)}</strong>
+                                </td>
+                                <td style="width: 70%; word-break: break-all;" title="${fn:escapeXml(prop.value)}">
+                                        ${fn:escapeXml(prop.value)}
+                                </td>
+                            </c:if>
                         </tr>
                     </c:forEach>
                 </table>
