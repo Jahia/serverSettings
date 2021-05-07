@@ -43,6 +43,10 @@
  */
 package org.jahia.modules.serversettings.flow;
 
+import org.jahia.services.SpringContextSingleton;
+import org.jahia.services.importexport.SiteImportDefaults;
+import org.jahia.services.importexport.validation.ValidationResults;
+
 import java.io.File;
 import java.io.Serializable;
 import java.util.Collection;
@@ -50,14 +54,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.jahia.services.SpringContextSingleton;
-import org.jahia.services.importexport.SiteImportDefaults;
-import org.jahia.services.importexport.validation.ValidationResults;
-
 public class ImportInfo implements Serializable {
 
     private static final long serialVersionUID = 1156948970758806329L;
-    
+
     private String defaultLanguage;
     private Boolean defaultSite;
     private String description;
@@ -82,10 +82,9 @@ public class ImportInfo implements Serializable {
     private String templates;
     private String type;
     private ValidationResults validationResult;
-    private int originatingBuildNumber;
 
     public Map<Object, Object> asMap() {
-        Map<Object, Object> map = new LinkedHashMap<Object, Object>();
+        Map<Object, Object> map = new LinkedHashMap<>();
         if (siteProperties != null) {
             map.putAll(siteProperties);
             map.put("sitekey", siteKey);
@@ -307,14 +306,6 @@ public class ImportInfo implements Serializable {
 
     public void setValidationResult(ValidationResults validationResult) {
         this.validationResult = validationResult;
-    }
-
-    public void setOriginatingBuildNumber(int originatingBuildNumber) {
-        this.originatingBuildNumber = originatingBuildNumber;
-    }
-
-    public int getOriginatingBuildNumber() {
-        return originatingBuildNumber;
     }
 
     public String getSiteServernameAliases() {
