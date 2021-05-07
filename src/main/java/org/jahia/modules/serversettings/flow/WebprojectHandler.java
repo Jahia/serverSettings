@@ -715,10 +715,6 @@ public class WebprojectHandler implements Serializable {
         importInfos.setSelected(Boolean.TRUE);
         if (importProperties != null && !importProperties.isEmpty()) {
             importInfos.setOriginatingJahiaRelease(importProperties.getProperty("JahiaRelease"));
-            final String buildNumber = importProperties.getProperty("BuildNumber");
-            if (buildNumber != null) {
-                importInfos.setOriginatingBuildNumber(Integer.parseInt(buildNumber));
-            }
         }
         if (filename.endsWith(".xml")) {
             importInfos.setType("xml");
@@ -863,8 +859,7 @@ public class WebprojectHandler implements Serializable {
                                     infos.getImportFile(),
                                     infos.getImportFileName(),
                                     infos.getType(),
-                                    new Version(infos.getOriginatingJahiaRelease()),
-                                    infos.getOriginatingBuildNumber());
+                                    new Version(infos.getOriginatingJahiaRelease()));
                             files.add(file);
                             final JahiaSite system = sitesService.getSiteByKey(JahiaSitesService.SYSTEM_SITE_KEY);
 
@@ -929,8 +924,7 @@ public class WebprojectHandler implements Serializable {
                                     infos.getImportFile(),
                                     infos.getImportFileName(),
                                     infos.getType(),
-                                    new Version(infos.getOriginatingJahiaRelease()),
-                                    infos.getOriginatingBuildNumber());
+                                    new Version(infos.getOriginatingJahiaRelease()));
                             files.add(file);
                             try {
                                 final String finalTpl = tpl;
