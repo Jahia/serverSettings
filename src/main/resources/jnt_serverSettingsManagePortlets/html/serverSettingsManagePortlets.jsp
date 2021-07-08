@@ -4,7 +4,7 @@
 <%@ taglib prefix="internal" uri="http://www.jahia.org/tags/internalLib" %>
 <%--@elvariable id="url" type="org.jahia.services.render.URLGenerator"--%>
 <template:addResources>
-    <link type="text/css" href="${url.context}/gwt/resources/css/gwt-1.7.min.css" rel="stylesheet"/>
+    <link type="text/css" href="${url.context}/gwt/resources/css/gwt.min.css" rel="stylesheet"/>
 </template:addResources>
 <% pageContext.setAttribute("cfg", SettingsBean.getInstance()); %>
 <template:addResources>
