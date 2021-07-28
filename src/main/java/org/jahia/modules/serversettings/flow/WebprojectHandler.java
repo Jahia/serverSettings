@@ -1050,6 +1050,10 @@ public class WebprojectHandler implements Serializable {
         this.selectedPrepackagedSite = selectedPrepackagedSite;
     }
 
+    public List<String> getSitesKey() {
+        return sitesKey;
+    }
+
     public void setSitesKey(List<String> sites) {
         this.sites = new ArrayList<>();
         this.sitesKey = sites;
