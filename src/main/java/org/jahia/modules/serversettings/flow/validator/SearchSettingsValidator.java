@@ -43,7 +43,8 @@
  */
 package org.jahia.modules.serversettings.flow.validator;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jahia.services.search.SearchServiceImpl;
 import org.jahia.services.search.SearchSettings;
 import org.springframework.binding.message.MessageBuilder;
@@ -58,7 +59,7 @@ import java.io.Serializable;
  */
 public class SearchSettingsValidator implements Serializable {
     private static final long serialVersionUID = 828187966326333450L;
-    private transient static Logger logger = Logger.getLogger(SearchSettingsValidator.class);
+    private transient static Logger logger = LoggerFactory.getLogger(SearchSettingsValidator.class);
 
     public void validateShowSearchSettings(SearchSettings searchSettings, ValidationContext validationContext) {
         logger.info("Validating search settings");

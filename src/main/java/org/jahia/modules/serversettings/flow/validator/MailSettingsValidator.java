@@ -45,9 +45,10 @@ package org.jahia.modules.serversettings.flow.validator;
 
 import java.io.Serializable;
 
-import org.apache.log4j.Logger;
 import org.jahia.services.mail.MailService;
 import org.jahia.services.mail.MailSettings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.binding.message.MessageBuilder;
 import org.springframework.binding.validation.ValidationContext;
 
@@ -56,7 +57,7 @@ import org.springframework.binding.validation.ValidationContext;
  */
 public class MailSettingsValidator implements Serializable {
     private static final long serialVersionUID = -8286051616441316996L;
-    private transient static Logger logger = Logger.getLogger(MailSettingsValidator.class);
+    private transient static Logger logger = LoggerFactory.getLogger(MailSettingsValidator.class);
 
     public void validateShowMailSettings(MailSettings mailSettings, ValidationContext validationContext) {
         logger.info("Validating mail settings");
