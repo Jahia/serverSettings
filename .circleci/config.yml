@@ -86,6 +86,7 @@ workflows:
             - jahia-modules-orb/update-signature-prestep
           ssh_key_fingerprints:  << pipeline.parameters.SSH_KEY_FINGERPRINT >>
       - jahia-modules-orb/static-analysis:
+          auditci_level: "critical"
           requires:
             - jahia-modules-orb/initialize          
       - jahia-modules-orb/build:
