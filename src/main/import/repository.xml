@@ -32,16 +32,6 @@
                                     <thumbnail jcr:mimeType="image/png" jcr:primaryType="jnt:resource"/>
                                     <thumbnail2 jcr:mimeType="image/png" jcr:primaryType="jnt:resource"/>
                                 </configurations.png>
-                                <db_x0020_settings jcr:primaryType="jnt:folder">
-                                    <db_settings.png j:height="16"
-                                         j:width="16"
-                                         jcr:mixinTypes="jmix:image"
-                                         jcr:primaryType="jnt:file">
-                                        <jcr:content jcr:mimeType="image/png" jcr:primaryType="jnt:resource"/>
-                                        <thumbnail jcr:mimeType="image/png" jcr:primaryType="jnt:resource"/>
-                                        <thumbnail2 jcr:mimeType="image/png" jcr:primaryType="jnt:resource"/>
-                                    </db_settings.png>
-                                </db_x0020_settings>
                                 <mail_x0020_server jcr:primaryType="jnt:folder">
                                     <mail_preferences.png j:height="16"
                                               j:width="16"
