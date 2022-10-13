@@ -39,7 +39,7 @@
     "**/glob-parent": "^5.1.2"
   },
   "dependencies": {
-    "@jahia/moonstone": "^2.4.12",
+    "@jahia/moonstone": "^0.16.2",
     "@jahia/ui-extender": "^0.5.1",
     "i18next": "^19.1.0",
     "prop-types": "^15.7.2",
