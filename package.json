@@ -31,6 +31,13 @@
       "jahia": "javascript/apps/jahia.bundle.js"
     }
   },
+  "resolutions": {
+    "*/**/tar": "4.4.18",
+    "*/**/trim-newlines": "3.0.1",
+    "*/**/ejs": "3.1.7",
+    "*/**/scss-tokenizer": "0.4.3",
+    "**/glob-parent": "^5.1.2"
+  },
   "dependencies": {
     "@jahia/moonstone": "^2.4.12",
     "@jahia/ui-extender": "^0.5.1",
@@ -38,7 +45,7 @@
     "prop-types": "^15.7.2",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
-    "react-i18next": "^11.2.2",
+    "react-i18next": "^11.2.7",
     "react-iframe": "^1.8.0",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2"
@@ -58,7 +65,7 @@
     "babel-jest": "^24.9.0",
     "babel-loader": "^8.0.6",
     "clean-webpack-plugin": "^3.0.0",
-    "copy-webpack-plugin": "^5.0.4",
+    "copy-webpack-plugin": "^5.1.2",
     "css-loader": "^3.2.0",
     "eslint": "^6.8.0",
     "eslint-loader": "^3.0.2",
@@ -68,7 +75,7 @@
     "jest-image-snapshot": "^2.11.0",
     "jest-puppeteer": "^4.3.0",
     "jest-teamcity-reporter": "github:mhodgson/jest-teamcity-reporter",
-    "node-sass": "^4.12.0",
+    "node-sass": "^4.13.1",
     "path": "^0.12.7",
     "puppeteer": "^2.0.0",
     "puppeteer-edge": "^0.12.4",
