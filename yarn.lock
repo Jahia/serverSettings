@@ -967,7 +967,7 @@
     "@babel/helper-validator-option" "^7.18.6"
     "@babel/plugin-transform-typescript" "^7.18.6"
 
-"@babel/runtime@^7.1.2", "@babel/runtime@^7.12.0", "@babel/runtime@^7.12.13", "@babel/runtime@^7.14.5", "@babel/runtime@^7.15.4", "@babel/runtime@^7.5.4", "@babel/runtime@^7.8.4", "@babel/runtime@^7.9.2":
+"@babel/runtime@^7.1.2", "@babel/runtime@^7.12.0", "@babel/runtime@^7.12.13", "@babel/runtime@^7.12.5", "@babel/runtime@^7.14.5", "@babel/runtime@^7.15.4", "@babel/runtime@^7.5.4", "@babel/runtime@^7.8.4", "@babel/runtime@^7.9.2":
   version "7.19.4"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.19.4.tgz#a42f814502ee467d55b38dd1c256f53a7b885c78"
   integrity sha512-EXpLCrk55f+cYqmHsSR+yD/0gAIMxxA9QK9lnQWzhMCvt+YmoBN7Zx94s++Kv0+unHk39vxNO8t+CMA2WSS3wA==
@@ -1061,15 +1061,16 @@
     eslint-plugin-react "^7.16.0"
     eslint-plugin-react-hooks "^2.2.0"
 
-"@jahia/moonstone@^0.16.2":
-  version "0.16.2"
-  resolved "https://registry.yarnpkg.com/@jahia/moonstone/-/moonstone-0.16.2.tgz#00c3dfb1305c8cf2ed0239f0e9925ad27966013d"
-  integrity sha512-PnQlL27+2D7dJrHDKfru7ERFC8+4o9mywjPPdJrxsBYqh+PPyFalZ6ctSHXCvaH0bKKUp1qYDitAblY+n/K2RQ==
+"@jahia/moonstone@^2.4.12":
+  version "2.4.12"
+  resolved "https://registry.yarnpkg.com/@jahia/moonstone/-/moonstone-2.4.12.tgz#2cb4001ab4cefbfbe587229a556e730fe801bfd4"
+  integrity sha512-FAi8eDDzQy9lw9ZnLCj1fYqPxSqTXVtlSyxslHITnpTHzRU+TY7LoiHCTAvQLuJ7v5bjeAwQl4IuM/XAq3Pwew==
   dependencies:
-    clsx "^1.0.4"
+    "@babel/runtime" "^7.12.5"
+    clsx "^1.1.1"
     prop-types "^15.7.2"
-    re-resizable "^6.2.0"
-    react-is "^16.12.0"
+    re-resizable "^6.9.1"
+    react-is "^17.0.2"
     to-px "^1.1.0"
 
 "@jahia/ui-extender@^0.5.1":
@@ -2597,7 +2598,7 @@ clone-deep@^4.0.1:
     kind-of "^6.0.2"
     shallow-clone "^3.0.0"
 
-clsx@^1.0.4:
+clsx@^1.1.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/clsx/-/clsx-1.2.1.tgz#0ddc4a20a549b59c93a4116bb26f5294ca17dc12"
   integrity sha512-EcR6r5a8bj6pu3ycsa/E/cKVGuTgZJZdsyUYHOksG/UHIiKfjxzRxYJpyVBwYaQeOvghal9fcc4PidlgzugAQg==
@@ -6987,7 +6988,7 @@ raw-body@2.5.1:
     iconv-lite "0.4.24"
     unpipe "1.0.0"
 
-re-resizable@^6.2.0:
+re-resizable@^6.9.1:
   version "6.9.9"
   resolved "https://registry.yarnpkg.com/re-resizable/-/re-resizable-6.9.9.tgz#99e8b31c67a62115dc9c5394b7e55892265be216"
   integrity sha512-l+MBlKZffv/SicxDySKEEh42hR6m5bAHfNu3Tvxks2c4Ah+ldnWjfnVRwxo/nxF27SsUsxDS0raAzFuJNKABXA==
@@ -7017,7 +7018,7 @@ react-iframe@^1.8.0:
   dependencies:
     object-assign "^4.1.1"
 
-react-is@^16.12.0, react-is@^16.13.1, react-is@^16.6.0, react-is@^16.7.0, react-is@^16.8.4:
+react-is@^16.13.1, react-is@^16.6.0, react-is@^16.7.0, react-is@^16.8.4:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==

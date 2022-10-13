@@ -1,6 +1,6 @@
 import React from 'react';
 import {registry} from '@jahia/ui-extender';
-import Heal from '@jahia/moonstone/dist/icons/Heal';
+import {Heal} from '@jahia/moonstone';
 
 export const registerRoutes = function () {
     registry.add('adminRoute', 'systemHealth', {

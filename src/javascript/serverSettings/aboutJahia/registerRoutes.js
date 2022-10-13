@@ -1,6 +1,7 @@
 import React from 'react';
 import {registry} from '@jahia/ui-extender';
-import Report from '@jahia/moonstone/dist/icons/Report';
+import {Report} from '@jahia/moonstone';
+
 
 export const registerRoutes = function () {
     registry.add('adminRoute', 'aboutJahia', {
