@@ -52,14 +52,11 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jahia.commons.Version;
 import org.jahia.data.templates.JahiaTemplatesPackage;
-import org.jahia.exceptions.JahiaBadRequestException;
 import org.jahia.exceptions.JahiaException;
-import org.jahia.exceptions.JahiaForbiddenAccessException;
 import org.jahia.modules.sitesettings.users.management.UserProperties;
 import org.jahia.osgi.BundleResource;
 import org.jahia.registries.ServicesRegistry;
 import org.jahia.security.spi.LicenseCheckUtil;
-import org.jahia.security.spi.LicenseCheckerService;
 import org.jahia.services.cache.CacheHelper;
 import org.jahia.services.content.*;
 import org.jahia.services.content.decorator.JCRSiteNode;
@@ -456,21 +453,22 @@ public class WebprojectHandler implements Serializable {
         if (f != null && f.exists()) {
             ZipInputStream zis = null;
             try {
-                if (f.isDirectory()) {
-                    zis = new DirectoryZipInputStream(f);
-                } else {
-                    zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(f)));
-                }
+                zis = f.isDirectory() ? new DirectoryZipInputStream(f)
+                        : new ZipInputStream(new BufferedInputStream(new FileInputStream(f)));
+
                 prepareFileImports(zis, name, messageContext);
             } catch (FileNotFoundException e) {
                 logger.error("Cannot read import file :" + e.getMessage(), e);
-                messageContext.addMessage(new MessageBuilder()
-                        .error()
-                        .code("serverSettings.manageWebProjects.import.readError")
-                        .arg(f.getPath())
-                        .build());
+                messageContext.addMessage(
+                        new MessageBuilder().error().code("serverSettings.manageWebProjects.import.readError").arg(f.getPath()).build());
             } finally {
-                IOUtils.closeQuietly(zis);
+                if (zis != null) {
+                    try {
+                        zis.close();
+                    } catch (IOException e) {
+                        // suppress exception
+                    }
+                }
             }
         } else {
             // we've detected non-existing files, issue an error message and exit
@@ -496,15 +494,12 @@ public class WebprojectHandler implements Serializable {
                 File i;
                 if (!(zis instanceof DirectoryZipInputStream)) {
                     i = File.createTempFile(IMPORT, ".zip");
-                    OutputStream os = new BufferedOutputStream(new FileOutputStream(i));
-                    try {
+                    try (OutputStream os = new BufferedOutputStream(new FileOutputStream(i))) {
                         final int numberOfBytesCopied = IOUtils.copy(zis, os);
                         if (numberOfBytesCopied == 0) {
                             emptyFiles.add(n);
                         }
-                    } finally {
-                        IOUtils.closeQuietly(os);
-                    }
+                    } 
                 } else {
                     DirectoryZipInputStream directoryZipInputStream = (DirectoryZipInputStream) zis;
                     if (n.indexOf('/') > -1 && n.indexOf('/') != n.length() - 1) {
@@ -525,11 +520,9 @@ public class WebprojectHandler implements Serializable {
                 }
 
                 if (n.equals(EXPORT_PROPERTIES)) {
-                    InputStream is = new BufferedInputStream(new FileInputStream(i));
-                    try {
+                    try (InputStream is = new BufferedInputStream(new FileInputStream(i))) {
                         importProperties.load(is);
                     } finally {
-                        IOUtils.closeQuietly(is);
                         if (deleteFilesAtEnd) {
                             FileUtils.deleteQuietly(i);
                         }
@@ -696,12 +689,17 @@ public class WebprojectHandler implements Serializable {
                 } catch (IOException e) {
                     logger.error("Unable to read file from {}", selectedPrepackagedSite);
                 } finally {
-                    IOUtils.closeQuietly(zis);
+                    if (zis != null) {
+                        try {
+                            zis.close();
+                        } catch (IOException e) {
+                            // suppress exception
+                        }
+                    }
                 }
 
             } else {
                 File f = new File(selectedPrepackagedSite);
-
                 if (f.exists()) {
                     prepareFileImports(f, f.getName(), messageContext);
                 }
@@ -723,15 +721,16 @@ public class WebprojectHandler implements Serializable {
             importInfos.setType(FILES);
         } else {
             List<String> installedModules = readInstalledModules(i);
+            boolean isSite = false;
+            boolean isLegacySite = false;
+            boolean isLegacyImport = false;
+            if ("6.1".equals(importInfos.getOriginatingJahiaRelease())) {
+                isLegacyImport = true;
+            }
             ZipEntry z;
             ZipInputStream zis2 = i.isDirectory()
                     ? new DirectoryZipInputStream(i)
                     : new NoCloseZipInputStream(new BufferedInputStream(new FileInputStream(i)));
-            boolean isSite = false;
-            boolean isLegacySite = false;
-            boolean isLegacyImport = false;
-            if ("6.1".equals(importInfos.getOriginatingJahiaRelease()))
-                isLegacyImport = true;
             try {
                 while ((z = zis2.getNextEntry()) != null) {
                     final String name = z.getName().replace('\\', '/');
@@ -762,7 +761,7 @@ public class WebprojectHandler implements Serializable {
                                     zis2,
                                     "application/xml",
                                     installedModules);
-                            final String[] messageParams = {filename, name,
+                            final Object[] messageParams = {filename, name,
                                     String.valueOf((System.currentTimeMillis()
                                             - timer)),
                                     validationResults.toString()};
@@ -796,6 +795,8 @@ public class WebprojectHandler implements Serializable {
             } finally {
                 if (zis2 instanceof NoCloseZipInputStream) {
                     ((NoCloseZipInputStream) zis2).reallyClose();
+                } else {
+                    zis2.close();
                 }
             }
             importInfos.setSite(isSite);
@@ -1024,6 +1025,8 @@ public class WebprojectHandler implements Serializable {
         } finally {
             if (zis2 instanceof NoCloseZipInputStream) {
                 ((NoCloseZipInputStream) zis2).reallyClose();
+            } else {
+                zis2.close();
             }
         }
         return modules;
