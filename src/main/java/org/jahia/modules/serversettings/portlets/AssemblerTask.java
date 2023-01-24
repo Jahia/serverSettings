@@ -45,8 +45,8 @@ package org.jahia.modules.serversettings.portlets;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
@@ -55,7 +55,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.pluto.util.assemble.Assembler;
 import org.apache.pluto.util.assemble.AssemblerConfig;
 import org.apache.pluto.util.assemble.war.WarAssembler;
-import org.jahia.settings.SettingsBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,48 +75,28 @@ public class AssemblerTask {
 
     public File execute() throws Exception {
         long timer = System.currentTimeMillis();
-        logger.info("Got a command to prepare " + getWebapp() + " WAR file to be deployed into the Pluto container");
+        logger.info("Got a command to prepare {} WAR file to be deployed into the Pluto container", getWebapp());
         validateArgs();
-
-        BasePortletHelper portletHelper = getPortletHelperInstance();
 
         if (!needRewriting(getWebapp())) {
             File destFile = new File(tempDir, getWebapp().getName());
             FileUtils.copyFile(getWebapp(), destFile, true);
-            return portletHelper != null ? portletHelper.process(destFile) : destFile;
+            return destFile;
         }
 
-        final File tempDir = getTempDir();
+        final File destDir = getTempDir();
         final AssemblerConfig config = new AssemblerConfig();
         config.setSource(getWebapp());
-        config.setDestination(tempDir);
+        config.setDestination(destDir);
 
         WarAssembler assembler = new WarAssembler();
         assembler.assemble(config);
 
-        File destFile = new File(tempDir, getWebapp().getName());
-
-        if (portletHelper != null) {
-            destFile = portletHelper.process(destFile);
-        }
+        File destFile = new File(destDir, getWebapp().getName());
 
         logger.info("Done assembling WAR file {} in {} ms.", destFile, (System.currentTimeMillis() - timer));
 
         return destFile;
-    }
-
-    private BasePortletHelper getPortletHelperInstance() {
-        String srv = SettingsBean.getInstance().getServer();
-        if (srv == null) {
-            return null;
-        }
-        if (srv.startsWith("jboss")) {
-            return new JBossPortletHelper();
-        } else if (srv.startsWith("was")) {
-            return new WebSpherePortletHelper();
-        }
-
-        return null;
     }
 
     public File getTempDir() {
@@ -128,7 +107,7 @@ public class AssemblerTask {
         return webapp;
     }
 
-    private boolean needRewriting(File source) throws FileNotFoundException, IOException {
+    private boolean needRewriting(File source) throws IOException {
         final JarInputStream jarIn = new JarInputStream(new FileInputStream(source));
         String webXml = null;
         JarEntry jarEntry;
@@ -136,7 +115,7 @@ public class AssemblerTask {
             // Read the source archive entry by entry
             while ((jarEntry = jarIn.getNextJarEntry()) != null) {
                 if (Assembler.SERVLET_XML.equals(jarEntry.getName())) {
-                    webXml = IOUtils.toString(jarIn);
+                    webXml = IOUtils.toString(jarIn, Charset.defaultCharset());
                 }
                 jarIn.closeEntry();
             }
@@ -147,12 +126,9 @@ public class AssemblerTask {
         return webXml == null || !webXml.contains(Assembler.DISPATCH_SERVLET_CLASS);
     }
 
-    private void validateArgs() throws Exception {
-        if (webapp != null) {
-            if (!webapp.exists()) {
-                throw new Exception("webapp " + webapp.getAbsolutePath() + " does not exist");
-            }
-            return;
+    private void validateArgs() {
+        if (webapp != null && !webapp.exists()) {
+            throw new IllegalArgumentException("webapp " + webapp.getAbsolutePath() + " does not exist");
         }
     }
 
