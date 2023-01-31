@@ -3,12 +3,16 @@ version: 2
 updates:
   - package-ecosystem: "npm"
     directory: "/"
+    # Prevent dependabot from opening PRs
+    open-pull-requests-limit: 0    
     schedule:
       interval: "daily"
     allow:
       - dependency-type: "production"
   - package-ecosystem: "maven"
     directory: "/"
+    # Prevent dependabot from opening PRs
+    open-pull-requests-limit: 0    
     schedule:
       interval: "daily"
     allow:
