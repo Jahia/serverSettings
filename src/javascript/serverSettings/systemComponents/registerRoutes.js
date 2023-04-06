@@ -1,6 +1,6 @@
 import React from 'react';
 import {registry} from '@jahia/ui-extender';
-import Puzzle from '@jahia/moonstone/dist/icons/Puzzle';
+import {Puzzle} from '@jahia/moonstone';
 
 export const registerRoutes = function () {
     registry.add('adminRoute', 'systemComponents', {
