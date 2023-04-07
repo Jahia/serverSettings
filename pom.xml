@@ -68,7 +68,7 @@
     </scm>
 
     <properties>
-        <jahia-depends>default,siteSettings</jahia-depends>
+        <jahia-depends>default,siteSettings,app-shell</jahia-depends>
         <export-package>org.jahia.modules.serversettings.forge</export-package>
         <jahia-module-type>system</jahia-module-type>
         <jahia-deploy-on-site>system</jahia-deploy-on-site>
@@ -97,20 +97,6 @@
             <groupId>org.jahia.modules</groupId>
             <artifactId>siteSettings</artifactId>
             <version>8.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jahia.modules</groupId>
-            <artifactId>app-shell</artifactId>
-            <version>2.0.0</version>
-            <type>json</type>
-            <classifier>manifest</classifier>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jahia.modules</groupId>
-            <artifactId>app-shell</artifactId>
-            <version>2.0.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -148,8 +134,8 @@
                             <goal>install-node-and-yarn</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v11.11.0</nodeVersion>
-                            <yarnVersion>v1.19.1</yarnVersion>
+                            <nodeVersion>v14.17.3</nodeVersion>
+                            <yarnVersion>v1.22.19</yarnVersion>
                         </configuration>
                     </execution>
                     <execution>
@@ -170,28 +156,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <artifactItems>
-                        <artifactItem>
-                            <groupId>org.jahia.modules</groupId>
-                            <artifactId>app-shell</artifactId>
-                            <type>json</type>
-                            <classifier>manifest</classifier>
-                        </artifactItem>
-                    </artifactItems>
-                </configuration>
             </plugin>
         </plugins>
     </build>

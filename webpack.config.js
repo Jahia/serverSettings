@@ -3,80 +3,59 @@ const webpack = require('webpack');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-
-// Get manifest
-const normalizedPath = require('path').join(__dirname, './target/dependency');
-let manifest = '';
-
-require('fs').readdirSync(normalizedPath).forEach(function (file) {
-    manifest = './target/dependency/' + file;
-    console.log('Server Settings module uses manifest: ' + manifest);
-});
+const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
+const getModuleFederationConfig = require('@jahia/webpack-config/getModuleFederationConfig');
+const packageJson = require('./package.json');
 
 module.exports = (env, argv) => {
     let config = {
         entry: {
-            main: [path.resolve(__dirname, 'src/javascript/publicPath'), path.resolve(__dirname, 'src/javascript/index.js')]
+            main: [path.resolve(__dirname, 'src/javascript/index.js')]
         },
         output: {
-            jsonpFunction: 'jahiaServerSettingsJsonp',
             path: path.resolve(__dirname, 'src/main/resources/javascript/apps/'),
-            filename: 'jahia.bundle.js',
-            chunkFilename: '[name].jahia.[chunkhash:6].js'
+            filename: 'serverSettings.bundle.js',
+            chunkFilename: '[name].serverSettings.[chunkhash:6].js'
         },
         resolve: {
             mainFields: ['module', 'main'],
             extensions: ['.mjs', '.js', '.jsx', 'json']
         },
-        optimization: {
-            splitChunks: {
-                maxSize: 400000
-            }
-        },
         module: {
             rules: [
                 {
+                    test: /\.m?js$/,
+                    type: 'javascript/auto'
+                },
+                {
                     test: /\.jsx?$/,
                     include: [path.join(__dirname, 'src')],
-                    loader: 'babel-loader',
-                    query: {
-                        presets: [
-                            ['@babel/preset-env', {modules: false, targets: {safari: '7', ie: '10'}}],
-                            '@babel/preset-react'
-                        ],
-                        plugins: [
-                            '@babel/plugin-syntax-dynamic-import'
-                        ]
+                    use: {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: [
+                                ['@babel/preset-env', {modules: false, targets: {safari: '7', ie: '10'}}],
+                                '@babel/preset-react'
+                            ],
+                            plugins: [
+                                '@babel/plugin-syntax-dynamic-import'
+                            ]
+                        }
                     }
                 },
                 {
-                    test: /\.s[ac]ss$/i,
-                    use: [
-                        'style-loader',
-                        {
-                            loader:'css-loader',
-                            options: {
-                                modules: true
-                            }
-                        },
-                        'sass-loader'
-                    ]
+                    test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+                    type: 'asset/resource',
+                    dependency: { not: ['url'] }
                 }
             ]
         },
         plugins: [
-            new webpack.DllReferencePlugin({
-                manifest: require(manifest)
-            }),
+            new ModuleFederationPlugin(getModuleFederationConfig(packageJson)),
             new CleanWebpackPlugin({verbose: false}),
-            new webpack.HashedModuleIdsPlugin({
-                hashFunction: 'sha256',
-                hashDigest: 'hex',
-                hashDigestLength: 20
-            }),
-            new CopyWebpackPlugin([{from: './package.json', to: ''}])
+            new CopyWebpackPlugin({patterns: [{from: './package.json', to: ''}]}),
         ],
-        mode: argv.mode
+        mode: 'development'
     };
 
     config.devtool = (argv.mode === 'production') ? 'source-map' : 'eval-source-map';
