@@ -1,6 +1,7 @@
 node
 node_modules
 target
+tests
 src/main/resources/javascript/apps
 src/main/resources/javascript/locales
 src/main/resources/javascript/regexValidation.js
