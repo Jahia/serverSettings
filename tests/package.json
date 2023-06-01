@@ -13,9 +13,9 @@
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
-    "@jahia/cypress": "^3.7.0",
-    "@jahia/jahia-reporter": "^1.0.30",
     "@jahia/content-editor-cypress": "4.2.0-tests.9",
+    "@jahia/cypress": "^3.7.0",
+    "@jahia/jahia-reporter": "^1.1.10",
     "@typescript-eslint/eslint-plugin": "^5.27.0",
     "@typescript-eslint/parser": "^5.27.0",
     "cypress": "^12.4.1",

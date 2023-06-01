@@ -73,7 +73,7 @@ jobs:
       - uses: jahia/jahia-modules-action/integration-tests@v2
         with:
           module_id: serverSettings
-          testrail_project: Server settings Module
+          testrail_project: ServerSettings Module
           tests_manifest: provisioning-manifest-build.yml
           jahia_image: jahia/jahia-ee:8
           jahia_cluster_enabled: false

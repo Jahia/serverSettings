@@ -27,7 +27,7 @@ jobs:
         with:
           module_id: serverSettings
           jahia_image: ${{ matrix.jahia_image }}
-          testrail_project: Server settings Module
+          testrail_project: ServerSettings Module
           tests_manifest: provisioning-manifest-snapshot.yml
           should_use_build_artifacts: false
           should_skip_artifacts: true
