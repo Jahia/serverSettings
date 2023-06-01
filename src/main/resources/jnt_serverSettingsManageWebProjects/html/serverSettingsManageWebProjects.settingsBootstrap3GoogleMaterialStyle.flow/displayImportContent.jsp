@@ -36,7 +36,7 @@
     <c:if test="${message.severity eq 'ERROR' or message.severity eq 'WARNING'}">
         <div class="alert${message.severity eq 'ERROR' ? ' alert-danger' : 'alert-info'}">
             <button type="button" class="close" data-dismiss="alert">&times;</button>
-                ${message.text}
+                ${fn:escapeXml(message.text)}
         </div>
     </c:if>
 </c:forEach>
@@ -56,7 +56,7 @@
                                            id="${importInfoMap.key}"
                                            name="importsInfos['${importInfoMap.key}'].selected" value="true"
                                            <c:if test="${importInfoMap.value.selected}">checked="checked"</c:if>/>
-                                           ${importInfoMap.key}
+                                        ${fn:escapeXml(importInfoMap.key)}
                                 </label>
                             </div>
                             <input type="hidden" id="${importInfoMap.key}" name="_importsInfos['${importInfoMap.key}'].selected"/>
