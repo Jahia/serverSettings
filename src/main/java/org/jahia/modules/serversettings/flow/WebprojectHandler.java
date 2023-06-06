@@ -499,7 +499,7 @@ public class WebprojectHandler implements Serializable {
                         if (numberOfBytesCopied == 0) {
                             emptyFiles.add(n);
                         }
-                    } 
+                    }
                 } else {
                     DirectoryZipInputStream directoryZipInputStream = (DirectoryZipInputStream) zis;
                     if (n.indexOf('/') > -1 && n.indexOf('/') != n.length() - 1) {
