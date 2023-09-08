@@ -11,8 +11,7 @@
     "searchSettings": "Sucheinstellungen"
   },
   "systemComponents": {
-    "label": "Module und Erweiterungen",
-    "portlets": "Portlet-Verwaltung"
+    "label": "Module und Erweiterungen"
   },
   "systemHealth": {
     "label": "System",
