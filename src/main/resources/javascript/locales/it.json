@@ -11,8 +11,7 @@
     "searchSettings": "it Search Settings"
   },
   "systemComponents": {
-    "label": "it System Components",
-    "portlets": "it Portlets"
+    "label": "it System Components"
   },
   "systemHealth": {
     "label": "it System Health",

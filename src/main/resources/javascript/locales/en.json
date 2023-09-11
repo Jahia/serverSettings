@@ -11,8 +11,7 @@
     "searchSettings": "Search settings"
   },
   "systemComponents": {
-    "label": "Modules and Extensions",
-    "portlets": "Portlets"
+    "label": "Modules and Extensions"
   },
   "systemHealth": {
     "label": "System",
