@@ -869,7 +869,6 @@ public class WebprojectHandler implements Serializable {
                                     .getCurrentUserSession().getPathMapping();
                             String pathStart = "/sites/";
                             pathMapping.put("/shared/files/", pathStart + system.getSiteKey() + "/files/");
-                            pathMapping.put("/shared/mashups/", pathStart + system.getSiteKey() + "/portlets/");
                             for (final ImportInfo infos2 : importsInfos.values()) {
                                 if (infos2.getOldSiteKey() != null && infos2.getSiteKey() != null && !infos2.getOldSiteKey().equals(infos2.getSiteKey())) {
                                     pathMapping.put(pathStart + infos2.getOldSiteKey(), pathStart + infos2.getSiteKey());
