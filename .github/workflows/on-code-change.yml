@@ -34,7 +34,7 @@ jobs:
     needs: update-signature
     runs-on: ubuntu-latest
     container:
-      image: jahia/cimg-mvn-cache:ga_cimg_openjdk_8.0.312-node
+      image: jahia/cimg-mvn-cache:ga_cimg_openjdk_11.0.20-node
       credentials:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
@@ -78,7 +78,7 @@ jobs:
           module_id: serverSettings
           testrail_project: ServerSettings Module
           tests_manifest: provisioning-manifest-build.yml
-          jahia_image: jahia/jahia-ee:8
+          jahia_image: jahia/jahia-ee-dev:8.2-SNAPSHOT
           jahia_cluster_enabled: true
           should_use_build_artifacts: true
           should_skip_testrail: true
