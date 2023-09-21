@@ -952,7 +952,7 @@ public class WebprojectHandler implements Serializable {
                                                     originatingJahiaRelease(infos.getOriginatingJahiaRelease()).
                                                     legacyMappingFilePath(finalLegacyMappingFilePath).
                                                     legacyDefinitionsFilePath(finalLegacyDefinitionsFilePath).build();
-                                            sitesService.addSite(siteCreationInfo);
+                                            sitesService.addSite(siteCreationInfo, true);
                                         } catch (JahiaException | IOException e) {
                                             throw new RepositoryException(e);
                                         }
