@@ -69,7 +69,6 @@
 
     <properties>
         <jahia-depends>default,siteSettings</jahia-depends>
-        <export-package>org.jahia.modules.serversettings.forge</export-package>
         <jahia-module-type>system</jahia-module-type>
         <jahia-deploy-on-site>system</jahia-deploy-on-site>
         <jahia-module-signature>MC4CFQCGJjTlsakeIlDgmYnYXlP1FLY24QIVAIJSMrtm6RlNeAzUBygK2Bay2zZx</jahia-module-signature>
@@ -109,6 +108,22 @@
             </resource>
         </resources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Import-Package>
+                            org.springframework.webflow.*;version="[2.4,4)",
+                            org.springframework.binding.*;version="[2.4,4)",
+                            ${jahia.plugin.projectPackageImport},
+                            *
+                        </Import-Package>
+                        <Export-Package>org.jahia.modules.serversettings.forge</Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>3.1.0</version>
