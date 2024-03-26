@@ -93,6 +93,8 @@
         $(":file").filestyle({classButton: "btn",classIcon: "icon-folder-open"/*,buttonText:"Translation"*/});
     })
 </script>
+
+<fmt:message var="i18nAll" key="label.all"/><c:set var="i18nAll" value="${functions:escapeJavaScript(i18nAll)}"/>
 <script type="text/javascript" charset="utf-8">
     $(document).ready(function() {
         var sitesTable = $('#sitesTable');
@@ -101,7 +103,8 @@
             "sDom": "<'row-fluid'<'span6'l><'span6 text-right'f>r>t<'row-fluid'<'span6'i><'span6 text-right'p>>",
             "iDisplayLength": 10,
             "sPaginationType": "bootstrap",
-            "aaSorting": [] //this option disable sort by default, the user steal can use column names to sort the table
+            "aaSorting": [], //this option disable sort by default, the user steal can use column names to sort the table
+            "aLengthMenu" :  [[10, 25, 50, 100, -1], [10, 25, 50, 100, "${i18nAll}"]]
         });
     });
 </script>

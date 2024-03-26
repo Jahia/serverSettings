@@ -130,6 +130,8 @@
         $("#export-path").text(stringShortener($("#export-path").text().trim()));
     })
 </script>
+
+<fmt:message var="i18nAll" key="label.all"/><c:set var="i18nAll" value="${functions:escapeJavaScript(i18nAll)}"/>
 <script type="text/javascript" charset="utf-8">
     const webProjectsSitesList = [];
     let defaultSiteKey;
@@ -140,7 +142,8 @@
         </c:if>
     </c:forEach>
     $(document).ready(function() {
-        dataTablesSettings.init('sitesTable', 10, [], null, null);
+        var dtOptions = {"aLengthMenu" :  [[10, 25, 50, 100, -1], [10, 25, 50, 100, "${i18nAll}"]]};
+        dataTablesSettings.init('sitesTable', 10, [],  null, null,  dtOptions);
         window.top.postMessage({msg:'updatedSitesList', sites:webProjectsSitesList, defaultSite: defaultSiteKey }, window.location.origin);
     });
 </script>
