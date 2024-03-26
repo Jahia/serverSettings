@@ -146,6 +146,19 @@
         dataTablesSettings.init('sitesTable', 10, [],  null, null,  dtOptions);
         window.top.postMessage({msg:'updatedSitesList', sites:webProjectsSitesList, defaultSite: defaultSiteKey }, window.location.origin);
     });
+    
+    function checkBoxes(checked) {
+        checkboxes = document.getElementsByName('selectedSites');
+        for(var i=0, n=checkboxes.length; i<n;i++) {
+            checkboxes[i].checked = checked;
+        }
+    }
+    
+    $(document).ready( function () {    
+        $("#selectAll").on( "click", function(e) {
+            checkBoxes($(this).is( ":checked" ));
+        });
+    });
 </script>
 
 <div class="page-header">
@@ -190,11 +203,17 @@
             <a href="#delete" id="deleteSites" class="btn btn-danger sitesAction">
                 <fmt:message key="label.delete"/>
             </a>
-
+      
             <table id="sitesTable" class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th class="{sorter: false}">&nbsp;</th>
+                        <th class="{sorter: false}">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" id="selectAll">
+                                </label>
+                            </div>
+                        </th>
                         <th>#</th>
                         <th>
                             <fmt:message key="label.name"/>

@@ -96,7 +96,7 @@
 
 <fmt:message var="i18nAll" key="label.all"/><c:set var="i18nAll" value="${functions:escapeJavaScript(i18nAll)}"/>
 <script type="text/javascript" charset="utf-8">
-    $(document).ready(function() {
+        $(document).ready(function() {
         var sitesTable = $('#sitesTable');
 
         sitesTable.dataTable({
@@ -105,6 +105,19 @@
             "sPaginationType": "bootstrap",
             "aaSorting": [], //this option disable sort by default, the user steal can use column names to sort the table
             "aLengthMenu" :  [[10, 25, 50, 100, -1], [10, 25, 50, 100, "${i18nAll}"]]
+        });
+    });
+    
+    function checkBoxes(checked) {
+        checkboxes = document.getElementsByName('selectedSites');
+        for(var i=0, n=checkboxes.length; i<n;i++) {
+            checkboxes[i].checked = checked;
+        }
+    }
+    
+    $(document).ready( function () {    
+        $("#selectAll").on( "click", function(e) {
+            checkBoxes($(this).is( ":checked" ));
         });
     });
 </script>
@@ -155,7 +168,13 @@
         <table id="sitesTable" class="table table-bordered table-striped table-hover">
         <thead>
                 <tr>
-                    <th class="{sorter: false}">&nbsp;</th>
+                    <th class="{sorter: false}">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="selectAll">
+                            </label>
+                        </div>
+                    </th>
                     <th>#</th>
                     <th>
                         <fmt:message key="label.name"/>
