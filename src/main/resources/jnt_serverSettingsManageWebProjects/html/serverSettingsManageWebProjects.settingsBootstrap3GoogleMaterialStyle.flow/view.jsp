@@ -148,8 +148,8 @@
     });
     
     function checkBoxes(checked) {
-        checkboxes = document.getElementsByName('selectedSites');
-        for(var i=0, n=checkboxes.length; i<n;i++) {
+        var checkboxes = document.getElementsByName('selectedSites');
+        for (var i = 0; i < checkboxes.length; i++) {
             checkboxes[i].checked = checked;
         }
     }
