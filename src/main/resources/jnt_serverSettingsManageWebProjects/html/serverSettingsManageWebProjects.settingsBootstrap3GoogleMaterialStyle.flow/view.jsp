@@ -130,6 +130,8 @@
         $("#export-path").text(stringShortener($("#export-path").text().trim()));
     })
 </script>
+
+<fmt:message var="i18nAll" key="label.all"/><c:set var="i18nAll" value="${functions:escapeJavaScript(i18nAll)}"/>
 <script type="text/javascript" charset="utf-8">
     const webProjectsSitesList = [];
     let defaultSiteKey;
@@ -140,8 +142,22 @@
         </c:if>
     </c:forEach>
     $(document).ready(function() {
-        dataTablesSettings.init('sitesTable', 10, [], null, null);
+        var dtOptions = {"aLengthMenu" :  [[10, 25, 50, 100, -1], [10, 25, 50, 100, "${i18nAll}"]]};
+        dataTablesSettings.init('sitesTable', 10, [],  null, null,  dtOptions);
         window.top.postMessage({msg:'updatedSitesList', sites:webProjectsSitesList, defaultSite: defaultSiteKey }, window.location.origin);
+    });
+    
+    function checkBoxes(checked) {
+        var checkboxes = document.getElementsByName('selectedSites');
+        for (var i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = checked;
+        }
+    }
+    
+    $(document).ready( function () {    
+        $("#selectAll").on( "click", function(e) {
+            checkBoxes($(this).is( ":checked" ));
+        });
     });
 </script>
 
@@ -187,11 +203,17 @@
             <a href="#delete" id="deleteSites" class="btn btn-danger sitesAction">
                 <fmt:message key="label.delete"/>
             </a>
-
+      
             <table id="sitesTable" class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th class="{sorter: false}">&nbsp;</th>
+                        <th class="{sorter: false}">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" id="selectAll">
+                                </label>
+                            </div>
+                        </th>
                         <th>#</th>
                         <th>
                             <fmt:message key="label.name"/>
