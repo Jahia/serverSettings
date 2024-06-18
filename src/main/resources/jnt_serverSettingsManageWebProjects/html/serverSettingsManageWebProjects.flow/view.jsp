@@ -27,13 +27,26 @@
 <fmt:message key="serverSettings.manageWebProjects.noWebProjectSelected" var="i18nNoSiteSelected"/>
 <c:set var="i18nNoSiteSelected" value="${functions:escapeJavaScript(i18nNoSiteSelected)}"/>
 <script type="text/javascript">
+    function getSelectedSites() {
+        var tableNodes = $('#sitesTable').dataTable().fnGetNodes();
+        var selectedSites = [];
+        for (var i = 0; i < tableNodes.length; i++) {
+            var site = $(tableNodes[i]).find('input[name="selectedSites"]:checked').val();
+            if (site) {
+                selectedSites.push(site);
+            }
+        }
+        return selectedSites;
+    }
+
     function submitSiteForm(act, site) {
     	if (typeof site != 'undefined') {
     		$("<input type='hidden' name='sitesKey' />").attr("value", site).appendTo('#sitesForm');
     	} else {
-    		$("#sitesForm input:checkbox[name='selectedSites']:checked").each(function() {
-    			$("<input type='hidden' name='sitesKey' />").attr("value", $(this).val()).appendTo('#sitesForm');
-    		});
+    		var selectedSites = getSelectedSites();
+            for(var i = 0; i < selectedSites.length; i++) {
+                $("<input type='hidden' name='sitesKey' />").attr("value", selectedSites[i]).appendTo('#sitesForm');
+            }
     	}
         if (act == 'exportToFile' || act == 'exportToFileStaging') {
             workInProgress('${i18nWaiting}');
@@ -53,11 +66,7 @@
     		return false;
     	});
         $("#exportSites").click(function (){
-            var selectedSites = [];
-            var checkedSites = $("input[name='selectedSites']:checked");
-            checkedSites.each(function(){
-                selectedSites.push($(this).val());
-            });
+            var selectedSites = getSelectedSites();
             if(selectedSites.length==0) {
                 alert("${i18nNoSiteSelected}");
                 return false;
@@ -72,11 +81,7 @@
         });
 
         $("#exportStagingSites").click(function (){
-            var selectedSites = [];
-            var checkedSites = $("input[name='selectedSites']:checked");
-            checkedSites.each(function(){
-                selectedSites.push($(this).val());
-            });
+            var selectedSites = getSelectedSites();
             if(selectedSites.length==0) {
                 alert("${i18nNoSiteSelected}");
                 return false;
@@ -104,20 +109,27 @@
             "iDisplayLength": 10,
             "sPaginationType": "bootstrap",
             "aaSorting": [], //this option disable sort by default, the user steal can use column names to sort the table
-            "aLengthMenu" :  [[10, 25, 50, 100, -1], [10, 25, 50, 100, "${i18nAll}"]]
+            "aLengthMenu" :  [[10, 25, 50, 100, -1], [10, 25, 50, 100, "${i18nAll}"]],
+            "aoColumns": [
+                {bSortable: false},
+                {bSortable: true},
+                {bSortable: true},
+                {bSortable: true},
+                {bSortable: true},
+                {bSortable: true},
+                {bSortable: true}
+            ]
         });
     });
     
-    function checkBoxes(checked) {
-        var checkboxes = document.getElementsByName('selectedSites');
-        for (var i = 0; i < checkboxes.length; i++) {
-            checkboxes[i].checked = checked;
-        }
-    }
-    
     $(document).ready( function () {    
-        $("#selectAll").on( "click", function(e) {
-            checkBoxes($(this).is( ":checked" ));
+        $('#selectAll').on("click", function() {
+            var isChecked = $('#selectAll').is(':checked');
+            var tableNodes = $('#sitesTable').dataTable().fnGetNodes();
+            for (var i = 0; i < tableNodes.length; i++) {
+                var checkbox = $(tableNodes[i]).find('input[name="selectedSites"]')[0];
+                checkbox.checked = isChecked;
+            }
         });
     });
 </script>

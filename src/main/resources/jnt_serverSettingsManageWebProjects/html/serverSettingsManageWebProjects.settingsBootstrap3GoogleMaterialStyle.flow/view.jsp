@@ -30,13 +30,26 @@
 <fmt:message key="serverSettings.manageWebProjects.fileImport.error" var="i18nNothingToImport"/>
 <c:set var="i18nNoSiteSelected" value="${functions:escapeJavaScript(i18nNoSiteSelected)}"/>
 <script type="text/javascript">
+    function getSelectedSites() {
+        var tableNodes = $('#sitesTable').dataTable().fnGetNodes();
+        var selectedSites = [];
+        for (var i = 0; i < tableNodes.length; i++) {
+            var site = $(tableNodes[i]).find('input[name="selectedSites"]:checked').val();
+            if (site) {
+                selectedSites.push(site);
+            }
+        }
+        return selectedSites;
+    }
+
     function submitSiteForm(act, site) {
     	if (typeof site != 'undefined') {
     		$("<input type='hidden' name='sitesKey' />").attr("value", site).appendTo('#sitesForm');
     	} else {
-    		$("#sitesForm input:checkbox[name='selectedSites']:checked").each(function() {
-    			$("<input type='hidden' name='sitesKey' />").attr("value", $(this).val()).appendTo('#sitesForm');
-    		});
+            var selectedSites = getSelectedSites();
+            for(var i = 0; i < selectedSites.length; i++) {
+                $("<input type='hidden' name='sitesKey' />").attr("value", selectedSites[i]).appendTo('#sitesForm');
+            }
     	}
         if (act == 'exportToFile' || act == 'exportToFileStaging') {
             workInProgress('${i18nWaiting}');
@@ -85,11 +98,7 @@
     		return false;
     	});
         $("#exportSites").click(function (){
-            var selectedSites = [];
-            var checkedSites = $("input[name='selectedSites']:checked");
-            checkedSites.each(function(){
-                selectedSites.push($(this).val());
-            });
+            var selectedSites = getSelectedSites();
             if(selectedSites.length==0) {
                 $.snackbar({
                     content: "${i18nNoSiteSelected}",
@@ -107,11 +116,7 @@
         });
 
         $("#exportStagingSites").click(function (){
-            var selectedSites = [];
-            var checkedSites = $("input[name='selectedSites']:checked");
-            checkedSites.each(function(){
-                selectedSites.push($(this).val());
-            });
+            var selectedSites = getSelectedSites();
             if(selectedSites.length==0) {
                 $.snackbar({
                     content: "${i18nNoSiteSelected}",
@@ -141,22 +146,30 @@
      defaultSiteKey = '${site.name}';
         </c:if>
     </c:forEach>
+
     $(document).ready(function() {
-        var dtOptions = {"aLengthMenu" :  [[10, 25, 50, 100, -1], [10, 25, 50, 100, "${i18nAll}"]]};
+        var dtOptions = {
+            "aLengthMenu" :  [[10, 25, 50, 100, -1], [10, 25, 50, 100, "${i18nAll}"]],
+            "aoColumns": [
+                {bSortable: false},
+                {bSortable: true},
+                {bSortable: true},
+                {bSortable: true},
+                {bSortable: true},
+                {bSortable: true},
+                {bSortable: true},
+            ]
+        };
         dataTablesSettings.init('sitesTable', 10, [],  null, null,  dtOptions);
         window.top.postMessage({msg:'updatedSitesList', sites:webProjectsSitesList, defaultSite: defaultSiteKey }, window.location.origin);
-    });
-    
-    function checkBoxes(checked) {
-        var checkboxes = document.getElementsByName('selectedSites');
-        for (var i = 0; i < checkboxes.length; i++) {
-            checkboxes[i].checked = checked;
-        }
-    }
-    
-    $(document).ready( function () {    
-        $("#selectAll").on( "click", function(e) {
-            checkBoxes($(this).is( ":checked" ));
+
+        $('#selectAll').on("click", function() {
+            var isChecked = $('#selectAll').is(':checked');
+            var tableNodes = $('#sitesTable').dataTable().fnGetNodes();
+            for (var i = 0; i < tableNodes.length; i++) {
+                var checkbox = $(tableNodes[i]).find('input[name="selectedSites"]')[0];
+                checkbox.checked = isChecked;
+            }
         });
     });
 </script>
@@ -203,7 +216,7 @@
             <a href="#delete" id="deleteSites" class="btn btn-danger sitesAction">
                 <fmt:message key="label.delete"/>
             </a>
-      
+
             <table id="sitesTable" class="table table-bordered table-striped">
                 <thead>
                     <tr>
