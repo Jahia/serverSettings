@@ -1,6 +1,6 @@
 {
   "name": "@jahia/server-settings",
-  "version": "0.0.1",
+  "version": "9.7.1-SNAPSHOT",
   "scripts": {
     "test": "env-cmd --no-override jest",
     "testcli": "jest",
@@ -55,6 +55,7 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.3.3",
     "@babel/runtime": "^7.5.4",
+    "@cyclonedx/webpack-plugin": "^3.6.1",
     "@jahia/eslint-config": "^1.1.0",
     "@jahia/webpack-config": "^1.0.0",
     "babel-loader": "^8.0.6",

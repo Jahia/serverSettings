@@ -55,7 +55,7 @@
     </parent>
 
     <artifactId>serverSettings</artifactId>
-    <version>9.7.0</version>
+    <version>9.7.1-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>Jahia Server Settings</name>
     <description>Server settings</description>
@@ -64,7 +64,7 @@
         <connection>scm:git:git@github.com:Jahia/serverSettings.git</connection>
         <developerConnection>scm:git:git@github.com:Jahia/serverSettings.git</developerConnection>
         <url>scm:git:git@github.com:Jahia/serverSettings.git</url>
-        <tag>9_7_0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
@@ -75,6 +75,7 @@
         <jahia-module-signature>MCwCFDBwDzeuKVi/G4uo7tO/fadUj0AIAhQS4lULjuy71K2IFN7ow9w3VsgGdQ==</jahia-module-signature>
         <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
         <yarn.arguments>build:production</yarn.arguments>
+        <sonar.sources>src/javascript,src/main/resources/javascript</sonar.sources>
     </properties>
 
     <repositories>
@@ -125,7 +126,7 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.8.0</version>
+                <version>1.15.0</version>
                 <executions>
                     <execution>
                         <id>npm install node and yarn</id>
@@ -134,8 +135,8 @@
                             <goal>install-node-and-yarn</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v14.17.3</nodeVersion>
-                            <yarnVersion>v1.22.19</yarnVersion>
+                            <nodeVersion>v18.18.0</nodeVersion>
+                            <yarnVersion>v1.22.21</yarnVersion>
                         </configuration>
                     </execution>
                     <execution>
@@ -156,6 +157,33 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.cyclonedx</groupId>
+                <artifactId>cyclonedx-maven-plugin</artifactId>
+                <version>2.7.9</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>makeAggregateBom</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <projectType>library</projectType>
+                    <schemaVersion>1.4</schemaVersion>
+                    <includeBomSerialNumber>true</includeBomSerialNumber>
+                    <includeCompileScope>true</includeCompileScope>
+                    <includeProvidedScope>false</includeProvidedScope>
+                    <includeRuntimeScope>true</includeRuntimeScope>
+                    <includeSystemScope>false</includeSystemScope>
+                    <includeTestScope>false</includeTestScope>
+                    <includeLicenseText>false</includeLicenseText>
+                    <outputReactorProjects>true</outputReactorProjects>
+                    <outputFormat>json</outputFormat>
+                    <outputName>java-bom.cdx</outputName>
+                </configuration>
             </plugin>
         </plugins>
     </build>

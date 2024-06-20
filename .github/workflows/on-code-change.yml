@@ -54,7 +54,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: jahia/jahia-modules-action/sonar-analysis@v2
         with:
-          primary_release_branch: master
+          primary_release_branch: 9_7_x
           github_pr_id: ${{github.event.number}}
           sonar_url: ${{ secrets.SONAR_URL }}
           sonar_token: ${{ secrets.SONAR_TOKEN }}
@@ -78,12 +78,14 @@ jobs:
           module_id: serverSettings
           testrail_project: ServerSettings Module
           tests_manifest: provisioning-manifest-build.yml
-          jahia_image: jahia/jahia-ee:8
+          jahia_image: jahia/jahia-ee:8.1
           jahia_cluster_enabled: true
           should_use_build_artifacts: true
           should_skip_testrail: true
-          github_artifact_name: server-settings-${{ github.run_number }}
+          github_artifact_name: serset-${{ github.run_number }}
+          jahia_artifact_name: serset-${{ github.run_number }}
           jahia_license: ${{ secrets.JAHIA_LICENSE_8X_FULL }}
+          bastion_ssh_private_key: ${{ secrets.BASTION_SSH_PRIVATE_KEY_JAHIACI }}
           docker_username: ${{ secrets.DOCKERHUB_USERNAME }}
           docker_password: ${{ secrets.DOCKERHUB_PASSWORD }}
           nexus_username: ${{ secrets.NEXUS_USERNAME }}

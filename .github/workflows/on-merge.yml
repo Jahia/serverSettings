@@ -1,12 +1,12 @@
 # This workflow is triggered every time a change is pushed to any branches
 # Github actions command reference: https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
-name: On merge to master
+name: On merge to 9_7_x
 
 # The workflow could also be triggered on PRs
 on:
   push:
     branches:
-      - 'master'
+      - '9_7_x'
     tags-ignore:
       - '**'
 
@@ -39,10 +39,23 @@ jobs:
           nexus_password: ${{ secrets.NEXUS_PASSWORD }}
           module_id: serverSettings
 
+  sbom:
+    name: SBOM processing
+    needs: build
+    runs-on: ubuntu-latest
+    container:
+      image: cyclonedx/cyclonedx-cli:0.24.2
+    steps:
+      - uses: jahia/jahia-modules-action/sbom-processing@v2
+        with:
+          dependencytrack_hostname: ${{ vars.DEPENDENCYTRACK_HOSTNAME }}
+          dependencytrack_apikey: ${{ secrets.DEPENDENCYTRACK_APIKEY }}
+          sbom_artifacts: 'build-artifacts'
+
   publish:
     name: Publish module
     needs: build
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/9_7_x'
     runs-on: ubuntu-latest
     container:
       image: jahia/cimg-mvn-cache:ga_cimg_openjdk_8.0.312-node
@@ -75,11 +88,13 @@ jobs:
           module_id: serverSettings
           testrail_project: ServerSettings Module
           tests_manifest: provisioning-manifest-build.yml
-          jahia_image: jahia/jahia-ee:8
+          jahia_image: jahia/jahia-ee:8.1
           jahia_cluster_enabled: false
           should_use_build_artifacts: true
           should_skip_testrail: false
-          github_artifact_name: server-settings-${{ github.run_number }}
+          github_artifact_name: serset-${{ github.run_number }}
+          jahia_artifact_name: serset-${{ github.run_number }}
+          bastion_ssh_private_key: ${{ secrets.BASTION_SSH_PRIVATE_KEY_JAHIACI }}
           jahia_license: ${{ secrets.JAHIA_LICENSE_8X_FULL }}
           docker_username: ${{ secrets.DOCKERHUB_USERNAME }}
           docker_password: ${{ secrets.DOCKERHUB_PASSWORD }}
