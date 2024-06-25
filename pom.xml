@@ -64,7 +64,7 @@
         <connection>scm:git:git@github.com:Jahia/serverSettings.git</connection>
         <developerConnection>scm:git:git@github.com:Jahia/serverSettings.git</developerConnection>
         <url>scm:git:git@github.com:Jahia/serverSettings.git</url>
-        <tag>HEAD</tag>
+        <tag>9_7_x</tag>
     </scm>
 
     <properties>
