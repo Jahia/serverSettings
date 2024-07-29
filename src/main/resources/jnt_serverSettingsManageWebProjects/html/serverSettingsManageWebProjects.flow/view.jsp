@@ -224,24 +224,12 @@
                             <td>
                                 <c:set var="i18nExportStaging"><fmt:message key="label.export"/> (<fmt:message key="label.stagingContent"/>)</c:set>
                                 <c:set var="i18nExportStaging" value="${fn:escapeXml(i18nExportStaging)}"/>
-                                <c:if test="${jcr:hasPermission(site,'jContentAccess')}">
-                                    <c:choose>
-                                        <c:when test="${renderContext.settings.distantPublicationServerMode}">
-                                            <c:url var="editUrl" value="/cms/settings/default/${site.defaultLanguage}${site.path}.manageLanguages.html"/>
-                                            <a style="margin-bottom:0;" class="btn btn-small" href="${editUrl}" title="<fmt:message key='serverSettings.manageWebProjects.exitToEdit'/>">
-                                                <i class="icon-pencil"></i>
-                                            </a>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <jcr:node var="editSite" path="${site.path}"/>
-                                            <c:if test="${not jcr:isNodeType(editSite, 'jmix:remotelyPublished')}">
-                                                <c:url var="editUrl" value="/cms/edit/default/${site.defaultLanguage}${editSite.home.path}.html"/>
-                                                <a style="margin-bottom:0;" class="btn btn-small" href="${editUrl}" title="<fmt:message key='serverSettings.manageWebProjects.exitToEdit'/>">
-                                                    <i class="icon-pencil"></i>
-                                                </a>
-                                            </c:if>
-                                        </c:otherwise>
-                                    </c:choose>
+                                <jcr:node var="editSite" path="${site.path}"/>
+                                <c:if test="${jcr:hasPermission(site,'jContentAccess') and (not renderContext.settings.distantPublicationServerMode)}">
+                                    <c:url var="editUrl" value="/cms/edit/default/${site.defaultLanguage}${editSite.home.path}.html"/>
+                                    <a style="margin-bottom:0;" class="btn btn-small" href="${editUrl}" title="<fmt:message key='serverSettings.manageWebProjects.exitToEdit'/>">
+                                        <i class="icon-pencil"></i>
+                                    </a>
                                 </c:if>
                                 <a style="margin-bottom:0;" class="btn btn-small" href="#edit" title="<fmt:message key='serverSettings.manageWebProjects.editSite'/>" onclick="submitSiteForm('editSite', '${site.name}'); return false;">
                                     <i class=" icon-edit"></i>
