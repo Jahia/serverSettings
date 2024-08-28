@@ -117,13 +117,13 @@ public class WebprojectHandler implements Serializable {
     private static final Pattern LANGUAGE_RANK_PATTERN = Pattern.compile("(?:language.)(\\w+)(?:.rank)");
 
     private static final HashSet<String> NON_SITE_IMPORTS = new HashSet<>(Arrays.asList(
-        SERVER_PERMISSIONS_XML,
-        USERS_XML,
-        USERS_ZIP,
-        JahiaSitesService.SYSTEM_SITE_KEY + ".zip",
-        REFERENCES_ZIP,
-        ROLES_ZIP,
-        MOUNTS_ZIP
+            SERVER_PERMISSIONS_XML,
+            USERS_XML,
+            USERS_ZIP,
+            JahiaSitesService.SYSTEM_SITE_KEY + ".zip",
+            REFERENCES_ZIP,
+            ROLES_ZIP,
+            MOUNTS_ZIP
     ));
 
     private static final Map<String, Integer> RANK;
@@ -389,8 +389,8 @@ public class WebprojectHandler implements Serializable {
         } catch (Exception e) {
             logger.error(e.getMessage());
             requestContext.getMessageContext().addMessage(new MessageBuilder().error()
-                .code("serverSettings.manageWebProjects.exportPath.invalidExportPath")
-                .build());
+                    .code("serverSettings.manageWebProjects.exportPath.invalidExportPath")
+                    .build());
         }
     }
 
@@ -1249,7 +1249,6 @@ public class WebprojectHandler implements Serializable {
         if (value.isPresent()) {
             return sitesService.getSiteCount(false) >= value.get();
         }
-
         return false;
     }
 
@@ -1259,10 +1258,13 @@ public class WebprojectHandler implements Serializable {
         for (JahiaTemplatesPackage jahiaTemplatesPackage : templatesPackages) {
             List<String> previewResources = new ArrayList<>();
             Bundle templateSetBundle = jahiaTemplatesPackage.getBundle();
+            // The template preview displayed in Jahia is the first item of the previewResources list (and we continue to support the old folder structures)
+            previewResources.addAll(findPreviewResources(templateSetBundle, "/configuration", "template*.png"));
             previewResources.addAll(findPreviewResources(templateSetBundle, "/img/template-preview","*.png"));
             previewResources.addAll(findPreviewResources(templateSetBundle, "/images/template-preview","*.png"));
-            previewResources.addAll(findPreviewResources(templateSetBundle, "/images/template-preview","*.gif"));
+            previewResources.addAll(findPreviewResources(templateSetBundle, "/configuration", "template*.gif"));
             previewResources.addAll(findPreviewResources(templateSetBundle, "/img/template-preview", "*.gif"));
+            previewResources.addAll(findPreviewResources(templateSetBundle, "/images/template-preview","*.gif"));
             templateSetPreviews.add(new TemplateSetPreview(jahiaTemplatesPackage, previewResources));
         }
         return templateSetPreviews;
