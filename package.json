@@ -31,7 +31,8 @@
     "*/**/trim-newlines": "3.0.1",
     "*/**/ejs": "3.1.7",
     "*/**/scss-tokenizer": "0.4.3",
-    "**/glob-parent": "^5.1.2"
+    "**/glob-parent": "^5.1.2",
+    "*/**/path-to-regexp": "1.9.0"
   },
   "dependencies": {
     "@jahia/moonstone": "^2.5.7",
