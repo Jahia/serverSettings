@@ -1,0 +1,62 @@
+{
+  "data": {
+    "admin": {
+      "jahia": {
+        "scheduler": {
+          "jobs": {
+            "pageInfo": {
+              "totalCount": 4,
+              "__typename": "PageInfo"
+            },
+            "nodes": [
+              {
+                "name": "ScheduledJob1",
+                "duration": -1,
+                "group": "Maintenance",
+                "jobStatus": "SCHEDULED",
+                "userKey": " system ",
+                "begin": null,
+                "end": null,
+                "__typename": "GqlBackgroundJob"
+              },
+              {
+                "name": "ScheduledJob2",
+                "duration": -1,
+                "group": "Maintenance",
+                "jobStatus": "SCHEDULED",
+                "userKey": null,
+                "begin": null,
+                "end": null,
+                "__typename": "GqlBackgroundJob"
+              },
+              {
+                "name": "ScheduledJob3",
+                "duration": 4,
+                "group": "Maintenance",
+                "jobStatus": "SCHEDULED",
+                "userKey": null,
+                "begin": 1732723200011,
+                "end": 1732723200015,
+                "__typename": "GqlBackgroundJob"
+              },
+              {
+                "name": "ScheduledJob4",
+                "duration": 4,
+                "group": "Maintenance",
+                "jobStatus": "SCHEDULED",
+                "userKey": null,
+                "begin": 1732723500006,
+                "end": 1732723500010,
+                "__typename": "GqlBackgroundJob"
+              }
+            ],
+            "__typename": "GqlBackgroundJobConnection"
+          },
+          "__typename": "GqlScheduler"
+        },
+        "__typename": "JahiaAdminQuery"
+      },
+      "__typename": "AdminQuery"
+    }
+  }
+}

@@ -1,6 +1,7 @@
 import React from 'react';
 import {registry} from '@jahia/ui-extender';
 import {Heal} from '@jahia/moonstone';
+import BackgroundJobsTabs from '../backgroundJobs';
 
 export const registerRoutes = function () {
     registry.add('adminRoute', 'systemHealth', {
@@ -36,5 +37,13 @@ export const registerRoutes = function () {
         label: 'serverSettings:systemHealth.systemInfo',
         isSelectable: true,
         iframeUrl: window.contextJsParameters.contextPath + '/cms/adminframe/default/en/settings.systemInfos.html?redirect=false'
+    });
+
+    registry.add('adminRoute', 'backgroundJobs', {
+        targets: ['administration-server-systemHealth:4'],
+        icon: null,
+        label: 'serverSettings:systemHealth.backgroundJobs',
+        isSelectable: true,
+        render: () => <BackgroundJobsTabs/>
     });
 };
