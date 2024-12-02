@@ -9,3 +9,4 @@ Digital Experience Manager module which introduces server management UI
 ## Open-Source
 
 This is an Open-Source module, you can find more details about Open-Source @ Jahia [in this repository](https://github.com/Jahia/open-source).
+
