@@ -17,7 +17,8 @@
     "label": "System",
     "cacheManagement": "Cache management",
     "memoryManagement": "Memory management",
-    "systemInfo": "System information"
+    "systemInfo": "System information",
+    "backgroundJobs": "Background Jobs"
   },
   "usersAndRoles": {
     "label": "Users and Roles",
@@ -28,6 +29,30 @@
   },
   "webProjects": {
     "label": "Projects"
+  },
+  "backgroundJobs": {
+    "title": "Background Jobs",
+    "tabs": {
+      "history": "History",
+      "scheduled": "Scheduled"
+    },
+    "columns": {
+      "name": "Name",
+      "status": "Status",
+      "user": "User",
+      "type": "Type",
+      "startedDate": "Started Date",
+      "duration": "Duration"
+    },
+    "statuses": {
+      "added": "Added",
+      "executing": "Executing",
+      "successful": "Successful",
+      "failed": "Failed",
+      "canceled": "Canceled"
+    },
+    "nothingToDisplay":"Nothing to display",
+    "error": "Something went wrong while fetching the data"
   }
 }
 

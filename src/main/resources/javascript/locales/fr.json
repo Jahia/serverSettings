@@ -17,7 +17,8 @@
     "label": "Système",
     "cacheManagement": "Gestion du cache",
     "memoryManagement": "Gestion de la mémoire",
-    "systemInfo": "Informations système"
+    "systemInfo": "Informations système",
+    "backgroundJobs": "Tâches de fond"
   },
   "usersAndRoles": {
     "label": "Utilisateurs et Rôles",
@@ -28,5 +29,29 @@
   },
   "webProjects": {
     "label": "Projets"
+  },
+  "backgroundJobs": {
+    "title": "Tâches de fond",
+    "tabs": {
+      "history": "Historique",
+      "scheduled": "Planifié"
+    },
+    "columns": {
+      "name": "Nom",
+      "status": "Statut",
+      "user": "Utilisateur",
+      "type": "Type",
+      "startedDate": "Date de début",
+      "duration": "Durée"
+    },
+    "statuses": {
+      "added": "Ajouté",
+      "executing": "En cours",
+      "successful": "Réussi",
+      "failed": "Échoué",
+      "canceled": "Annulé"
+    },
+    "nothingToDisplay": "Rien à afficher",
+    "error": "Quelque chose s'est mal passé lors de la récupération des données"
   }
 }

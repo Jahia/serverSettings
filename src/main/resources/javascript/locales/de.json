@@ -17,7 +17,8 @@
     "label": "System",
     "cacheManagement": "Cache-Verwaltung",
     "memoryManagement": "Speicher-Verwaltung",
-    "systemInfo": "Systeminformationen"
+    "systemInfo": "Systeminformationen",
+    "backgroundJobs": "Hintergrund-Tasks"
   },
   "usersAndRoles": {
     "label": "Benutzer und Rollen",
@@ -28,5 +29,29 @@
   },
   "webProjects": {
     "label": "Projekte"
+  },
+  "backgroundJobs": {
+    "title": "Hintergrund-Tasks",
+    "tabs": {
+      "history": "Historie",
+      "scheduled": "Geplant"
+    },
+    "columns": {
+      "name": "Name",
+      "status": "Status",
+      "user": "Benutzer",
+      "type": "Typ",
+      "startedDate": "Startdatum",
+      "duration": "Dauer"
+    },
+    "statuses": {
+      "added": "Hinzugefügt",
+      "executing": "Wird ausgeführt",
+      "successful": "Erfolgreich",
+      "failed": "Fehlgeschlagen",
+      "canceled": "Abgebrochen"
+    },
+    "nothingToDisplay": "Nichts anzuzeigen",
+    "error": "Etwas ist schief gelaufen beim Abrufen der Daten"
   }
 }
