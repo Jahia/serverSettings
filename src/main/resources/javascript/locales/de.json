@@ -31,6 +31,7 @@
     "label": "Projekte"
   },
   "backgroundJobs": {
+    "title": "Hintergrund-Tasks",
     "tabs": {
       "history": "Historie",
       "scheduled": "Geplant"
@@ -50,6 +51,7 @@
       "failed": "Fehlgeschlagen",
       "canceled": "Abgebrochen"
     },
-    "nothingToDisplay": "Nichts anzuzeigen"
+    "nothingToDisplay": "Nichts anzuzeigen",
+    "error": "Etwas ist schief gelaufen beim Abrufen der Daten"
   }
 }

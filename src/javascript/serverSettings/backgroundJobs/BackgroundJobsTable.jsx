@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {useTable, useSortBy} from 'react-table';
 import {
     Loader,
@@ -14,8 +14,12 @@ import {renderSortIndicator} from './utils';
 import PropTypes from 'prop-types';
 import {useTranslation} from 'react-i18next';
 
-const NothingToDisplay = () => {
+const NothingToDisplay = ({isError}) => {
     const {t} = useTranslation('serverSettings');
+    const message = isError ?
+        t('backgroundJobs.error') :
+        t('backgroundJobs.nothingToDisplay');
+
     return (
         <div style={{
             display: 'flex',
@@ -24,12 +28,16 @@ const NothingToDisplay = () => {
             height: 100
         }}
         >
-            <Typography>{t('backgroundJobs.nothingToDisplay')}</Typography>
+            <Typography>{message}</Typography>
         </div>
     );
 };
 
-const BackgroundJobsTable = ({tableProps, paginationProps, loading, ...props}) => {
+NothingToDisplay.propTypes = {
+    isError: PropTypes.bool
+};
+
+const BackgroundJobsTable = ({tableProps, paginationProps, loading, error, ...props}) => {
     const {
         limit,
         setLimit,
@@ -45,6 +53,31 @@ const BackgroundJobsTable = ({tableProps, paginationProps, loading, ...props}) =
         rows,
         prepareRow
     } = useTable(tableProps, useSortBy);
+
+    const content = useMemo(() => {
+        if (rows.length === 0) {
+            return <NothingToDisplay/>;
+        }
+
+        if (error) {
+            return <NothingToDisplay isError/>;
+        }
+
+        return rows.map(row => {
+            prepareRow(row);
+            return (
+                /* eslint-disable-next-line react/jsx-key */
+                <TableRow {...row.getRowProps()}>
+                    {row.cells.map(cell => (
+                        /* eslint-disable-next-line react/jsx-key */
+                        <TableBodyCell {...cell.getCellProps()} iconStart={row.original[cell.column.id]?.icon} width={cell.column.customWidth}>
+                            {cell.render('Cell')}
+                        </TableBodyCell>
+                    ))}
+                </TableRow>
+            );
+        });
+    }, [rows, error, prepareRow]);
 
     if (loading) {
         return (
@@ -79,21 +112,7 @@ const BackgroundJobsTable = ({tableProps, paginationProps, loading, ...props}) =
                     ))}
                 </TableHead>
                 <TableBody {...getTableBodyProps()}>
-                    {rows.length === 0 && (<NothingToDisplay/>)}
-                    {rows.map(row => {
-                        prepareRow(row);
-                        return (
-                            /* eslint-disable-next-line react/jsx-key */
-                            <TableRow {...row.getRowProps()}>
-                                {row.cells.map(cell => (
-                                    /* eslint-disable-next-line react/jsx-key */
-                                    <TableBodyCell {...cell.getCellProps()} iconStart={row.original[cell.column.id]?.icon} width={cell.column.customWidth}>
-                                        {cell.render('Cell')}
-                                    </TableBodyCell>
-                                ))}
-                            </TableRow>
-                        );
-                    })}
+                    {content}
                 </TableBody>
             </Table>
             <TablePagination rowsPerPageOptions={[5, 10, 20]} currentPage={currentPage} totalNumberOfRows={totalCount} rowsPerPage={limit} onRowsPerPageChange={setLimit} onPageChange={setPage}/>
@@ -106,6 +125,8 @@ BackgroundJobsTable.propTypes = {
     paginationProps: PropTypes.object.isRequired,
     // eslint-disable-next-line react/boolean-prop-naming
     loading: PropTypes.bool,
+
+    error: PropTypes.object,
     'data-testid': PropTypes.string
 };
 

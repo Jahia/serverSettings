@@ -31,6 +31,7 @@
     "label": "Projects"
   },
   "backgroundJobs": {
+    "title": "Background Jobs",
     "tabs": {
       "history": "History",
       "scheduled": "Scheduled"
@@ -50,7 +51,8 @@
       "failed": "Failed",
       "canceled": "Canceled"
     },
-    "nothingToDisplay":"Nothing to display"
+    "nothingToDisplay":"Nothing to display",
+    "error": "Something went wrong while fetching the data"
   }
 }
 
