@@ -16,8 +16,8 @@ export const useHistoryBackgroundJobs = () => {
         fetchPolicy: 'network-only'
     });
 
-    const jobs = useMemo(() => data?.admin?.jahia?.scheduler?.jobs?.nodes || [], [data]);
-    const totalCount = useMemo(() => data?.admin?.jahia?.scheduler?.jobs?.pageInfo?.totalCount || 0, [data]);
+    const jobs = useMemo(() => data?.admin?.jahia?.scheduler?.paginatedJobs?.nodes || [], [data]);
+    const totalCount = useMemo(() => data?.admin?.jahia?.scheduler?.paginatedJobs?.pageInfo?.totalCount || 0, [data]);
 
     return {
         jobs,
@@ -45,8 +45,8 @@ export const useScheduledBackgroundJobs = () => {
         fetchPolicy: 'network-only'
     });
 
-    const jobs = useMemo(() => data?.admin?.jahia?.scheduler?.jobs?.nodes || [], [data]);
-    const totalCount = useMemo(() => data?.admin?.jahia?.scheduler?.jobs?.pageInfo?.totalCount || 0, [data]);
+    const jobs = useMemo(() => data?.admin?.jahia?.scheduler?.paginatedJobs?.nodes || [], [data]);
+    const totalCount = useMemo(() => data?.admin?.jahia?.scheduler?.paginatedJobs?.pageInfo?.totalCount || 0, [data]);
 
     return {
         jobs,

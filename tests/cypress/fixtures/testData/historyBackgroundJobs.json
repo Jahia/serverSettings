@@ -3,7 +3,7 @@
     "admin": {
       "jahia": {
         "scheduler": {
-          "jobs": {
+          "paginatedJobs": {
             "pageInfo": {
               "totalCount": 4,
               "__typename": "PageInfo"

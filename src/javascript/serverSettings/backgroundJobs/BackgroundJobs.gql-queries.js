@@ -5,7 +5,7 @@ export const GET_BACKGROUND_JOBS = gql`
         admin {
             jahia {
                 scheduler {
-                    jobs(includeStatuses: $includeStatuses, excludeStatuses: $excludeStatuses, offset:$offset, limit:$limit) {
+                    paginatedJobs(includeStatuses: $includeStatuses, excludeStatuses: $excludeStatuses, offset:$offset, limit:$limit) {
                         pageInfo {
                             totalCount
                         }
