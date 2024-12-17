@@ -7,9 +7,13 @@ export const renderSortIndicator = (isSorted, isSortedDesc) => {
 };
 
 export const parseUsername = username => {
-    if (username.indexOf('/users/') !== -1) {
-        return username.split('/users/')[1];
+    if (!username) {
+        return 'Unknown user';
     }
 
-    return username;
+    if (username.indexOf('/') === -1) {
+        return username;
+    }
+
+    return username.split('/').pop();
 };

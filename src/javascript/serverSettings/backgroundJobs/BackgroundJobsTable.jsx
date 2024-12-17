@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useImperativeHandle, useMemo, forwardRef} from 'react';
 import {useTable, useSortBy} from 'react-table';
 import {
     Loader,
@@ -37,7 +37,7 @@ NothingToDisplay.propTypes = {
     isError: PropTypes.bool
 };
 
-const BackgroundJobsTable = ({tableProps, paginationProps, loading, error, ...props}) => {
+const BackgroundJobsTable = forwardRef(({tableProps, paginationProps, loading, error, refetch, ...props}, ref) => {
     const {
         limit,
         setLimit,
@@ -53,6 +53,10 @@ const BackgroundJobsTable = ({tableProps, paginationProps, loading, error, ...pr
         rows,
         prepareRow
     } = useTable(tableProps, useSortBy);
+
+    useImperativeHandle(ref, () => ({
+        refetch
+    }));
 
     const content = useMemo(() => {
         if (rows.length === 0) {
@@ -118,14 +122,14 @@ const BackgroundJobsTable = ({tableProps, paginationProps, loading, error, ...pr
             <TablePagination rowsPerPageOptions={[5, 10, 20]} currentPage={currentPage} totalNumberOfRows={totalCount} rowsPerPage={limit} onRowsPerPageChange={setLimit} onPageChange={setPage}/>
         </>
     );
-};
+});
 
 BackgroundJobsTable.propTypes = {
     tableProps: PropTypes.object.isRequired,
     paginationProps: PropTypes.object.isRequired,
     // eslint-disable-next-line react/boolean-prop-naming
     loading: PropTypes.bool,
-
+    refetch: PropTypes.func,
     error: PropTypes.object,
     'data-testid': PropTypes.string
 };
