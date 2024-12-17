@@ -1,11 +1,11 @@
-import React, {useMemo} from 'react';
+import React, {useMemo, forwardRef} from 'react';
 import {useHistoryBackgroundJobs} from './hooks';
 const {useTranslation} = require('react-i18next');
 import {parseUsername} from './utils';
 import BackgroundJobsTable from './BackgroundJobsTable';
 import JobStatusBadge from './JobStatusBadge';
 
-const HistoryBackgroundJobsTable = () => {
+const HistoryBackgroundJobsTable = forwardRef((_, ref) => {
     const {t} = useTranslation('serverSettings');
     const {
         jobs,
@@ -14,6 +14,7 @@ const HistoryBackgroundJobsTable = () => {
         totalCount,
         currentPage,
         setPage,
+        refetch,
         loading,
         error
     } = useHistoryBackgroundJobs();
@@ -52,7 +53,7 @@ const HistoryBackgroundJobsTable = () => {
                 Header: t('backgroundJobs.columns.duration'),
                 accessor: 'duration',
                 Cell: ({value}) => `${value} ms`,
-                customWidth: 80
+                customWidth: 105
             }
         ];
     }, [t]);
@@ -65,13 +66,15 @@ const HistoryBackgroundJobsTable = () => {
 
     return (
         <BackgroundJobsTable
+            ref={ref}
             tableProps={tableProps}
             paginationProps={{limit, setLimit, totalCount, currentPage, setPage}}
+            refetch={refetch}
             loading={loading}
             error={error}
             data-testid="history-background-jobs-table"
         />
     );
-};
+});
 
 export default HistoryBackgroundJobsTable;

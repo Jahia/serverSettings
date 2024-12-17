@@ -6,7 +6,7 @@ export const useHistoryBackgroundJobs = () => {
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
     const offset = useMemo(() => (page - 1) * limit, [page, limit]);
-    const {data, loading, error} = useQuery(GET_BACKGROUND_JOBS, {
+    const {data, loading, error, refetch} = useQuery(GET_BACKGROUND_JOBS, {
         variables: {
             includeStatuses: null,
             excludeStatuses: ['SCHEDULED'],
@@ -23,6 +23,7 @@ export const useHistoryBackgroundJobs = () => {
         jobs,
         totalCount,
         currentPage: page,
+        refetch,
         setPage,
         limit,
         setLimit,
@@ -35,7 +36,7 @@ export const useScheduledBackgroundJobs = () => {
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
     const offset = useMemo(() => (page - 1) * limit, [page, limit]);
-    const {data, loading, error} = useQuery(GET_BACKGROUND_JOBS, {
+    const {data, loading, error, refetch} = useQuery(GET_BACKGROUND_JOBS, {
         variables: {
             includeStatuses: ['SCHEDULED'],
             excludeStatuses: null,
@@ -53,6 +54,7 @@ export const useScheduledBackgroundJobs = () => {
         totalCount,
         currentPage: page,
         setPage,
+        refetch,
         limit,
         setLimit,
         loading,

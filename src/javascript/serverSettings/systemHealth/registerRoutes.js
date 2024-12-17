@@ -41,6 +41,7 @@ export const registerRoutes = function () {
 
     registry.add('adminRoute', 'backgroundJobs', {
         targets: ['administration-server-systemHealth:4'],
+        requiredPermission: 'view-all-jobs',
         icon: null,
         label: 'serverSettings:systemHealth.backgroundJobs',
         isSelectable: true,

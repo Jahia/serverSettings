@@ -27,7 +27,7 @@ module.exports = (env, argv) => {
         },
         resolve: {
             mainFields: ['module', 'main'],
-            extensions: ['.mjs', '.js', '.jsx', 'json']
+            extensions: ['.mjs', '.js', '.jsx', '.json']
         },
         module: {
             rules: [
@@ -58,7 +58,21 @@ module.exports = (env, argv) => {
                     test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
                     type: 'asset/resource',
                     dependency: { not: ['url'] }
-                }
+                },
+                {
+                    test: /\.css$/,
+                    use: [
+                        'style-loader',
+                        {
+                            loader: 'css-loader',
+                            options: {
+                                modules: {
+                                    namedExport: false,
+                                },
+                            },
+                        },
+                    ],
+                },
             ]
         },
         plugins: [

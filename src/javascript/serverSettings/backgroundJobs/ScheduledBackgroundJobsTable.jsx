@@ -1,9 +1,9 @@
-import React, {useMemo} from 'react';
+import React, {useMemo, forwardRef} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useScheduledBackgroundJobs} from './hooks';
 import BackgroundJobsTable from './BackgroundJobsTable';
 
-const ScheduledBackgroundJobsTable = () => {
+const ScheduledBackgroundJobsTable = forwardRef((_, ref) => {
     const {t} = useTranslation('serverSettings');
     const {
         jobs,
@@ -12,6 +12,7 @@ const ScheduledBackgroundJobsTable = () => {
         totalCount,
         currentPage,
         setPage,
+        refetch,
         loading,
         error
     } = useScheduledBackgroundJobs();
@@ -37,13 +38,15 @@ const ScheduledBackgroundJobsTable = () => {
 
     return (
         <BackgroundJobsTable
+            ref={ref}
             tableProps={tableProps}
             paginationProps={{limit, setLimit, totalCount, currentPage, setPage}}
             loading={loading}
+            refetch={refetch}
             error={error}
             data-testid="scheduled-background-jobs-table"
         />
     );
-};
+});
 
 export default ScheduledBackgroundJobsTable;
