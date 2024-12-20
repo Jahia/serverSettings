@@ -21,11 +21,17 @@ const ScheduledBackgroundJobsTable = forwardRef((_, ref) => {
         return [
             {
                 Header: t('backgroundJobs.columns.name'),
-                accessor: 'name'
+                accessor: 'name',
+                customWidth: 200
+            },
+            {
+                Header: t('backgroundJobs.columns.jobDescription'),
+                accessor: 'jobDescription'
             },
             {
                 Header: t('backgroundJobs.columns.user'),
-                accessor: 'group'
+                accessor: 'group',
+                customWidth: 150
             }
         ];
     }, [t]);

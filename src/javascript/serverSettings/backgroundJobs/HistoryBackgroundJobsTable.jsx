@@ -22,8 +22,8 @@ const HistoryBackgroundJobsTable = forwardRef((_, ref) => {
     const columns = useMemo(() => {
         return [
             {
-                Header: t('backgroundJobs.columns.name'),
-                accessor: 'name'
+                Header: t('backgroundJobs.columns.jobDescription'),
+                accessor: 'jobDescription'
             },
             {
                 Header: t('backgroundJobs.columns.status'),

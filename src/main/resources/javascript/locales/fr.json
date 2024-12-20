@@ -38,6 +38,7 @@
     },
     "columns": {
       "name": "Nom",
+      "jobDescription": "Description de la tâche",
       "status": "Statut",
       "user": "Utilisateur",
       "type": "Type",
