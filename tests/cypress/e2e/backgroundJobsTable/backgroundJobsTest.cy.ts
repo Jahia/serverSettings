@@ -10,24 +10,18 @@ describe('Background Jobs Page Test', () => {
                         url: '/modules/graphql',
                     },
                     (req) => {
-                        const indexOfBackgroundJobsRequest = req.body.findIndex(
-                            (body: any) => body.operationName === 'GetBackgroundJobs',
-                        )
-
-                        if (indexOfBackgroundJobsRequest === -1) {
-                            req.continue()
-                            return
-                        }
-
-                        const gqlRequest = req.body[indexOfBackgroundJobsRequest]
-                        let stubbedResponse = null
-                        if (gqlRequest.variables.includeStatuses?.includes('SCHEDULED')) {
-                            stubbedResponse = scheduledJobsResponse
-                        } else if (gqlRequest.variables.excludeStatuses?.includes('SCHEDULED')) {
-                            stubbedResponse = historyJobsResponse
-                        }
                         req.continue((res) => {
-                            res.body[indexOfBackgroundJobsRequest] = stubbedResponse
+                            res.body = res.body.map((originalBody: any, index) => {
+                                const requestBody = req.body[index]
+                                if (requestBody.operationName === 'GetBackgroundJobs') {
+                                    if (requestBody.variables.includeStatuses?.includes('SCHEDULED')) {
+                                        return scheduledJobsResponse
+                                    } else if (requestBody.variables.excludeStatuses?.includes('SCHEDULED')) {
+                                        return historyJobsResponse
+                                    }
+                                    return originalBody
+                                }
+                            })
                         })
                     },
                 )

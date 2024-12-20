@@ -10,7 +10,8 @@ export const GET_BACKGROUND_JOBS = gql`
                             totalCount
                         }
                         nodes {
-                            name
+                            name,
+                            jobDescription,
                             duration,
                             group,
                             jobStatus,

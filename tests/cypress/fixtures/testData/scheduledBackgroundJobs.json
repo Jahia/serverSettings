@@ -11,6 +11,7 @@
             "nodes": [
               {
                 "name": "ScheduledJob1",
+                "jobDescription": "ScheduledJob1_Description",
                 "duration": -1,
                 "group": "Maintenance",
                 "jobStatus": "SCHEDULED",
@@ -21,6 +22,7 @@
               },
               {
                 "name": "ScheduledJob2",
+                "jobDescription": "ScheduledJob2_Description",
                 "duration": -1,
                 "group": "Maintenance",
                 "jobStatus": "SCHEDULED",
@@ -31,6 +33,7 @@
               },
               {
                 "name": "ScheduledJob3",
+                "jobDescription": "ScheduledJob3_Description",
                 "duration": 4,
                 "group": "Maintenance",
                 "jobStatus": "SCHEDULED",
@@ -41,6 +44,7 @@
               },
               {
                 "name": "ScheduledJob4",
+                "jobDescription": "ScheduledJob4_Description",
                 "duration": 4,
                 "group": "Maintenance",
                 "jobStatus": "SCHEDULED",

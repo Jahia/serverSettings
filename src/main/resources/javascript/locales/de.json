@@ -38,6 +38,7 @@
     },
     "columns": {
       "name": "Name",
+      "jobDescription": "Jobbeschreibung",
       "status": "Status",
       "user": "Benutzer",
       "type": "Typ",
