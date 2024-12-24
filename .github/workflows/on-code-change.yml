@@ -27,7 +27,7 @@ jobs:
       - uses: Jahia/jahia-modules-action/static-analysis@v2
         with:
           node_version: 18
-          auditci_level: high
+          auditci_level: critical
 
   build:
     name: Build Module
