@@ -10,6 +10,7 @@ def updateServerAdministratorPermissions() {
 
         @Override
         Void doInJCR(JCRSessionWrapper jcrSessionWrapper) throws RepositoryException {
+            log.info("Adding jobs permission to server-administrator");
             JCRNodeWrapper role = jcrSessionWrapper.getNode("/roles/server-administrator");
             role.getProperty("j:permissionNames").addValue("jobs");
             jcrSessionWrapper.save();
