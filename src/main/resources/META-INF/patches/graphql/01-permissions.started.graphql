@@ -1,9 +1,0 @@
-mutation{
-    jcr {
-        mutateNode(pathOrId: "/roles/server-administrator"){
-            mutateProperty(name: "j:permissionNames") {
-                addValue(value: "jobs")
-            }
-        }
-    }
-}
