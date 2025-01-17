@@ -72,7 +72,7 @@
         <export-package>org.jahia.modules.serversettings.forge</export-package>
         <jahia-module-type>system</jahia-module-type>
         <jahia-deploy-on-site>system</jahia-deploy-on-site>
-        <jahia-module-signature>MCwCFFhmO7cSY6RG/H0xfSDx6/ePgZ4tAhQ8MacQ0sN+o7memaCjk4nA7ds/HA==</jahia-module-signature>
+        <jahia-module-signature>MCwCFELZgVKpaJ/XnvB4ZgfsBniniIZlAhQO121+heyrVAs+8POcF4te3cSg9Q==</jahia-module-signature>
         <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
         <yarn.arguments>build:production</yarn.arguments>
         <sonar.sources>src/javascript,src/main/resources/javascript</sonar.sources>
