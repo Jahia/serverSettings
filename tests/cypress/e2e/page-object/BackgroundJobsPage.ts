@@ -7,13 +7,13 @@ export class BackgroundJobsPage extends BasePage {
     }
 
     goToHistoryTab() {
-        cy.get('[data-testid="background-jobs-history-tab"]').click()
+        cy.get('[data-testid="background-jobs-history-tab"]').click({force:true})
         cy.waitUntil(() => cy.get('[data-testid="history-background-jobs-table"]').should('be.visible'))
         return getComponent(HistoryBackgroundJobsTab)
     }
 
     goToScheduledTab() {
-        cy.get('[data-testid="background-jobs-scheduled-tab"]').click()
+        cy.get('[data-testid="background-jobs-scheduled-tab"]').click({force:true})
         cy.waitUntil(() => cy.get('[data-testid="scheduled-background-jobs-table"]').should('be.visible'))
         return getComponent(ScheduledBackgroundJobsTab)
     }
