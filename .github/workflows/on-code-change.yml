@@ -13,10 +13,10 @@ jobs:
     secrets: inherit
     with:
       module_id: serverSettings
-      provisioning_manifest: provisioning-manifest-build.yml
-      jahia_image: jahia/jahia-ee-dev:8.2-SNAPSHOT
-      tests_cluster: true
+      integration_tests_provisioning_manifest: provisioning-manifest-build.yml
+      integration_tests_jahia_image: jahia/jahia-ee-dev:8.2-SNAPSHOT
+      integration_tests_cluster_execute: true
       static_analysis_auditci_level: critical
       module_branch: ${{ github.head_ref }}
-      update_signature: true
-      should_skip_testrail: true
+      update_signature_execute: true
+      integration_tests_should_skip_testrail: true
