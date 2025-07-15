@@ -44,6 +44,7 @@
 package org.jahia.modules.serversettings.portlets;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -66,6 +67,8 @@ public class PreparedPortletsController implements Controller {
         String warName = null;
         try {
             fileName = ServletRequestUtils.getRequiredStringParameter(request, "file");
+            // prevent path traversal
+            fileName = FilenameUtils.getName(fileName);
             warName = ServletRequestUtils.getStringParameter(request, "war", fileName);
             war = new File(System.getProperty("java.io.tmpdir"), fileName);
         } catch (ServletRequestBindingException e) {
