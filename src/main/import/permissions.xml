@@ -7,7 +7,6 @@
         <privateAppStore jcr:primaryType="jnt:permission" />
         <adminServerRoles jcr:primaryType="jnt:permission" />
         <adminVirtualSites jcr:primaryType="jnt:permission" />
-        <adminPortlets jcr:primaryType="jnt:permission" />
         <adminEmailSettings jcr:primaryType="jnt:permission" />
         <adminRootUser jcr:primaryType="jnt:permission" />
         <adminCache jcr:primaryType="jnt:permission" />

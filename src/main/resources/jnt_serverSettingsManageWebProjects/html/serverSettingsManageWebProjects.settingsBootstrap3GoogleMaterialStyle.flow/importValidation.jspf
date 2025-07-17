@@ -174,30 +174,6 @@
                     </ul>
                 </div>
             </c:when>
-            <c:when test="${checks.class.name == 'org.jahia.services.importexport.validation.MissingPortletsValidationResult'}">
-                <fmt:message key="serverSettings.manageWebProjects.import.missingPortlets" var="errorSummary">
-                    <fmt:param value="${fn:length(checks.missingPortlets)}"/>
-                </fmt:message>
-                <div class="alert${checks.blocking ? ' alert-danger' : 'alert-info'}">
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
-                        ${fn:escapeXml(errorSummary)}
-                </div>
-
-                <fmt:message key="label.detailed" var="i18nHelp"/>
-                <c:set var="i18nHelp" value="${fn:escapeXml(i18nHelp)}"/>
-                <a class="btn btn-sm btn-danger" href="#details"
-                   onclick="$('#validationErrorsDetailsTemplates${importInfoMap.value.siteKey}').toggle(); return false;"
-                   title="${i18nHelp}">
-                    ${i18nHelp}
-                </a>
-                <div id="validationErrorsDetailsTemplates${importInfoMap.value.siteKey}" style="display: none">
-                    <ul class="list-unstyled">
-                        <c:forEach var="portlet" items="${checks.missingPortlets}">
-                            <li>${fn:escapeXml(portlet)}</li>
-                        </c:forEach>
-                    </ul>
-                </div>
-            </c:when>
 
             <c:when test="${checks.class.name == 'org.jahia.services.importexport.validation.ProviderAvailabilityValidatorResult'}">
                 <fmt:message key="serverSettings.manageWebProjects.import.unavailableProviders" var="errorSummary">
