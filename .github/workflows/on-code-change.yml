@@ -82,6 +82,7 @@ jobs:
           jahia_cluster_enabled: true
           should_use_build_artifacts: true
           should_skip_testrail: true
+          github_token: ${{ secrets.GH_ISSUES_PRS_CHORES }}
           github_artifact_name: serset-${{ github.run_number }}
           jahia_artifact_name: serset-${{ github.run_number }}
           jahia_license: ${{ secrets.JAHIA_LICENSE_8X_FULL }}
