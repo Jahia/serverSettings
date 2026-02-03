@@ -1,33 +1,16 @@
-import React, {useImperativeHandle, useMemo, forwardRef} from 'react';
-import {useTable, useSortBy} from 'react-table';
-import {
-    Loader,
-    Table,
-    TableBody,
-    TableBodyCell,
-    TableHead,
-    TableHeadCell,
-    TablePagination,
-    TableRow, Typography
-} from '@jahia/moonstone';
-import {renderSortIndicator} from './utils';
+import React, {useImperativeHandle, forwardRef} from 'react';
+import {DataTable, Loader, Typography} from '@jahia/moonstone';
 import PropTypes from 'prop-types';
 import {useTranslation} from 'react-i18next';
 
+const centerStyle = {display: 'flex', alignItems: 'center', justifyContent: 'center'};
+
 const NothingToDisplay = ({isError}) => {
     const {t} = useTranslation('serverSettings');
-    const message = isError ?
-        t('backgroundJobs.error') :
-        t('backgroundJobs.nothingToDisplay');
+    const message = isError ? t('backgroundJobs.error') : t('backgroundJobs.nothingToDisplay');
 
     return (
-        <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: 100
-        }}
-        >
+        <div style={{...centerStyle, height: 100}}>
             <Typography>{message}</Typography>
         </div>
     );
@@ -37,97 +20,44 @@ NothingToDisplay.propTypes = {
     isError: PropTypes.bool
 };
 
-const BackgroundJobsTable = forwardRef(({tableProps, paginationProps, loading, error, refetch, ...props}, ref) => {
-    const {
-        limit,
-        setLimit,
-        totalCount,
-        currentPage,
-        setPage
-    } = paginationProps;
-
-    const {
-        getTableProps,
-        getTableBodyProps,
-        headerGroups,
-        rows,
-        prepareRow
-    } = useTable(tableProps, useSortBy);
-
-    useImperativeHandle(ref, () => ({
-        refetch
-    }));
-
-    const content = useMemo(() => {
-        if (rows.length === 0) {
-            return <NothingToDisplay/>;
-        }
-
-        if (error) {
-            return <NothingToDisplay isError/>;
-        }
-
-        return rows.map(row => {
-            prepareRow(row);
-            return (
-                /* eslint-disable-next-line react/jsx-key */
-                <TableRow {...row.getRowProps()}>
-                    {row.cells.map(cell => (
-                        /* eslint-disable-next-line react/jsx-key */
-                        <TableBodyCell {...cell.getCellProps()} iconStart={row.original[cell.column.id]?.icon} width={cell.column.customWidth}>
-                            {cell.render('Cell')}
-                        </TableBodyCell>
-                    ))}
-                </TableRow>
-            );
-        });
-    }, [rows, error, prepareRow]);
+const BackgroundJobsTable = forwardRef(({data, columns, primaryKey, loading, error, refetch, ...props}, ref) => {
+    useImperativeHandle(ref, () => ({refetch}));
 
     if (loading) {
         return (
-            <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: 300
-            }}
-            >
+            <div style={{...centerStyle, height: 300}}>
                 <Loader size="big"/>
             </div>
         );
     }
 
-    const testId = props['data-testid'] ?? 'background-jobs-table';
+    if (error) {
+        return <NothingToDisplay isError/>;
+    }
+
+    if (!data || data.length === 0) {
+        return <NothingToDisplay/>;
+    }
 
     return (
-        <>
-            <Table {...getTableProps()} style={{marginTop: 32}} data-testid={testId}>
-                <TableHead isSticky>
-                    {headerGroups.map(headerGroup => (
-                        /* eslint-disable-next-line react/jsx-key */
-                        <TableRow {...headerGroup.getHeaderGroupProps()}>
-                            {headerGroup.headers.map(column => (
-                                /* eslint-disable-next-line react/jsx-key */
-                                <TableHeadCell {...column.getHeaderProps(column.getSortByToggleProps())} iconEnd={column.canSort && renderSortIndicator(column.isSorted, column.isSortedDesc)} width={column.customWidth}>
-                                    {column.render('Header')}
-                                </TableHeadCell>
-                            ))}
-                        </TableRow>
-                    ))}
-                </TableHead>
-                <TableBody {...getTableBodyProps()}>
-                    {content}
-                </TableBody>
-            </Table>
-            <TablePagination rowsPerPageOptions={[5, 10, 20]} currentPage={currentPage} totalNumberOfRows={totalCount} rowsPerPage={limit} onRowsPerPageChange={setLimit} onPageChange={setPage}/>
-        </>
+        <div style={{marginTop: 32}} data-testid={props['data-testid'] ?? 'background-jobs-table'}>
+            <DataTable
+                enablePagination
+                enableSorting
+                data={data}
+                columns={columns}
+                primaryKey={primaryKey}
+                itemsPerPageOptions={[5, 10, 20]}
+
+            />
+        </div>
     );
 });
 
 BackgroundJobsTable.propTypes = {
-    tableProps: PropTypes.object.isRequired,
-    paginationProps: PropTypes.object.isRequired,
-    // eslint-disable-next-line react/boolean-prop-naming
+    data: PropTypes.array.isRequired,
+    columns: PropTypes.array.isRequired,
+    primaryKey: PropTypes.string.isRequired,
     loading: PropTypes.bool,
     refetch: PropTypes.func,
     error: PropTypes.object,
