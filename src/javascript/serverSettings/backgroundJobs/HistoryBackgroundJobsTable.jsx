@@ -1,4 +1,5 @@
 import React, {useMemo, forwardRef} from 'react';
+import {Typography} from '@jahia/moonstone';
 import {useHistoryBackgroundJobs} from './hooks';
 const {useTranslation} = require('react-i18next');
 import {parseUsername} from './utils';
@@ -14,20 +15,13 @@ const HistoryBackgroundJobsTable = forwardRef((_, ref) => {
         error
     } = useHistoryBackgroundJobs();
 
-    const truncateStyle = {
-        display: 'block',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap'
-    };
-
     const columns = useMemo(() => {
         return [
             {
                 key: 'jobDescription',
                 label: t('backgroundJobs.columns.jobDescription'),
                 isSortable: true,
-                render: value => <span style={truncateStyle} title={value}>{value}</span>
+                render: value => <Typography isNowrap component="span" title={value}>{value}</Typography>
             },
             {
                 key: 'jobStatus',

@@ -1,4 +1,5 @@
 import React, {useMemo, forwardRef} from 'react';
+import {Typography} from '@jahia/moonstone';
 import {useTranslation} from 'react-i18next';
 import {useScheduledBackgroundJobs} from './hooks';
 import BackgroundJobsTable from './BackgroundJobsTable';
@@ -12,13 +13,6 @@ const ScheduledBackgroundJobsTable = forwardRef((_, ref) => {
         error
     } = useScheduledBackgroundJobs();
 
-    const truncateStyle = {
-        display: 'block',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap'
-    };
-
     const columns = useMemo(() => {
         return [
             {
@@ -26,13 +20,13 @@ const ScheduledBackgroundJobsTable = forwardRef((_, ref) => {
                 label: t('backgroundJobs.columns.name'),
                 isSortable: true,
                 width: '200px',
-                render: value => <span style={truncateStyle} title={value}>{value}</span>
+                render: value => <Typography isNowrap component="span" title={value}>{value}</Typography>
             },
             {
                 key: 'jobDescription',
                 label: t('backgroundJobs.columns.jobDescription'),
                 isSortable: true,
-                render: value => <span style={truncateStyle} title={value}>{value}</span>
+                render: value => <Typography isNowrap component="span" title={value}>{value}</Typography>
             },
             {
                 key: 'group',

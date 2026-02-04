@@ -1195,12 +1195,12 @@
     eslint-plugin-react "^7.16.0"
     eslint-plugin-react-hooks "^2.2.0"
 
-"@jahia/moonstone@https://pkg.pr.new/@jahia/moonstone@1183":
+"@jahia/moonstone@^2.9.1":
   version "2.17.5"
-  resolved "https://pkg.pr.new/@jahia/moonstone@1183#95d141814a4f75021524db82e057d6fa12204920"
+  resolved "https://registry.yarnpkg.com/@jahia/moonstone/-/moonstone-2.17.5.tgz#5f1fa300569519f9e7c0aa858c8405b38b422aec"
+  integrity sha512-G5Vnwm06pen/XDIxK8ZZrXmbNxbGdeqki/ZOedv4w7EfZKV7igTj1YPLlV6IDUAyEdqvgV8I5QMpa8XlDsZFwQ==
   dependencies:
     "@floating-ui/react" "^0.27.16"
-    "@tanstack/react-table" "^8.21.3"
     clsx "^2.1.1"
     re-resizable "^6.11.2"
     to-px "^1.1.0"
@@ -1346,18 +1346,6 @@
   version "1.0.0-next.21"
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.21.tgz#5de5a2385a35309427f6011992b544514d559aa1"
   integrity sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==
-
-"@tanstack/react-table@^8.21.3":
-  version "8.21.3"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-table/-/react-table-8.21.3.tgz#2c38c747a5731c1a07174fda764b9c2b1fb5e91b"
-  integrity sha512-5nNMTSETP4ykGegmVkhjcS8tTLW6Vl4axfEGQN3v0zdHYbK4UfoqfPChclTrJ4EoK9QynqAu9oUf8VEmrpZ5Ww==
-  dependencies:
-    "@tanstack/table-core" "8.21.3"
-
-"@tanstack/table-core@8.21.3":
-  version "8.21.3"
-  resolved "https://registry.yarnpkg.com/@tanstack/table-core/-/table-core-8.21.3.tgz#2977727d8fc8dfa079112d9f4d4c019110f1732c"
-  integrity sha512-ldZXEhOBb8Is7xLs01fR3YEc3DERiz5silj8tnGkFZytt1abEvl/GhUmCE0PMLaMPTa3Jk4HbKmRlHmu+gCftg==
 
 "@types/eslint-scope@^3.7.3":
   version "3.7.4"
