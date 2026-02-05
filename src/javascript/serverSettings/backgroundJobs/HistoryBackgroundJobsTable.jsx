@@ -1,4 +1,5 @@
 import React, {useMemo, forwardRef} from 'react';
+import {Typography} from '@jahia/moonstone';
 import {useHistoryBackgroundJobs} from './hooks';
 const {useTranslation} = require('react-i18next');
 import {parseUsername} from './utils';
@@ -9,11 +10,6 @@ const HistoryBackgroundJobsTable = forwardRef((_, ref) => {
     const {t} = useTranslation('serverSettings');
     const {
         jobs,
-        limit,
-        setLimit,
-        totalCount,
-        currentPage,
-        setPage,
         refetch,
         loading,
         error
@@ -22,55 +18,56 @@ const HistoryBackgroundJobsTable = forwardRef((_, ref) => {
     const columns = useMemo(() => {
         return [
             {
-                Header: t('backgroundJobs.columns.jobDescription'),
-                accessor: 'jobDescription'
+                key: 'jobDescription',
+                label: t('backgroundJobs.columns.jobDescription'),
+                isSortable: true,
+                render: value => <Typography isNowrap component="span" title={value}>{value}</Typography>
             },
             {
-                Header: t('backgroundJobs.columns.status'),
-                accessor: 'jobStatus',
-                // eslint-disable-next-line react/prop-types
-                Cell: ({value}) => (<JobStatusBadge status={value}/>),
-                customWidth: 140
+                key: 'jobStatus',
+                label: t('backgroundJobs.columns.status'),
+                render: value => (<JobStatusBadge status={value}/>),
+                isSortable: true,
+                width: '140px'
             },
             {
-                Header: t('backgroundJobs.columns.user'),
-                accessor: 'userKey',
-                Cell: ({value}) => parseUsername(value),
-                customWidth: 100
+                key: 'userKey',
+                label: t('backgroundJobs.columns.user'),
+                render: value => parseUsername(value),
+                isSortable: true,
+                width: '100px'
             },
             {
-                Header: t('backgroundJobs.columns.type'),
-                accessor: 'group',
-                customWidth: 160
+                key: 'group',
+                label: t('backgroundJobs.columns.type'),
+                isSortable: true,
+                width: '160px'
             },
             {
-                Header: t('backgroundJobs.columns.startedDate'),
-                accessor: 'begin',
-                Cell: ({value}) => new Date(value).toLocaleString(),
-                customWidth: 200
+                key: 'begin',
+                label: t('backgroundJobs.columns.startedDate'),
+                render: value => value ? new Date(value).toLocaleString() : '-',
+                isSortable: true,
+                width: '200px'
             },
             {
-                Header: t('backgroundJobs.columns.duration'),
-                accessor: 'duration',
-                Cell: ({value}) => `${value} ms`,
-                customWidth: 105
+                key: 'duration',
+                label: t('backgroundJobs.columns.duration'),
+                render: value => value >= 0 ? `${value} ms` : '-',
+                isSortable: true,
+                width: '105px'
             }
         ];
     }, [t]);
 
-    const tableProps = useMemo(() => ({
-        data: jobs,
-        columns,
-        disableSortRemove: true
-    }), [jobs, columns]);
-
     return (
         <BackgroundJobsTable
             ref={ref}
-            tableProps={tableProps}
-            paginationProps={{limit, setLimit, totalCount, currentPage, setPage}}
+            data={jobs}
+            columns={columns}
+            primaryKey="name"
             refetch={refetch}
-            loading={loading}
+            isLoading={loading}
             error={error}
             data-testid="history-background-jobs-table"
         />

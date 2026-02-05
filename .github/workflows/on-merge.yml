@@ -90,7 +90,6 @@ jobs:
           tests_manifest: provisioning-manifest-build.yml
           jahia_image: ghcr.io/jahia/jahia-ee-dev:8.2-SNAPSHOT
           jahia_cluster_enabled: false
-          should_use_build_artifacts: true
           should_skip_testrail: false
           github_token: ${{ secrets.GH_ISSUES_PRS_CHORES }}
           github_artifact_name: serset-${{ github.run_number }}

@@ -1,4 +1,5 @@
 import React, {useMemo, forwardRef} from 'react';
+import {Typography} from '@jahia/moonstone';
 import {useTranslation} from 'react-i18next';
 import {useScheduledBackgroundJobs} from './hooks';
 import BackgroundJobsTable from './BackgroundJobsTable';
@@ -7,11 +8,6 @@ const ScheduledBackgroundJobsTable = forwardRef((_, ref) => {
     const {t} = useTranslation('serverSettings');
     const {
         jobs,
-        limit,
-        setLimit,
-        totalCount,
-        currentPage,
-        setPage,
         refetch,
         loading,
         error
@@ -20,34 +16,34 @@ const ScheduledBackgroundJobsTable = forwardRef((_, ref) => {
     const columns = useMemo(() => {
         return [
             {
-                Header: t('backgroundJobs.columns.name'),
-                accessor: 'name',
-                customWidth: 200
+                key: 'name',
+                label: t('backgroundJobs.columns.name'),
+                isSortable: true,
+                width: '200px',
+                render: value => <Typography isNowrap component="span" title={value}>{value}</Typography>
             },
             {
-                Header: t('backgroundJobs.columns.jobDescription'),
-                accessor: 'jobDescription'
+                key: 'jobDescription',
+                label: t('backgroundJobs.columns.jobDescription'),
+                isSortable: true,
+                render: value => <Typography isNowrap component="span" title={value}>{value}</Typography>
             },
             {
-                Header: t('backgroundJobs.columns.user'),
-                accessor: 'group',
-                customWidth: 150
+                key: 'group',
+                label: t('backgroundJobs.columns.user'),
+                isSortable: true,
+                width: '150px'
             }
         ];
     }, [t]);
 
-    const tableProps = useMemo(() => ({
-        data: jobs,
-        columns,
-        disableSortRemove: true
-    }), [jobs, columns]);
-
     return (
         <BackgroundJobsTable
             ref={ref}
-            tableProps={tableProps}
-            paginationProps={{limit, setLimit, totalCount, currentPage, setPage}}
-            loading={loading}
+            data={jobs}
+            columns={columns}
+            primaryKey="name"
+            isLoading={loading}
             refetch={refetch}
             error={error}
             data-testid="scheduled-background-jobs-table"
