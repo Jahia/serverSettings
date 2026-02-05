@@ -20,10 +20,10 @@ NothingToDisplay.propTypes = {
     isError: PropTypes.bool
 };
 
-const BackgroundJobsTable = forwardRef(({data, columns, primaryKey, loading, error, refetch, ...props}, ref) => {
+const BackgroundJobsTable = forwardRef(({data, columns, primaryKey, isLoading, error, refetch, ...props}, ref) => {
     useImperativeHandle(ref, () => ({refetch}));
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div style={{...centerStyle, height: 300}}>
                 <Loader size="big"/>
@@ -58,7 +58,7 @@ BackgroundJobsTable.propTypes = {
     data: PropTypes.array.isRequired,
     columns: PropTypes.array.isRequired,
     primaryKey: PropTypes.string.isRequired,
-    loading: PropTypes.bool,
+    isLoading: PropTypes.bool,
     refetch: PropTypes.func,
     error: PropTypes.object,
     'data-testid': PropTypes.string

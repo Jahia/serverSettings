@@ -28,7 +28,6 @@ jobs:
           incident_service: serverSettings-JahiaSN
           testrail_project: ServerSettings Module
           tests_manifest: provisioning-manifest-snapshot.yml
-          should_use_build_artifacts: false
           should_skip_artifacts: true
           should_skip_notifications: true
           should_skip_testrail: false

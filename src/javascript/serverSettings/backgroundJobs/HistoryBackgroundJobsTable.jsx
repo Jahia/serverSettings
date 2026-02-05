@@ -67,7 +67,7 @@ const HistoryBackgroundJobsTable = forwardRef((_, ref) => {
             columns={columns}
             primaryKey="name"
             refetch={refetch}
-            loading={loading}
+            isLoading={loading}
             error={error}
             data-testid="history-background-jobs-table"
         />

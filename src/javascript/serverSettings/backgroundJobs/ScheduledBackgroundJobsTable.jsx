@@ -43,7 +43,7 @@ const ScheduledBackgroundJobsTable = forwardRef((_, ref) => {
             data={jobs}
             columns={columns}
             primaryKey="name"
-            loading={loading}
+            isLoading={loading}
             refetch={refetch}
             error={error}
             data-testid="scheduled-background-jobs-table"
