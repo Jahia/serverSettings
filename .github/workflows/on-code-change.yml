@@ -62,9 +62,10 @@ jobs:
     name: Integration Tests (Cluster)
     secrets: inherit
     needs: build
-    uses: Jahia/jahia-modules-action/.github/workflows/reusable-integration-tests.yml@v2
+    uses: Jahia/jahia-modules-action/.github/workflows/reusable-integration-tests.yml@use-cache-for-integration-tests-TEMP_FOR_TESTING
     with:
       module_id: serverSettings
+      docker_build_cache_enabled: true
       jahia_image: ghcr.io/jahia/jahia-ee-dev:8.2-SNAPSHOT
       provisioning_manifest: provisioning-manifest-build.yml
       testrail_project: ServerSettings Module
@@ -72,3 +73,4 @@ jobs:
       should_use_build_artifacts: true
       artifact_prefix: serset
       timeout_job: 45
+      module_branch: ${{ github.ref }}
