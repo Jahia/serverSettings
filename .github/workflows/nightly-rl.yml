@@ -14,6 +14,7 @@ jobs:
      module_id: serverSettings
      jahia_image: jahia/jahia-ee:8
      provisioning_manifest: provisioning-manifest-snapshot.yml
+     incident_service: serverSettings-JahiaRL
      testrail_project: ServerSettings Module
      artifact_prefix: serset-rl
      timeout_job: 45
