@@ -69,7 +69,6 @@
 
     <properties>
         <jahia-depends>default,siteSettings</jahia-depends>
-        <export-package>org.jahia.modules.serversettings.forge</export-package>
         <jahia-module-type>system</jahia-module-type>
         <jahia-deploy-on-site>system</jahia-deploy-on-site>
         <jahia-module-signature>MCwCFELZgVKpaJ/XnvB4ZgfsBniniIZlAhQO121+heyrVAs+8POcF4te3cSg9Q==</jahia-module-signature>
