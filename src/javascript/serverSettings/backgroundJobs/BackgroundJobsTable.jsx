@@ -1,5 +1,5 @@
 import React, {useImperativeHandle, forwardRef} from 'react';
-import {DataTable, EmptyData, Loader, Typography} from '@jahia/moonstone';
+import {DataTable, Loader, Typography} from '@jahia/moonstone';
 import PropTypes from 'prop-types';
 import {useTranslation} from 'react-i18next';
 
