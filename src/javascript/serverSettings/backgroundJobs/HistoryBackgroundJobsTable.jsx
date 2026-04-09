@@ -1,7 +1,7 @@
 import React, {useMemo, forwardRef} from 'react';
 import {Typography} from '@jahia/moonstone';
 import {useHistoryBackgroundJobs} from './hooks';
-const {useTranslation} = require('react-i18next');
+import {useTranslation} from 'react-i18next';
 import {parseUsername} from './utils';
 import BackgroundJobsTable from './BackgroundJobsTable';
 import JobStatusBadge from './JobStatusBadge';
@@ -21,7 +21,7 @@ const HistoryBackgroundJobsTable = forwardRef((_, ref) => {
                 key: 'jobDescription',
                 label: t('backgroundJobs.columns.jobDescription'),
                 isSortable: true,
-                render: value => <Typography isNowrap component="span" title={value}>{value}</Typography>
+                render: value => <Typography isNowrap component="span">{value}</Typography>
             },
             {
                 key: 'jobStatus',
@@ -33,7 +33,7 @@ const HistoryBackgroundJobsTable = forwardRef((_, ref) => {
             {
                 key: 'userKey',
                 label: t('backgroundJobs.columns.user'),
-                render: value => parseUsername(value),
+                render: value => <Typography isNowrap component="span">{parseUsername(value)}</Typography>,
                 isSortable: true,
                 width: '100px'
             },

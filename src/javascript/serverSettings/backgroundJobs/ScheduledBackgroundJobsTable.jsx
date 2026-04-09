@@ -20,19 +20,20 @@ const ScheduledBackgroundJobsTable = forwardRef((_, ref) => {
                 label: t('backgroundJobs.columns.name'),
                 isSortable: true,
                 width: '200px',
-                render: value => <Typography isNowrap component="span" title={value}>{value}</Typography>
+                render: value => <Typography isNowrap component="span">{value}</Typography>
             },
             {
                 key: 'jobDescription',
                 label: t('backgroundJobs.columns.jobDescription'),
                 isSortable: true,
-                render: value => <Typography isNowrap component="span" title={value}>{value}</Typography>
+                render: value => <Typography isNowrap component="span">{value}</Typography>
             },
             {
                 key: 'group',
                 label: t('backgroundJobs.columns.user'),
                 isSortable: true,
-                width: '150px'
+                width: '150px',
+                render: value => <Typography isNowrap component="span">{value}</Typography>
             }
         ];
     }, [t]);
