@@ -65,6 +65,7 @@ jobs:
     uses: Jahia/jahia-modules-action/.github/workflows/reusable-integration-tests.yml@v2
     with:
       module_id: serverSettings
+      module_branch: ${{ github.ref }}
       jahia_image: ghcr.io/jahia/jahia-ee-dev:8.2-SNAPSHOT
       provisioning_manifest: provisioning-manifest-build.yml
       testrail_project: ServerSettings Module
