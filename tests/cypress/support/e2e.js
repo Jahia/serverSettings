@@ -25,7 +25,7 @@ require('@jahia/cypress/dist/support/registerSupport').registerSupport()
 before(() => {
     cy.runProvisioningScript([
         { installAndStartBundle: 'mvn:org.jahia.modules/dx-base-demo-templates' }
-    ])
+    ], undefined, undefined, { log: true }, 120000)
 })
 
 Cypress.on('uncaught:exception', () => {

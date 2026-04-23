@@ -21,6 +21,13 @@ export class ProjectsPage extends BasePage {
         return new ProjectsPage()
     }
 
+    enterWebProjectsFrame(testCaseId = 'SITE-CREATION', logFileName?: string) {
+        this.logProgress(testCaseId, 'entering web project settings frame', logFileName)
+        AdminFrameHelper.enterFrameBySrcFragment('webProjectSettings')
+        cy.get('#sitesTable', { timeout: 30000 }).should('be.visible')
+        return this
+    }
+
     checkPageOpened() {
         cy.contains('Projects').should('exist')
     }
@@ -91,11 +98,29 @@ export class ProjectsPage extends BasePage {
         return this
     }
 
+    checkSiteListedBySiteKey(siteKey: string) {
+        cy.get('#sitesTable').contains('td', siteKey).should('be.visible')
+        return this
+    }
+
     openSiteDetailedView(siteTitle: string) {
         cy.get('#sitesTable').contains('td a', siteTitle).should('be.visible').click()
         cy.get('input#serverName', { timeout: 30000 }).should('be.visible')
         cy.get('input#serverNameAliases').should('be.visible')
 
+        return this
+    }
+
+    openSiteDetailedViewBySiteKey(siteKey: string) {
+        cy.get('#sitesTable')
+            .contains('td', siteKey)
+            .parents('tr')
+            .find('td a')
+            .first()
+            .should('be.visible')
+            .click()
+        cy.get('input#serverName', { timeout: 30000 }).should('be.visible')
+        cy.get('input#serverNameAliases').should('be.visible')
         return this
     }
 
@@ -128,5 +153,31 @@ export class ProjectsPage extends BasePage {
         cy.get('#importForm').find('input[name="importFile"]').selectFile(fileLocation)
         cy.get('#importForm').find('button[onclick*="validateUploadForm"]').click()
         return new ImportPage()
+    }
+
+    selectSiteForBulkAction(siteKey: string) {
+        cy.get('#sitesTable')
+            .contains('td', siteKey)
+            .parents('tr')
+            .find('input[name="selectedSites"]')
+            .check({ force: true })
+        return this
+    }
+
+    triggerSelectedSitesExportAndGetUrl() {
+        let exportUrl = ''
+        cy.window().then(win => {
+            const openStub = cy.stub(win, 'open')
+                .callsFake(url => {
+                    exportUrl = String(url)
+                    return null
+                })
+            cy.wrap(openStub).as('exportWindowOpen')
+        })
+        cy.get('a#exportSites').should('be.visible').click()
+        return cy.get('@exportWindowOpen').then(() => {
+            expect(exportUrl).not.to.equal('')
+            return exportUrl
+        })
     }
 }
