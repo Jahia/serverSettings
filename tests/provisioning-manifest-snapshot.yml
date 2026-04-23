@@ -6,3 +6,5 @@
     - 'mvn:org.jahia.modules/graphql-dxm-provider'
   autoStart: true
   uninstallPreviousVersion: true
+- installBundle: 'mvn:org.jahia.modules/dx-base-demo-templates'
+  autoStart: true

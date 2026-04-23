@@ -18,6 +18,16 @@ import './commands'
 import 'cypress-wait-until'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('@jahia/cypress/dist/support/registerSupport').registerSupport()
+
+// Global setup: ensure the dx-base-demo-templates template set is available before any spec runs.
+// This is idempotent — Jahia skips the install if the bundle is already active.
+// In CI this is also covered by the provisioning manifests; this guard handles local runs.
+before(() => {
+    cy.runProvisioningScript([
+        { installAndStartBundle: 'mvn:org.jahia.modules/dx-base-demo-templates' }
+    ])
+})
+
 Cypress.on('uncaught:exception', () => {
     // returning false here prevents Cypress from
     // failing the test
