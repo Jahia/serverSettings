@@ -1,10 +1,3 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <content xmlns:j="http://www.jahia.org/jahia/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:jnt="http://www.jahia.org/jahia/nt/1.0">
-    <forgesSettings jcr:primaryType="jnt:forgesServerSettings">
-        <j:acl j:inherit="false" jcr:primaryType="jnt:acl"/>
-        <httpstorejahiacomensitesprivate j:password=""
-                                         j:url="https://store.jahia.com/en/sites/private-app-store"
-                                         j:user=""
-                                         jcr:primaryType="jnt:forgeServerSettings"/>
-    </forgesSettings>
 </content>
