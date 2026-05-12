@@ -37,20 +37,18 @@ const HistoryBackgroundJobsTable = forwardRef((_, ref) => {
                 key: 'userKey',
                 label: t('backgroundJobs.columns.user'),
                 render: value => parseUsername(value),
-                width: '100px',
                 isSortable: true
             },
             {
                 key: 'group',
                 label: t('backgroundJobs.columns.type'),
-                width: '160px',
                 isSortable: true
             },
             {
                 key: 'begin',
                 label: t('backgroundJobs.columns.startedDate'),
                 render: value => new Date(value).toLocaleString(),
-                width: '200px',
+                width: '175px',
                 isSortable: true
             },
             {
