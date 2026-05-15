@@ -1,10 +1,5 @@
 import React, {useImperativeHandle, useMemo, forwardRef} from 'react';
-import {
-    DataTable,
-    EmptyData,
-    Loader,
-    Pagination
-} from '@jahia/moonstone';
+import {DataTable, EmptyData, Loader, Pagination} from '@jahia/moonstone';
 import PropTypes from 'prop-types';
 import {useTranslation} from 'react-i18next';
 
