@@ -22,52 +22,50 @@ const HistoryBackgroundJobsTable = forwardRef((_, ref) => {
     const columns = useMemo(() => {
         return [
             {
-                Header: t('backgroundJobs.columns.jobDescription'),
-                accessor: 'jobDescription'
+                key: 'jobDescription',
+                label: t('backgroundJobs.columns.jobDescription'),
+                isSortable: true
             },
             {
-                Header: t('backgroundJobs.columns.status'),
-                accessor: 'jobStatus',
-                // eslint-disable-next-line react/prop-types
-                Cell: ({value}) => (<JobStatusBadge status={value}/>),
-                customWidth: 140
+                key: 'jobStatus',
+                label: t('backgroundJobs.columns.status'),
+                render: value => <JobStatusBadge status={value}/>,
+                width: '140px',
+                isSortable: true
             },
             {
-                Header: t('backgroundJobs.columns.user'),
-                accessor: 'userKey',
-                Cell: ({value}) => parseUsername(value),
-                customWidth: 100
+                key: 'userKey',
+                label: t('backgroundJobs.columns.user'),
+                render: value => parseUsername(value),
+                isSortable: true
             },
             {
-                Header: t('backgroundJobs.columns.type'),
-                accessor: 'group',
-                customWidth: 160
+                key: 'group',
+                label: t('backgroundJobs.columns.type'),
+                isSortable: true
             },
             {
-                Header: t('backgroundJobs.columns.startedDate'),
-                accessor: 'begin',
-                Cell: ({value}) => new Date(value).toLocaleString(),
-                customWidth: 200
+                key: 'begin',
+                label: t('backgroundJobs.columns.startedDate'),
+                render: value => new Date(value).toLocaleString(),
+                width: '175px',
+                isSortable: true
             },
             {
-                Header: t('backgroundJobs.columns.duration'),
-                accessor: 'duration',
-                Cell: ({value}) => `${value} ms`,
-                customWidth: 105
+                key: 'duration',
+                label: t('backgroundJobs.columns.duration'),
+                render: value => `${value} ms`,
+                width: '105px',
+                isSortable: true
             }
         ];
     }, [t]);
 
-    const tableProps = useMemo(() => ({
-        data: jobs,
-        columns,
-        disableSortRemove: true
-    }), [jobs, columns]);
-
     return (
         <BackgroundJobsTable
             ref={ref}
-            tableProps={tableProps}
+            data={jobs}
+            columns={columns}
             paginationProps={{limit, setLimit, totalCount, currentPage, setPage}}
             refetch={refetch}
             loading={loading}
