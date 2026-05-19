@@ -48,10 +48,6 @@ const BackgroundJobsTable = forwardRef(({data, columns, paginationProps, loading
         return <NothingToDisplay isError/>;
     }
 
-    if (tableData.length === 0) {
-        return <NothingToDisplay/>;
-    }
-
     if (loading) {
         return (
             <div style={{
@@ -64,6 +60,10 @@ const BackgroundJobsTable = forwardRef(({data, columns, paginationProps, loading
                 <Loader size="big"/>
             </div>
         );
+    }
+
+    if (tableData.length === 0) {
+        return <NothingToDisplay/>;
     }
 
     const testId = props['data-testid'] ?? 'background-jobs-table';

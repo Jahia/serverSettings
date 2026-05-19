@@ -1195,7 +1195,7 @@
     eslint-plugin-react "^7.16.0"
     eslint-plugin-react-hooks "^2.2.0"
 
-"@jahia/moonstone@2.19.0":
+"@jahia/moonstone@^2.19.0":
   version "2.19.0"
   resolved "https://registry.yarnpkg.com/@jahia/moonstone/-/moonstone-2.19.0.tgz#fee008dd7fb01241998c73bf828e6cf933a18d99"
   integrity sha512-iAGCK8gJzhJ9sYRkyhT825LHkJaGPc2XPpmzRm/eupva1k/N5M1CGKtwI5bb86e72ZZ9CyJ3+RbBbkkjMbNgYA==
@@ -4290,11 +4290,6 @@ react-router@5.3.4, react-router@^5.1.2:
     react-is "^16.6.0"
     tiny-invariant "^1.0.2"
     tiny-warning "^1.0.0"
-
-react-table@^7.8.0:
-  version "7.8.0"
-  resolved "https://registry.yarnpkg.com/react-table/-/react-table-7.8.0.tgz#07858c01c1718c09f7f1aed7034fcfd7bda907d2"
-  integrity sha512-hNaz4ygkZO4bESeFfnfOft73iBUj8K5oKi1EcSHPAibEydfsX2MyU6Z8KCr3mv3C9Kqqh71U+DhZkFvibbnPbA==
 
 react@^16.10.2, react@^16.12.0:
   version "16.14.0"
