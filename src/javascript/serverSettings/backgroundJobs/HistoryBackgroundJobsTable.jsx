@@ -4,7 +4,6 @@ const {useTranslation} = require('react-i18next');
 import {parseUsername} from './utils';
 import BackgroundJobsTable from './BackgroundJobsTable';
 import JobStatusBadge from './JobStatusBadge';
-import {stringColumn} from '@jahia/moonstone/DataTable';
 
 const HistoryBackgroundJobsTable = forwardRef((_, ref) => {
     const {t} = useTranslation('serverSettings');
@@ -25,7 +24,7 @@ const HistoryBackgroundJobsTable = forwardRef((_, ref) => {
             {
                 key: 'jobDescription',
                 label: t('backgroundJobs.columns.jobDescription'),
-                ...stringColumn(row => row.jobDescription),
+                isSortable: true,
                 render: value => value
             },
             {
@@ -38,13 +37,13 @@ const HistoryBackgroundJobsTable = forwardRef((_, ref) => {
             {
                 key: 'userKey',
                 label: t('backgroundJobs.columns.user'),
-                ...stringColumn(row => parseUsername(row.userKey)),
+                isSortable: true,
                 render: value => parseUsername(value)
             },
             {
                 key: 'group',
                 label: t('backgroundJobs.columns.type'),
-                ...stringColumn(row => row.group),
+                isSortable: true,
                 render: value => value
             },
             {
