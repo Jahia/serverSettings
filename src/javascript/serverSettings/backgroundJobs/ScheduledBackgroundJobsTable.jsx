@@ -2,7 +2,6 @@ import React, {useMemo, forwardRef} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useScheduledBackgroundJobs} from './hooks';
 import BackgroundJobsTable from './BackgroundJobsTable';
-
 const ScheduledBackgroundJobsTable = forwardRef((_, ref) => {
     const {t} = useTranslation('serverSettings');
     const {
@@ -20,32 +19,33 @@ const ScheduledBackgroundJobsTable = forwardRef((_, ref) => {
     const columns = useMemo(() => {
         return [
             {
-                Header: t('backgroundJobs.columns.name'),
-                accessor: 'name',
-                customWidth: 200
+                key: 'name',
+                label: t('backgroundJobs.columns.name'),
+                width: '200px',
+                isSortable: true,
+                render: value => value
             },
             {
-                Header: t('backgroundJobs.columns.jobDescription'),
-                accessor: 'jobDescription'
+                key: 'jobDescription',
+                label: t('backgroundJobs.columns.jobDescription'),
+                isSortable: true,
+                render: value => value
             },
             {
-                Header: t('backgroundJobs.columns.user'),
-                accessor: 'group',
-                customWidth: 150
+                key: 'group',
+                label: t('backgroundJobs.columns.user'),
+                width: '150px',
+                isSortable: true,
+                render: value => value
             }
         ];
     }, [t]);
 
-    const tableProps = useMemo(() => ({
-        data: jobs,
-        columns,
-        disableSortRemove: true
-    }), [jobs, columns]);
-
     return (
         <BackgroundJobsTable
             ref={ref}
-            tableProps={tableProps}
+            data={jobs}
+            columns={columns}
             paginationProps={{limit, setLimit, totalCount, currentPage, setPage}}
             loading={loading}
             refetch={refetch}
