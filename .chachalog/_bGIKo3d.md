@@ -3,4 +3,4 @@
 serverSettings: patch
 ---
 
-Migration of the new datatable (#198)
+Updated background jobs tables to use the latest design system components for improved compatibility, visual consistency, and better rendering for the shared DataTable implementation.(#198)
