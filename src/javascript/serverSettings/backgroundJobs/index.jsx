@@ -3,7 +3,7 @@ import {Button, Header, LayoutContent, Paper, Tab, TabItem, Reload} from '@jahia
 import HistoryBackgroundJobsTable from './HistoryBackgroundJobsTable';
 import ScheduledBackgroundJobsTable from './ScheduledBackgroundJobsTable';
 import {useTranslation} from 'react-i18next';
-import classes from './styles.css';
+import classes from './styles.module.css';
 
 const BackgroundJobsTabs = () => {
     const {t} = useTranslation('serverSettings');

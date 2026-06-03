@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import {parse as gql} from 'graphql';
 
-export const GET_BACKGROUND_JOBS = gql`
+export const GET_BACKGROUND_JOBS = gql(`
     query GetBackgroundJobs($includeStatuses: [GqlBackgroundJobStatus], $excludeStatuses: [GqlBackgroundJobStatus], $offset: Int = 0, $limit: Int = 10) {
         admin {
             jahia {
@@ -24,4 +24,4 @@ export const GET_BACKGROUND_JOBS = gql`
             }
         }
     }
-`;
+`);

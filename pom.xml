@@ -74,7 +74,7 @@
         <jahia-deploy-on-site>system</jahia-deploy-on-site>
         <jahia-module-signature>MCwCFELZgVKpaJ/XnvB4ZgfsBniniIZlAhQO121+heyrVAs+8POcF4te3cSg9Q==</jahia-module-signature>
         <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
-        <yarn.arguments>build:production</yarn.arguments>
+        <yarn.arguments>build</yarn.arguments>
         <sonar.sources>src/javascript,src/main/resources/javascript</sonar.sources>
     </properties>
 
@@ -141,7 +141,7 @@
                             <goal>install-node-and-yarn</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v18.18.0</nodeVersion>
+                            <nodeVersion>v24.16.0</nodeVersion>
                             <yarnVersion>v1.22.21</yarnVersion>
                         </configuration>
                     </execution>
