@@ -1,4 +1,4 @@
-import {useQuery} from 'react-apollo';
+import {useQuery} from '@apollo/client';
 import {GET_BACKGROUND_JOBS} from './BackgroundJobs.gql-queries';
 import {useMemo, useState} from 'react';
 
