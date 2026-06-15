@@ -1,4 +1,4 @@
-import {PasswordPolicyPage} from './page-object/PasswordPolicyPage'
+import { PasswordPolicyPage } from './page-object/PasswordPolicyPage'
 
 describe('Password Policy Tests', () => {
     const RULES = {
@@ -8,7 +8,7 @@ describe('Password Policy Tests', () => {
         DIGITS_REQUIRED: 'Number of digits required',
         SPECIAL_CHARS_REQUIRED: 'Number of special characters required',
         PREVENT_SIMILAR_USERNAME: 'Prevent using password similar to the user name',
-        PREVENT_REUSE: 'Prevent password reuse'
+        PREVENT_REUSE: 'Prevent password reuse',
     }
 
     function submitPasswordChange(password: string) {

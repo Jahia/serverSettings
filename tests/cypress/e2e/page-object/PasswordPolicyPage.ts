@@ -1,4 +1,4 @@
-import {BasePage} from '@jahia/cypress'
+import { BasePage } from '@jahia/cypress'
 
 export class PasswordPolicyPage extends BasePage {
     static readonly IFRAME_SELECTOR = 'iframe[src*="passwordPolicy.html"]'
@@ -13,17 +13,21 @@ export class PasswordPolicyPage extends BasePage {
     }
 
     checkRule(ruleLabel: string): PasswordPolicyPage {
-        this.iframe().contains('tr', ruleLabel).find('input[type="checkbox"]').check({force: true})
+        this.iframe().contains('tr', ruleLabel).find('input[type="checkbox"]').check({ force: true })
         return this
     }
 
     uncheckRule(ruleLabel: string): PasswordPolicyPage {
-        this.iframe().contains('tr', ruleLabel).find('input[type="checkbox"]').uncheck({force: true})
+        this.iframe().contains('tr', ruleLabel).find('input[type="checkbox"]').uncheck({ force: true })
         return this
     }
 
     setParameter(ruleLabel: string, value: string, paramIndex = 0): PasswordPolicyPage {
-        this.iframe().contains('tr', ruleLabel).find('input.form-control').eq(paramIndex).clear().type(value)
+        this.iframe()
+            .contains('tr', ruleLabel)
+            .find('input.form-control')
+            .eq(paramIndex)
+            .clear().type(value)
         return this
     }
 
