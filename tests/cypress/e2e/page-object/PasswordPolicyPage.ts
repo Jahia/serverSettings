@@ -23,11 +23,7 @@ export class PasswordPolicyPage extends BasePage {
     }
 
     setParameter(ruleLabel: string, value: string, paramIndex = 0): PasswordPolicyPage {
-        this.iframe()
-            .contains('tr', ruleLabel)
-            .find('input.form-control')
-            .eq(paramIndex)
-            .clear().type(value)
+        this.iframe().contains('tr', ruleLabel).find('input.form-control').eq(paramIndex).clear().type(value)
         return this
     }
 
@@ -42,7 +38,11 @@ export class PasswordPolicyPage extends BasePage {
     }
 
     verifyParameterValue(ruleLabel: string, expectedValue: string, paramIndex = 0): PasswordPolicyPage {
-        this.iframe().contains('tr', ruleLabel).find('input.form-control').eq(paramIndex).should('have.value', expectedValue)
+        this.iframe()
+            .contains('tr', ruleLabel)
+            .find('input.form-control')
+            .eq(paramIndex)
+            .should('have.value', expectedValue)
         return this
     }
 }
