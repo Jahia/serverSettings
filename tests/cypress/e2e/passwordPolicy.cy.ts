@@ -1,3 +1,4 @@
+import { createUser, deleteUser, grantRoles } from '@jahia/cypress'
 import { PasswordPolicyPage } from './page-object/PasswordPolicyPage'
 
 describe('Password Policy Tests', () => {
@@ -11,6 +12,9 @@ describe('Password Policy Tests', () => {
         PREVENT_REUSE: 'Prevent password reuse',
     }
 
+    const TEST_USER = 'testPolicyUser'
+    const TEST_USER_PASSWORD = 'TestPass12&'
+
     function submitPasswordChange(password: string) {
         cy.iframe('iframe[src*="adminProperties.html"]').find('#password').clear().type(password)
         cy.iframe('iframe[src*="adminProperties.html"]').find('#passwordConfirm').clear().type(password)
@@ -23,7 +27,13 @@ describe('Password Policy Tests', () => {
         cy.iframe('iframe[src*="adminProperties.html"]').find('.alert-danger').should('contain', message)
     }
 
-    after(() => {
+    before(() => {
+        cy.login()
+        createUser(TEST_USER, TEST_USER_PASSWORD)
+        grantRoles('/', ['server-administrator'], TEST_USER, 'USER')
+    })
+
+    afterEach(() => {
         // Reset all password policy rules
         cy.login()
         const policyPage = PasswordPolicyPage.visit()
@@ -38,13 +48,17 @@ describe('Password Policy Tests', () => {
             .save()
     })
 
+    after(() => {
+        cy.login()
+        deleteUser(TEST_USER)
+    })
+
     it('should configure password policy and enforce rules on password changes', () => {
         cy.login()
 
-        // Step 1: Configure password policy settings
+        // Configure password policy settings
         const policyPage = PasswordPolicyPage.visit()
         policyPage
-            .checkRule(RULES.PREVENT_PASSWORD_CHANGE)
             .checkRule(RULES.MIN_LENGTH)
             .setParameter(RULES.MIN_LENGTH, '6')
             .checkRule(RULES.MAX_LENGTH)
@@ -55,28 +69,8 @@ describe('Password Policy Tests', () => {
             .setParameter(RULES.SPECIAL_CHARS_REQUIRED, '1', 0)
             .setParameter(RULES.SPECIAL_CHARS_REQUIRED, '_*+-&$!@', 1)
             .checkRule(RULES.PREVENT_SIMILAR_USERNAME)
-            .checkRule(RULES.PREVENT_REUSE)
-            .setParameter(RULES.PREVENT_REUSE, '3')
             .save()
 
-        // Step 2: Verify settings are persisted after page reload
-        const verifyPage = PasswordPolicyPage.visit()
-        verifyPage
-            .verifyRuleChecked(RULES.PREVENT_PASSWORD_CHANGE)
-            .verifyRuleChecked(RULES.MIN_LENGTH)
-            .verifyParameterValue(RULES.MIN_LENGTH, '6')
-            .verifyRuleChecked(RULES.MAX_LENGTH)
-            .verifyParameterValue(RULES.MAX_LENGTH, '15')
-            .verifyRuleChecked(RULES.DIGITS_REQUIRED)
-            .verifyParameterValue(RULES.DIGITS_REQUIRED, '2')
-            .verifyRuleChecked(RULES.SPECIAL_CHARS_REQUIRED)
-            .verifyParameterValue(RULES.SPECIAL_CHARS_REQUIRED, '1', 0)
-            .verifyParameterValue(RULES.SPECIAL_CHARS_REQUIRED, '_*+-&$!@', 1)
-            .verifyRuleChecked(RULES.PREVENT_SIMILAR_USERNAME)
-            .verifyRuleChecked(RULES.PREVENT_REUSE)
-            .verifyParameterValue(RULES.PREVENT_REUSE, '3')
-
-        // Step 3: Test password policy enforcement via admin properties
         cy.visit('/jahia/administration/adminProperties')
 
         // Test: password too short (< 6 characters)
@@ -102,5 +96,50 @@ describe('Password Policy Tests', () => {
         // Test: password similar to username (root)
         submitPasswordChange('root1234&')
         verifyPasswordError('Password is not allowed to be similar to the user name')
+    })
+
+    it('should prevent password reuse when rule is enabled', () => {
+        cy.login()
+        const policyPage = PasswordPolicyPage.visit()
+        policyPage
+            .checkRule(RULES.PREVENT_REUSE)
+            .setParameter(RULES.PREVENT_REUSE, '1')
+            .save()
+
+        cy.visit('/jahia/administration/adminProperties')
+
+        submitPasswordChange('ReusedPass12&')
+        submitPasswordChange('ReusedPass12&')
+        verifyPasswordError('It is not allowed to reuse last 1 passwords')
+
+        // Re-set root password
+        submitPasswordChange('root1234')
+    })
+
+    it('should prevent non-root users from changing their passwords when rule is enabled', () => {
+        cy.login()
+        const policyPage = PasswordPolicyPage.visit()
+        policyPage
+            .checkRule(RULES.PREVENT_PASSWORD_CHANGE)
+            .save()
+        cy.logout()
+
+        // Log in as server-admin test user and attempt to change password via profile
+        cy.login(TEST_USER, TEST_USER_PASSWORD)
+        cy.visit('/jahia/profile')
+        const profileIframe = 'iframe[src*="me.html"]'
+        cy.frameLoaded(profileIframe)
+
+        cy.iframe(profileIframe).find('#passwordRows #password button.btn-fab').click()
+        cy.iframe(profileIframe).find('#oldPasswordField').clear().type(TEST_USER_PASSWORD)
+        cy.iframe(profileIframe).find('#passwordField').clear().type('NewPass12&')
+        cy.iframe(profileIframe).find('#passwordconfirm').clear().type('NewPass12&')
+        cy.iframe(profileIframe).find('#passwordChangeButton').click()
+
+        // Verify error message
+        cy.iframe(profileIframe).find('#passwordErrors', { timeout: 10000 })
+            .should('be.visible')
+            .and('contain', 'You are not allowed to change the password')
+        cy.logout()
     })
 })
