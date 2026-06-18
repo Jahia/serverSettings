@@ -1,5 +1,5 @@
 import React, {useImperativeHandle, useMemo, forwardRef} from 'react';
-import {DataTable, EmptyData, Loader, Pagination} from '@jahia/moonstone';
+import {DataTable, EmptyData, Loader} from '@jahia/moonstone';
 import PropTypes from 'prop-types';
 import {useTranslation} from 'react-i18next';
 
@@ -69,25 +69,21 @@ const BackgroundJobsTable = forwardRef(({data, columns, paginationProps, loading
     const testId = props['data-testid'] ?? 'background-jobs-table';
 
     return (
-        <>
-            <DataTable
-                {...props}
-                enableSorting
-                enablePagination={false}
-                data={tableData}
-                columns={columns}
-                primaryKey="rowId"
-                data-testid={testId}
-            />
-            <Pagination
-                itemsPerPageOptions={[5, 10, 20]}
-                currentPage={currentPage}
-                totalOfItems={totalCount}
-                itemsPerPage={limit}
-                onItemsPerPageChange={setLimit}
-                onPageChange={setPage}
-            />
-        </>
+        <DataTable
+            {...props}
+            enableSorting
+            enablePagination
+            currentPage={currentPage}
+            itemsPerPage={limit}
+            totalItems={totalCount}
+            itemsPerPageOptions={[5, 10, 20]}
+            data={tableData}
+            columns={columns}
+            primaryKey="rowId"
+            data-testid={testId}
+            onPageChange={setPage}
+            onItemsPerPageChange={setLimit}
+        />
     );
 });
 
