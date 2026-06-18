@@ -15,18 +15,6 @@ describe('Password Policy Tests', () => {
     const TEST_USER = 'testPolicyUser'
     const TEST_USER_PASSWORD = 'TestPass12&'
 
-    function submitPasswordChange(password: string) {
-        cy.iframe('iframe[src*="adminProperties.html"]').find('#password').clear().type(password)
-        cy.iframe('iframe[src*="adminProperties.html"]').find('#passwordConfirm').clear().type(password)
-        cy.iframe('iframe[src*="adminProperties.html"]').find('#submit').click()
-        /* eslint-disable cypress/no-unnecessary-waiting */
-        cy.wait(2000)
-    }
-
-    function verifyPasswordError(message: string) {
-        cy.iframe('iframe[src*="adminProperties.html"]').find('.alert-danger').should('contain', message)
-    }
-
     before(() => {
         cy.login()
         createUser(TEST_USER, TEST_USER_PASSWORD)
@@ -53,7 +41,7 @@ describe('Password Policy Tests', () => {
         deleteUser(TEST_USER)
     })
 
-    it('should configure password policy and enforce rules on password changes', () => {
+    it('should enforce password policy rules on user creation', () => {
         cy.login()
 
         // Configure password policy settings
@@ -71,46 +59,48 @@ describe('Password Policy Tests', () => {
             .checkRule(RULES.PREVENT_SIMILAR_USERNAME)
             .save()
 
-        cy.visit('/jahia/administration/adminProperties')
+        cy.visit('/jahia/administration/manageUsers')
+
+        const manageUsersIframe = 'iframe[src*="manageUsers"]'
+        cy.frameLoaded(manageUsersIframe)
+
+        // Click "Create new user" button
+        cy.iframe(manageUsersIframe).find('button[onclick*="addUser"]').click()
+        /* eslint-disable cypress/no-unnecessary-waiting */
+        cy.wait(2000)
+
+        function submitUserCreation(username: string, password: string) {
+            cy.iframe(manageUsersIframe).find('#username').clear().type(username)
+            cy.iframe(manageUsersIframe).find('#password').clear().type(password)
+            cy.iframe(manageUsersIframe).find('#passwordConfirm').clear().type(password)
+            cy.iframe(manageUsersIframe).find('button[type="submit"][name="_eventId_add"]').click()
+            /* eslint-disable cypress/no-unnecessary-waiting */
+            cy.wait(2000)
+        }
 
         // Test: password too short (< 6 characters)
-        submitPasswordChange('pass')
-        verifyPasswordError('Password must contain at least 6 characters')
+        submitUserCreation('newTestUser', 'pass')
+        cy.iframe(manageUsersIframe).find('.alert-danger').should('contain', 'Password must contain at least 6 characters')
 
         // Test: password too long (> 15 characters)
-        submitPasswordChange('passwoooooooooooooooooooord')
-        verifyPasswordError('Password cannot be longer than 15 characters')
+        submitUserCreation('newTestUser', 'passwoooooooooooooooooooord')
+        cy.iframe(manageUsersIframe).find('.alert-danger').should('contain', 'Password cannot be longer than 15 characters')
 
         // Test: password without digits
-        submitPasswordChange('password')
-        verifyPasswordError('Password must contain at least 2 digit(s)')
+        submitUserCreation('newTestUser', 'password')
+        cy.iframe(manageUsersIframe).find('.alert-danger').should('contain', 'Password must contain at least 2 digit(s)')
 
         // Test: password with non-allowed special char but no digits
-        submitPasswordChange('password.')
-        verifyPasswordError('Password must contain at least 2 digit(s)')
+        submitUserCreation('newTestUser', 'password.')
+        cy.iframe(manageUsersIframe).find('.alert-danger').should('contain', 'Password must contain at least 2 digit(s)')
 
         // Test: password with 2 digits but no required special character
-        submitPasswordChange('password12')
-        verifyPasswordError('Password must contain at least 1 of the following characters: _*+-&$!@')
+        submitUserCreation('newTestUser', 'password12')
+        cy.iframe(manageUsersIframe).find('.alert-danger').should('contain', 'Password must contain at least 1 of the following characters: _*+-&$!@')
 
-        // Test: password similar to username (root)
-        submitPasswordChange('root1234&')
-        verifyPasswordError('Password is not allowed to be similar to the user name')
-    })
-
-    it('should prevent password reuse when rule is enabled', () => {
-        cy.login()
-        const policyPage = PasswordPolicyPage.visit()
-        policyPage.checkRule(RULES.PREVENT_REUSE).setParameter(RULES.PREVENT_REUSE, '1').save()
-
-        cy.visit('/jahia/administration/adminProperties')
-
-        submitPasswordChange('ReusedPass12&')
-        submitPasswordChange('ReusedPass12&')
-        verifyPasswordError('It is not allowed to reuse last 1 passwords')
-
-        // Re-set root password
-        submitPasswordChange('root1234')
+        // Test: password similar to username
+        submitUserCreation('newTestUser', 'newTestUser12&')
+        cy.iframe(manageUsersIframe).find('.alert-danger').should('contain', 'Password is not allowed to be similar to the user name')
     })
 
     it('should prevent non-root users from changing their passwords when rule is enabled', () => {
@@ -137,5 +127,35 @@ describe('Password Policy Tests', () => {
             .should('be.visible')
             .and('contain', 'You are not allowed to change the password')
         cy.logout()
+    })
+
+    it('should prevent password reuse when rule is enabled', () => {
+        cy.login()
+        const policyPage = PasswordPolicyPage.visit()
+        policyPage.checkRule(RULES.PREVENT_REUSE).setParameter(RULES.PREVENT_REUSE, '1').save()
+
+        cy.visit('/jahia/administration/manageUsers')
+
+        const manageUsersIframe = 'iframe[src*="manageUsers"]'
+        cy.frameLoaded(manageUsersIframe)
+        cy.iframe(manageUsersIframe).contains('a', TEST_USER).click()
+        /* eslint-disable cypress/no-unnecessary-waiting */
+        cy.wait(2000)
+
+        // Change password first time
+        cy.iframe(manageUsersIframe).find('#password').clear().type('ReusedPass12&')
+        cy.iframe(manageUsersIframe).find('#passwordConfirm').clear().type('ReusedPass12&')
+        cy.iframe(manageUsersIframe).find('button[type="submit"][name="_eventId_update"]').click()
+        cy.wait(2000)
+
+        // Try to reuse same password
+        cy.iframe(manageUsersIframe).contains('a', TEST_USER).click()
+        cy.wait(2000)
+        cy.iframe(manageUsersIframe).find('#password').clear().type('ReusedPass12&')
+        cy.iframe(manageUsersIframe).find('#passwordConfirm').clear().type('ReusedPass12&')
+        cy.iframe(manageUsersIframe).find('button[type="submit"][name="_eventId_update"]').click()
+        cy.wait(2000)
+
+        cy.iframe(manageUsersIframe).find('.alert-danger').should('contain', 'It is not allowed to reuse last 1 passwords')
     })
 })
