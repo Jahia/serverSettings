@@ -101,10 +101,7 @@ describe('Password Policy Tests', () => {
     it('should prevent password reuse when rule is enabled', () => {
         cy.login()
         const policyPage = PasswordPolicyPage.visit()
-        policyPage
-            .checkRule(RULES.PREVENT_REUSE)
-            .setParameter(RULES.PREVENT_REUSE, '1')
-            .save()
+        policyPage.checkRule(RULES.PREVENT_REUSE).setParameter(RULES.PREVENT_REUSE, '1').save()
 
         cy.visit('/jahia/administration/adminProperties')
 
@@ -119,9 +116,7 @@ describe('Password Policy Tests', () => {
     it('should prevent non-root users from changing their passwords when rule is enabled', () => {
         cy.login()
         const policyPage = PasswordPolicyPage.visit()
-        policyPage
-            .checkRule(RULES.PREVENT_PASSWORD_CHANGE)
-            .save()
+        policyPage.checkRule(RULES.PREVENT_PASSWORD_CHANGE).save()
         cy.logout()
 
         // Log in as server-admin test user and attempt to change password via profile
@@ -137,7 +132,8 @@ describe('Password Policy Tests', () => {
         cy.iframe(profileIframe).find('#passwordChangeButton').click()
 
         // Verify error message
-        cy.iframe(profileIframe).find('#passwordErrors', { timeout: 10000 })
+        cy.iframe(profileIframe)
+            .find('#passwordErrors', { timeout: 10000 })
             .should('be.visible')
             .and('contain', 'You are not allowed to change the password')
         cy.logout()
