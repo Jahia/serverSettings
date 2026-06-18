@@ -80,27 +80,39 @@ describe('Password Policy Tests', () => {
 
         // Test: password too short (< 6 characters)
         submitUserCreation('newTestUser', 'pass')
-        cy.iframe(manageUsersIframe).find('.alert-danger').should('contain', 'Password must contain at least 6 characters')
+        cy.iframe(manageUsersIframe)
+            .find('.alert-danger')
+            .should('contain', 'Password must contain at least 6 characters')
 
         // Test: password too long (> 15 characters)
         submitUserCreation('newTestUser', 'passwoooooooooooooooooooord')
-        cy.iframe(manageUsersIframe).find('.alert-danger').should('contain', 'Password cannot be longer than 15 characters')
+        cy.iframe(manageUsersIframe)
+            .find('.alert-danger')
+            .should('contain', 'Password cannot be longer than 15 characters')
 
         // Test: password without digits
         submitUserCreation('newTestUser', 'password')
-        cy.iframe(manageUsersIframe).find('.alert-danger').should('contain', 'Password must contain at least 2 digit(s)')
+        cy.iframe(manageUsersIframe)
+            .find('.alert-danger')
+            .should('contain', 'Password must contain at least 2 digit(s)')
 
         // Test: password with non-allowed special char but no digits
         submitUserCreation('newTestUser', 'password.')
-        cy.iframe(manageUsersIframe).find('.alert-danger').should('contain', 'Password must contain at least 2 digit(s)')
+        cy.iframe(manageUsersIframe)
+            .find('.alert-danger')
+            .should('contain', 'Password must contain at least 2 digit(s)')
 
         // Test: password with 2 digits but no required special character
         submitUserCreation('newTestUser', 'password12')
-        cy.iframe(manageUsersIframe).find('.alert-danger').should('contain', 'Password must contain at least 1 of the following characters: _*+-&$!@')
+        cy.iframe(manageUsersIframe)
+            .find('.alert-danger')
+            .should('contain', 'Password must contain at least 1 of the following characters: _*+-&$!@')
 
         // Test: password similar to username
         submitUserCreation('newTestUser', 'newTestUser12&')
-        cy.iframe(manageUsersIframe).find('.alert-danger').should('contain', 'Password is not allowed to be similar to the user name')
+        cy.iframe(manageUsersIframe)
+            .find('.alert-danger')
+            .should('contain', 'Password is not allowed to be similar to the user name')
     })
 
     it('should prevent non-root users from changing their passwords when rule is enabled', () => {
@@ -156,6 +168,8 @@ describe('Password Policy Tests', () => {
         cy.iframe(manageUsersIframe).find('button[type="submit"][name="_eventId_update"]').click()
         cy.wait(2000)
 
-        cy.iframe(manageUsersIframe).find('.alert-danger').should('contain', 'It is not allowed to reuse last 1 passwords')
+        cy.iframe(manageUsersIframe)
+            .find('.alert-danger')
+            .should('contain', 'It is not allowed to reuse last 1 passwords')
     })
 })
