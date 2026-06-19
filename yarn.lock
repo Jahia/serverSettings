@@ -1149,7 +1149,7 @@
   dependencies:
     "@floating-ui/dom" "^1.7.6"
 
-"@floating-ui/react@^0.27.16":
+"@floating-ui/react@^0.27.19":
   version "0.27.19"
   resolved "https://registry.yarnpkg.com/@floating-ui/react/-/react-0.27.19.tgz#d8d5d895b7cb97dac370bfbf55f3e630878fdf1f"
   integrity sha512-31B8h5mm8YxotlE7/AU/PhNAl8eWxAmjL/v2QOxroDNkTFLk3Uu82u63N3b6TXa4EGJeeZLVcd/9AlNlVqzeog==
@@ -1195,12 +1195,12 @@
     eslint-plugin-react "^7.16.0"
     eslint-plugin-react-hooks "^2.2.0"
 
-"@jahia/moonstone@^2.19.0":
-  version "2.19.0"
-  resolved "https://registry.yarnpkg.com/@jahia/moonstone/-/moonstone-2.19.0.tgz#fee008dd7fb01241998c73bf828e6cf933a18d99"
-  integrity sha512-iAGCK8gJzhJ9sYRkyhT825LHkJaGPc2XPpmzRm/eupva1k/N5M1CGKtwI5bb86e72ZZ9CyJ3+RbBbkkjMbNgYA==
+"@jahia/moonstone@^2.20.2":
+  version "2.20.2"
+  resolved "https://registry.yarnpkg.com/@jahia/moonstone/-/moonstone-2.20.2.tgz#06892ad6b246cfb48bd01c433d3ccacd7ee07809"
+  integrity sha512-dCo+bJk4saDdBavdesGTzpLCdEZ351NQckatch3Jq5ofSZ+KQb3z1+H/1K561Zx9zIZXHqEwUoMoVkG7nDP8bg==
   dependencies:
-    "@floating-ui/react" "^0.27.16"
+    "@floating-ui/react" "^0.27.19"
     "@tanstack/react-table" "^8.21.3"
     clsx "^2.1.1"
     re-resizable "^6.11.2"
