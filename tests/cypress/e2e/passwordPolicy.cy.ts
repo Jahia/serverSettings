@@ -125,7 +125,8 @@ describe('Password Policy Tests', () => {
         cy.login(TEST_USER, TEST_USER_PASSWORD)
         cy.visit('/jahia/profile')
         const profileIframe = 'iframe[src*="me.html"]'
-        cy.frameLoaded(profileIframe)
+        cy.get(profileIframe, { timeout: 60000 }).should('exist')
+        cy.frameLoaded(profileIframe, { timeout: 60000 })
 
         cy.iframe(profileIframe).find('#passwordRows #password button.btn-fab').click()
         cy.iframe(profileIframe).find('#oldPasswordField').clear().type(TEST_USER_PASSWORD)
