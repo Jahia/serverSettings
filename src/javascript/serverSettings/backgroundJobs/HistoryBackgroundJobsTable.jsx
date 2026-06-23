@@ -2,6 +2,7 @@ import React, {useMemo, forwardRef} from 'react';
 import {useHistoryBackgroundJobs} from './hooks';
 const {useTranslation} = require('react-i18next');
 import {parseUsername} from './utils';
+import {dateColumn, stringColumn} from '@jahia/moonstone/DataTable';
 import BackgroundJobsTable from './BackgroundJobsTable';
 import JobStatusBadge from './JobStatusBadge';
 
@@ -24,41 +25,36 @@ const HistoryBackgroundJobsTable = forwardRef((_, ref) => {
             {
                 key: 'jobDescription',
                 label: t('backgroundJobs.columns.jobDescription'),
-                isSortable: true,
-                render: value => value
+                ...stringColumn(row => row.jobDescription)
             },
             {
                 key: 'jobStatus',
                 label: t('backgroundJobs.columns.status'),
-                render: value => <JobStatusBadge status={value}/>,
+                render: ({value}) => <JobStatusBadge status={value}/>,
                 width: '140px',
                 isSortable: true
             },
             {
                 key: 'userKey',
                 label: t('backgroundJobs.columns.user'),
-                isSortable: true,
-                render: value => parseUsername(value)
+                ...stringColumn(row => parseUsername(row.userKey))
             },
             {
                 key: 'group',
                 label: t('backgroundJobs.columns.type'),
-                isSortable: true,
-                render: value => value
+                ...stringColumn(row => row.group)
             },
             {
                 key: 'begin',
                 label: t('backgroundJobs.columns.startedDate'),
-                render: value => new Date(value).toLocaleString(),
-                width: '175px',
-                isSortable: true
+                ...dateColumn(row => new Date(row.begin)),
+                width: '175px'
             },
             {
                 key: 'duration',
                 label: t('backgroundJobs.columns.duration'),
-                render: value => `${value} ms`,
-                width: '105px',
-                isSortable: true
+                ...stringColumn(row => `${row.duration} ms`),
+                width: '105px'
             }
         ];
     }, [t]);
