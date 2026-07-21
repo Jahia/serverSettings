@@ -121,8 +121,9 @@ describe('Password Policy Tests', () => {
         policyPage.checkRule(RULES.PREVENT_PASSWORD_CHANGE).save()
         cy.logout()
 
-        // Log in as server-admin test user and attempt to change password via profile
-        cy.login(TEST_USER, TEST_USER_PASSWORD)
+        // Log in as server-admin test user and attempt to change password via profile.
+        // Use a validated, isolated session to avoid interference with other tests.
+        cy.loginAndStoreSession(TEST_USER, TEST_USER_PASSWORD)
         cy.visit('/jahia/profile')
         const profileIframe = 'iframe[src*="me.html"]'
         cy.get(profileIframe, { timeout: 60000 }).should('exist')
