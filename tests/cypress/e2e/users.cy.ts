@@ -129,22 +129,20 @@ describe('Manage Users - Create / Search / Edit / Delete Tests', () => {
         page.search(SEARCH_USER).verifyUserListed(SEARCH_USER)
     })
 
-    it('should delete a user so it no longer appears in the list', () => {
+    it('should delete a user', () => {
         const page = ManageUsersPage.visit()
         page.openExportOrRemove(DELETE_USER).deleteFromRemovePage()
 
         ManageUsersPage.visit().search(DELETE_USER).verifyUserNotListed(DELETE_USER)
     })
 
-    it('should edit a user by adding an organization and updating', () => {
-        const organization = 'Jahia'
-
+    it('should edit a user', () => {
         const page = ManageUsersPage.visit()
-        page.openUser(EDIT_USER).fillForm({ organization }).submitUpdate()
+        page.openUser(EDIT_USER).fillForm({ organization: 'Jahia' }).submitUpdate()
 
         // Reopen the user and verify the organization persisted.
         ManageUsersPage.visit().openUser(EDIT_USER)
-        page.iframe().find('#organization').should('have.value', organization)
+        page.iframe().find('#organization').should('have.value', 'Jahia')
     })
 
     it('should open Export or Remove, verify fields are disabled, then delete', () => {
