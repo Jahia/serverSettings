@@ -25,12 +25,29 @@ export class ManageUsersPage extends BasePage {
         return cy.iframe(ManageUsersPage.IFRAME_SELECTOR)
     }
 
+    /*
+     * Poll the iframe's live document until `selector` is present, instead of a
+     * fixed delay. This reliably waits for the (re)loaded page after an action
+     * that navigates the iframe. `selector` may be a grouped CSS selector
+     * (e.g. "a, b") to wait for any one of several possible landing states.
+     */
+    private waitForIframeElement(selector: string, timeout = 10000): ManageUsersPage {
+        cy.waitUntil(
+            () =>
+                cy.get(ManageUsersPage.IFRAME_SELECTOR).then(($iframe) => $iframe.contents().find(selector).length > 0),
+            {
+                errorMsg: `Timed out waiting for "${selector}" to appear in the iframe`,
+                timeout,
+                interval: 200,
+            },
+        )
+        return this
+    }
+
     /* Open the "Create new user" form. */
     openCreateForm(): ManageUsersPage {
         this.iframe().find('button[onclick*="addUser"]').click()
-        /* eslint-disable-next-line cypress/no-unnecessary-waiting */
-        cy.wait(2000)
-        return this
+        return this.waitForIframeElement('#username')
     }
 
     /* Fill the create/edit user form. Only provided fields are typed. */
@@ -65,17 +82,15 @@ export class ManageUsersPage extends BasePage {
     /* Submit the create-user form. */
     submitCreate(): ManageUsersPage {
         this.iframe().find('button[type="submit"][name="_eventId_add"]').click()
-        /* eslint-disable-next-line cypress/no-unnecessary-waiting */
-        cy.wait(2000)
-        return this
+        // Success returns to the user list ("Create new user" button); a validation
+        // error re-renders the form with an alert. Wait for either outcome.
+        return this.waitForIframeElement('button[onclick*="addUser"], .alert-danger')
     }
 
     /* Submit the edit-user form. */
     submitUpdate(): ManageUsersPage {
         this.iframe().find('button[type="submit"][name="_eventId_update"]').click()
-        /* eslint-disable-next-line cypress/no-unnecessary-waiting */
-        cy.wait(2000)
-        return this
+        return this.waitForIframeElement('button[onclick*="addUser"], .alert-danger')
     }
 
     verifyErrorMessage(message: string): ManageUsersPage {
@@ -97,25 +112,22 @@ export class ManageUsersPage extends BasePage {
     search(term: string): ManageUsersPage {
         this.iframe().find('input[name="searchString"]').clear().type(term)
         this.iframe().find('button[name="_eventId_search"]').click()
-        /* eslint-disable-next-line cypress/no-unnecessary-waiting */
-        cy.wait(2000)
-        return this
+        // Wait for the results list to be rendered again.
+        return this.waitForIframeElement('button[onclick*="addUser"]')
     }
 
     /* Open an existing user for editing by clicking its link. */
     openUser(username: string): ManageUsersPage {
         this.iframe().contains('a', username).click()
-        /* eslint-disable-next-line cypress/no-unnecessary-waiting */
-        cy.wait(2000)
-        return this
+        // Wait for the edit form to load.
+        return this.waitForIframeElement('#organization')
     }
 
     /* Click the "Export or Remove" fab button for the given user. */
     openExportOrRemove(username: string): ManageUsersPage {
         this.iframe().find(`a[title="Export or Remove"][onclick*="/${username}'"]`).click()
-        /* eslint-disable-next-line cypress/no-unnecessary-waiting */
-        cy.wait(2000)
-        return this
+        // Wait for the Export/Remove page to load.
+        return this.waitForIframeElement('button[data-target="#confirmDeleteModal"]')
     }
 
     /* On the Export/Remove page, verify all input fields are disabled. */
@@ -131,17 +143,15 @@ export class ManageUsersPage extends BasePage {
     /* Trigger the delete confirmation modal and confirm the deletion. */
     deleteFromRemovePage(): ManageUsersPage {
         this.iframe().find('button[data-target="#confirmDeleteModal"]').click()
-        /* eslint-disable-next-line cypress/no-unnecessary-waiting */
-        cy.wait(1000)
+        // The confirmation modal is toggled by JS; assert it is visible (retries).
         this.iframe().find('#confirmDeleteModal').should('be.visible')
         this.iframe()
             .find('#confirmDeleteModal')
             .find('button[name="_eventId_delete"], button.btn-danger, a.btn-danger')
             .last()
             .click()
-        /* eslint-disable-next-line cypress/no-unnecessary-waiting */
-        cy.wait(2000)
-        return this
+        // Deletion returns to the user list.
+        return this.waitForIframeElement('button[onclick*="addUser"]')
     }
 
     /* On the Export/Remove page, verify the Export link points to the export archive. */
