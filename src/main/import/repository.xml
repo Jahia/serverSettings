@@ -31,16 +31,6 @@
                                     <thumbnail jcr:mimeType="image/png" jcr:primaryType="jnt:resource"/>
                                     <thumbnail2 jcr:mimeType="image/png" jcr:primaryType="jnt:resource"/>
                                 </configurations.png>
-                                <mail_x0020_server jcr:primaryType="jnt:folder">
-                                    <mail_preferences.png j:height="16"
-                                              j:width="16"
-                                              jcr:mixinTypes="jmix:image"
-                                              jcr:primaryType="jnt:file">
-                                        <jcr:content jcr:mimeType="image/png" jcr:primaryType="jnt:resource"/>
-                                        <thumbnail jcr:mimeType="image/png" jcr:primaryType="jnt:resource"/>
-                                        <thumbnail2 jcr:mimeType="image/png" jcr:primaryType="jnt:resource"/>
-                                    </mail_preferences.png>
-                                </mail_x0020_server>
                                 <search_x0020_settings jcr:primaryType="jnt:folder">
                                     <recherche-16x16.png j:height="16"
                                              j:width="16"
@@ -218,18 +208,6 @@
                                 j:titleKey="serverSettings.configurations"
                                 jcr:mixinTypes="jmix:rbTitle"
                                 jcr:primaryType="jnt:template">
-                            <mailServerSettings j:applyOn="jnt:globalSettings"
-                                      j:defaultTemplate="false"
-                                      j:hiddenTemplate="false"
-                                      j:icon="/modules/serverSettings/templates/files/serveradmin/configurations/mail_x0020_server/mail_preferences.png"
-                                      j:requiredPermissionNames="adminEmailSettings"
-                                      j:titleKey="serverSettings.mailServerSettings"
-                                      jcr:mixinTypes="jmix:rbTitle"
-                                      jcr:primaryType="jnt:contentTemplate">
-                                <pagecontent jcr:primaryType="jnt:contentList">
-                                    <mailServer-settings jcr:primaryType="jnt:serverSettingsMailServerSettings"/>
-                                </pagecontent>
-                            </mailServerSettings>
                         </configurations>
                         <system-components j:hiddenTemplate="false"
                                   j:icon="/modules/serverSettings/templates/files/serveradmin/system_x0020_components/system_components.png"
@@ -393,18 +371,6 @@
                                     j:titleKey="serverSettings.configurations"
                                     jcr:mixinTypes="jmix:rbTitle"
                                     jcr:primaryType="jnt:template">
-                        <mailServerSettings-jahia-anthracite j:applyOn="jnt:globalSettings"
-                                            j:defaultTemplate="false"
-                                            j:hiddenTemplate="false"
-                                            j:icon="/modules/serverSettings/templates/files/serveradmin/configurations/mail_x0020_server/mail_preferences.png"
-                                            j:requiredPermissionNames="adminEmailSettings"
-                                            j:titleKey="serverSettings.mailServerSettings"
-                                            jcr:mixinTypes="jmix:rbTitle"
-                                            jcr:primaryType="jnt:contentTemplate">
-                            <pagecontent jcr:primaryType="jnt:contentList">
-                                <mailServer-settings jcr:primaryType="jnt:serverSettingsMailServerSettings" jcr:mixinTypes="jmix:renderable" j:view="settingsBootstrap3GoogleMaterialStyle"/>
-                            </pagecontent>
-                        </mailServerSettings-jahia-anthracite>
                     </configurations-jahia-anthracite>
                     <system-components-jahia-anthracite j:hiddenTemplate="false"
                                        j:icon="/modules/serverSettings/templates/files/serveradmin/system_x0020_components/system_components.png"
