@@ -14,11 +14,11 @@
   "license": "MIT",
   "devDependencies": {
     "@jahia/content-editor-cypress": "4.2.0-tests.9",
-    "@jahia/cypress": "^3.35.0",
+    "@jahia/cypress": "^8.2.1",
     "@jahia/jahia-reporter": "^1.1.10",
     "@typescript-eslint/eslint-plugin": "^5.27.0",
     "@typescript-eslint/parser": "^5.27.0",
-    "cypress": "^12.4.1",
+    "cypress": "^15.19.0",
     "cypress-iframe": "^1.0.1",
     "cypress-multi-reporters": "^1.6.0",
     "cypress-terminal-report": "^3.5.2",
