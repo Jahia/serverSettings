@@ -44,11 +44,16 @@ import org.slf4j.LoggerFactory;
  * Failing to resolve a main resource, or a missing configuration, yields an empty fragment rather
  * than a rendered component.
  */
+// equals/hashCode are deliberately NOT overridden for the field below: AbstractFilter defines
+// equality as (concrete class, priority), which is the key RenderService.addFilter uses to replace an
+// already-registered filter. Widening it to the configuration would break that re-registration.
+@SuppressWarnings("java:S2160")
 public class SettingsComponentPermissionFilter extends AbstractFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(SettingsComponentPermissionFilter.class);
 
     private String[] requiredPermissions = new String[0];
+    private String requiredPermissionsLabel = "";
 
     /**
      * Sets the permissions accepted by this filter, as a comma-separated list. A caller holding any
@@ -62,6 +67,7 @@ public class SettingsComponentPermissionFilter extends AbstractFilter {
             parsed[i] = parsed[i].trim();
         }
         this.requiredPermissions = parsed;
+        this.requiredPermissionsLabel = StringUtils.join(parsed, ", ");
     }
 
     @Override
@@ -85,9 +91,11 @@ public class SettingsComponentPermissionFilter extends AbstractFilter {
             }
         }
 
-        logger.warn("Not rendering {}: {} holds none of {} on {}", resource.getNodePath(),
-                renderContext.getUser() != null ? renderContext.getUser().getName() : "the current user",
-                StringUtils.join(requiredPermissions, ", "), contextNode.getPath());
+        if (logger.isWarnEnabled()) {
+            logger.warn("Not rendering {}: {} holds none of {} on {}", resource.getNodePath(),
+                    renderContext.getUser() != null ? renderContext.getUser().getName() : "the current user",
+                    requiredPermissionsLabel, contextNode.getPath());
+        }
         return StringUtils.EMPTY;
     }
 }
