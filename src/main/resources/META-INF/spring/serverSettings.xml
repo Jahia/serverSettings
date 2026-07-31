@@ -16,16 +16,4 @@
         </property>
     </bean>
 
-    <!-- These components belong to the server-wide administration route, whose main resource is the
-         global settings node; the server administration permission is the only one accepted. -->
-    <bean id="serverSettingsComponentPermissionFilter"
-          class="org.jahia.modules.serversettings.render.SettingsComponentPermissionFilter">
-        <property name="priority" value="22"/>
-        <property name="description"
-                  value="Renders a server settings component only for a caller holding the server administration permission on the main resource"/>
-        <property name="applyOnNodeTypes"
-                  value="jnt:serverSettingsAboutJahia,jnt:serverSettingsAdminProperties,jnt:serverSettingsCacheManagement,jnt:serverSettingsDBSettings,jnt:serverSettingsMailServerSettings,jnt:serverSettingsManageMemory,jnt:serverSettingsManagePortlets,jnt:serverSettingsManageWebProjects,jnt:serverSettingsPasswordPolicy,jnt:serverSettingsReportAnIssue,jnt:serverSettingsSystemInfos"/>
-        <property name="requiredPermissions" value="admin"/>
-    </bean>
-
 </beans>

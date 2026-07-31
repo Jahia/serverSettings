@@ -13,6 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*
+ * Wiring note — this is deliberately OSGi Declarative Services, not a Spring bean.
+ *
+ * Jahia's engineering conventions (the shared `cortex` harness, skill
+ * `jahia-java-osgi-declarative-services`) state the rule as: DS is the ONLY dependency-injection
+ * mechanism allowed in a Jahia module — Blueprint is deprecated and Spring is forbidden, with the sole
+ * tolerated exception being a guarded `SpringContextSingleton.getBean(...)` read-through to a core bean.
+ * An earlier revision of this filter was registered as a Spring bean in META-INF/spring; it was moved
+ * here to follow that rule, and the render filter it registers behaves identically either way (both end
+ * up in JahiaTemplateManagerService.getRenderFilters()).
+ *
+ * The same harness documents the trap to watch for if this is ever ported to another module: without the
+ * bnd instruction `<_dsannotations>*</_dsannotations>`, an @Component class compiles and ships but emits
+ * no OSGI-INF descriptor and no Service-Component header, so the component silently never registers and
+ * the gate below simply does not run. Parents `jahia-modules` >= 8.1.7.0 switch it on already; older ones
+ * do not. Verify a descriptor is actually in the built jar rather than assuming.
+ */
 package org.jahia.modules.serversettings.render;
 
 import org.apache.commons.lang.StringUtils;
@@ -21,71 +38,96 @@ import org.jahia.services.render.RenderContext;
 import org.jahia.services.render.Resource;
 import org.jahia.services.render.filter.AbstractFilter;
 import org.jahia.services.render.filter.RenderChain;
+import org.jahia.services.render.filter.RenderFilter;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 /**
- * Renders a settings component only when the caller holds an administration permission on the
- * resource the request is actually made against.
+ * Renders a settings component only when the caller holds an administration permission on the resource the
+ * request is actually made against.
  * <p>
- * The settings components of this module are ordinary, instantiable content types, so the container
- * they were designed for is not the only place they can end up being rendered from. The permission
- * requirements declared on the settings templates ({@code j:requiredPermissionNames}) are a property
- * of those templates, so a component rendered through any other resource carries no requirement at
- * all — and the flow behind it would then be handed to whoever can render that resource. This filter
- * makes the requirement a property of the component instead, so it holds on every render path.
+ * The server settings screens of this module are ordinary, instantiable content types, so the server
+ * administration container they were designed for is not the only place they can be rendered from. The
+ * permission each screen requires is declared on the settings <em>template</em> that hosts it
+ * ({@code j:requiredPermissionNames}), so it is a property of that template and not of the component: the
+ * same component rendered through any other resource — a plain page content area — carries no requirement at
+ * all, and the Spring web flow behind it would be handed to whoever can render that resource. This filter
+ * makes the requirement a property of the component, so it holds on every render path.
  * <p>
- * The check is evaluated against the <strong>main resource</strong> of the render, not against the
- * component node: the component node of a settings screen lives inside the module
- * ({@code /modules/&lt;module&gt;/...}), whereas the main resource of the server administration route
- * is the global settings node — the node the server administrator role is granted through. Checking
- * the component node instead would refuse legitimate administrators.
+ * The check is evaluated against the <strong>main resource</strong> of the render, not against the component
+ * node, and that is load-bearing rather than incidental: the component node of a <em>legitimate</em> settings
+ * screen lives inside its module ({@code /modules/...}), where a site-scoped administrator holds nothing —
+ * measured, {@code site-admin} is {@code false} there and {@code true} on {@code /sites/<key>}. Checking
+ * the component node, which is the obvious implementation, would therefore refuse real site administrators.
+ * The main resource is the site (site-settings route) or the global settings node (server-administration
+ * route), which is what the corresponding administrator role is actually granted on.
  * <p>
- * Failing to resolve a main resource, or a missing configuration, yields an empty fragment rather
- * than a rendered component.
+ * Only {@code admin} is accepted, so these screens stay out of reach of an administrator whose authority is
+ * scoped to a single site. It is a core permission ({@code root-permissions.xml}) granted by the
+ * {@code server-administrator} role; the finer per-screen permissions are contributed by this module's own
+ * {@code permissions.xml} and resolve to {@code false} indistinguishably from a denial where they are not
+ * registered, which would fail closed for administrators too.
+ * The finer per-screen requirement declared on the settings template remains enforced on the administration
+ * route, so this filter is an additional condition and never a replacement. Failing to resolve a main resource
+ * yields an empty fragment rather than a rendered component.
+ * <p>
+ * Registered via OSGi Declarative Services — no Spring context involvement.
  */
-// equals/hashCode are deliberately NOT overridden for the field below: AbstractFilter defines
-// equality as (concrete class, priority), which is the key RenderService.addFilter uses to replace an
-// already-registered filter. Widening it to the configuration would break that re-registration.
-@SuppressWarnings("java:S2160")
+@Component(service = RenderFilter.class, immediate = true)
 public class SettingsComponentPermissionFilter extends AbstractFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(SettingsComponentPermissionFilter.class);
 
-    private String[] requiredPermissions = new String[0];
-    private String requiredPermissionsLabel = "";
+    /** Node types gated by this filter. */
+    private static final String APPLY_ON_NODE_TYPES = 
+            "jnt:serverSettingsAboutJahia," +
+            "jnt:serverSettingsAdminProperties," +
+            "jnt:serverSettingsCacheManagement," +
+            "jnt:serverSettingsDBSettings," +
+            "jnt:serverSettingsMailServerSettings," +
+            "jnt:serverSettingsManageMemory," +
+            "jnt:serverSettingsManagePortlets," +
+            "jnt:serverSettingsManageWebProjects," +
+            "jnt:serverSettingsPasswordPolicy," +
+            "jnt:serverSettingsReportAnIssue," +
+            "jnt:serverSettingsSystemInfos";
 
-    /**
-     * Sets the permissions accepted by this filter, as a comma-separated list. A caller holding any
-     * one of them on the main resource may render the component.
-     *
-     * @param requiredPermissions comma-separated list of permission names
-     */
-    public void setRequiredPermissions(String requiredPermissions) {
-        String[] parsed = StringUtils.split(StringUtils.defaultString(requiredPermissions), ',');
-        for (int i = 0; i < parsed.length; i++) {
-            parsed[i] = parsed[i].trim();
-        }
-        this.requiredPermissions = parsed;
-        this.requiredPermissionsLabel = StringUtils.join(parsed, ", ");
+    /** Any one of these on the main resource is sufficient. */
+    private static final List<String> REQUIRED_PERMISSIONS =
+            Collections.unmodifiableList(Arrays.asList("admin"));
+
+    private static final String REQUIRED_PERMISSIONS_LABEL = StringUtils.join(REQUIRED_PERMISSIONS, ", ");
+
+    @Activate
+    public void activate() {
+        // Priority 22: immediately after core's own permission check (TemplatePermissionCheckFilter, 21) and
+        // before the fragment is produced or cached — a refusal must not populate a cache entry that a
+        // differently-privileged caller could later be served.
+        setPriority(22);
+        setApplyOnNodeTypes(APPLY_ON_NODE_TYPES);
+        setDescription("Renders a settings component only for a caller holding an administration permission "
+                + "on the main resource");
+        logger.debug("SettingsComponentPermissionFilter active on {}", APPLY_ON_NODE_TYPES);
     }
 
     @Override
     public String prepare(RenderContext renderContext, Resource resource, RenderChain chain) throws Exception {
-        if (requiredPermissions.length == 0) {
-            logger.error("No permission configured for {}; refusing to render {}",
-                    getClass().getName(), resource.getNodePath());
-            return StringUtils.EMPTY;
-        }
-
         Resource mainResource = renderContext.getMainResource();
         JCRNodeWrapper contextNode = mainResource != null ? mainResource.getNode() : null;
         if (contextNode == null) {
+            // Fail closed: with no main resource there is nothing to evaluate the permission against, and this
+            // is an administration capability.
             logger.warn("No main resource to evaluate {} against; not rendering it", resource.getNodePath());
             return StringUtils.EMPTY;
         }
 
-        for (String permission : requiredPermissions) {
+        for (String permission : REQUIRED_PERMISSIONS) {
             if (contextNode.hasPermission(permission)) {
                 return null;
             }
@@ -94,7 +136,7 @@ public class SettingsComponentPermissionFilter extends AbstractFilter {
         if (logger.isWarnEnabled()) {
             logger.warn("Not rendering {}: {} holds none of {} on {}", resource.getNodePath(),
                     renderContext.getUser() != null ? renderContext.getUser().getName() : "the current user",
-                    requiredPermissionsLabel, contextNode.getPath());
+                    REQUIRED_PERMISSIONS_LABEL, contextNode.getPath());
         }
         return StringUtils.EMPTY;
     }
