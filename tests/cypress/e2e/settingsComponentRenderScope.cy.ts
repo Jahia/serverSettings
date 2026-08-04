@@ -1,9 +1,8 @@
-// Render scope of the server settings components. These screens are ordinary, instantiable content
-// types, so the server administration container they were designed for is not the only place they can
-// be rendered from. This spec places one of them in a plain page content area — i.e. outside that
-// container — and asserts that the web flow behind it is only served to a caller holding server
-// administration, and in particular NOT to a site administrator, whose authority stops at one site.
-// Opaque by design.
+// Render scope of the server settings components. A component's access rule should travel with the
+// component and hold on every render path, regardless of where the component is placed — not only on the
+// settings template that normally hosts it. This spec renders one of these components through an ordinary
+// resource and asserts that its web flow remains available only to a caller holding server administration,
+// and in particular NOT to a site administrator, whose authority stops at one site.
 //
 // Non-vacuity: the negative assertions are paired with a POSITIVE CONTROL that goes through the exact
 // same request shape and asserts the flow IS served to a server administrator, so a fixture that
