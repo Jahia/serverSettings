@@ -109,6 +109,24 @@
             </resource>
         </resources>
         <plugins>
+            <!-- DO NOT REMOVE without checking the built jar first.
+                 This line's parent (jahia-modules 8.1.0.0) does not switch on bnd's DS annotation scanning.
+                 Without this instruction an @Component class compiles and ships but produces no OSGI-INF
+                 descriptor and no Service-Component header, so the component never registers or activates —
+                 it fails SILENTLY, which here would mean the settings-component permission filter does not
+                 run at all. Verify OSGI-INF/org.jahia.modules.serversettings.render.SettingsComponentPermissionFilter.xml
+                 is present in the built jar. Diagnose with Karaf `scr:list`: a component missing entirely,
+                 rather than UNSATISFIED, means the annotations were never scanned. -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <_dsannotations>*</_dsannotations>
+                    </instructions>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>3.1.0</version>
