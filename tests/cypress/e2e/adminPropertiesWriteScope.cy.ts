@@ -6,10 +6,15 @@
 // Non-vacuity: the negative assertion is paired with a POSITIVE CONTROL that goes through the exact same
 // request shape and asserts the save DOES land for a server administrator. Without it, a fixture that
 // fails to submit anything at all would produce a false green — the root account would be unchanged for
-// the boring reason that nothing was ever driven.
+// the boring reason that nothing was ever driven. The negative case also pins the account to its exact
+// pre-attempt value rather than merely "not the attempted one", which a failed read would satisfy too.
 //
 // The low-privilege account is a real editor of the hosting site, so it can read the page. That makes its
 // refusal a decision about administering the server, and not about being unable to reach the screen.
+//
+// State is read back THROUGH THE SCREEN, as an administrator, rather than through a content API: the
+// rendered form is populated from the stored root account, so it observes the same state with nothing but
+// the mechanism already under test — no second API surface to be gated or shaped differently.
 //
 // Fully self-contained: creates its own site, the accounts and the placed component in before(); restores
 // the root account and tears everything down in after().
@@ -36,47 +41,31 @@ describe('Administration properties - write scope', () => {
     // instance's root account rewritten.
     let originalEmail = ''
 
-    const graphql = (query: string, variables: Record<string, unknown> = {}) =>
-        cy.request({ method: 'POST', url: '/modules/graphql', body: { query, variables } }).then((r) => r.body?.data)
+    // Every render gets its own cache-buster: a repeated one would let the fragment cache answer, and a
+    // stale fragment reads exactly like "the value did not change".
+    let probe = 0
+    const ec = () => `${uniq}-${probe++}`
 
-    const rootEmail = () =>
-        graphql(
-            `
-                {
-                    jcr {
-                        nodeByPath(path: "/users/root") {
-                            property(name: "j:email") {
-                                value
-                            }
-                        }
-                    }
-                }
-            `,
-        ).then((data) => (data?.jcr?.nodeByPath?.property?.value as string) ?? '')
+    const render = (user: string) => {
+        cy.login(user, 'password')
+        return cy
+            .request({ url: componentUrl, qs: { ec: ec() }, failOnStatusCode: false })
+            .then((res) => (typeof res.body === 'string' ? res.body : ''))
+    }
 
-    const setRootEmail = (value: string) =>
-        graphql(
-            `
-                mutation setRootEmail($value: String!) {
-                    jcr {
-                        mutateNode(pathOrId: "/users/root") {
-                            mutateProperty(name: "j:email") {
-                                setValue(value: $value)
-                            }
-                        }
-                    }
-                }
-            `,
-            { value },
-        )
+    // The email the screen currently holds for the root account, as seen by a caller who may see it.
+    const storedEmail = (user: string) =>
+        render(user).then((body) => {
+            const field = /name="email"[^>]*value="([^"]*)"/.exec(body)
+            expect(field, `the screen must render its email field to ${user}`).to.not.eq(null)
+            return Cypress.$('<textarea/>').html(field[1]).text()
+        })
 
     // Render the placed component as the given user, then submit its save transition with the supplied
     // email. Reports whether a flow was served at all and whether the screen acknowledged a save, so a
     // refused render and a refused save are told apart.
-    const submitEmail = (user: string, email: string): Cypress.Chainable<SubmitOutcome> => {
-        cy.login(user, 'password')
-        return cy.request({ url: componentUrl, qs: { ec: uniq }, failOnStatusCode: false }).then((render) => {
-            const body = typeof render.body === 'string' ? render.body : ''
+    const submitEmail = (user: string, email: string): Cypress.Chainable<SubmitOutcome> =>
+        render(user).then((body) => {
             const action = /<form[^>]*id="adminProperties"[^>]*action="([^"]+)"/.exec(body)
             if (!action) {
                 return cy.wrap<SubmitOutcome>({ served: false, saved: false }, { log: false })
@@ -103,7 +92,6 @@ describe('Administration properties - write scope', () => {
                     return { served: true, saved: /alert-success/.test(out) }
                 })
         })
-    }
 
     before(() => {
         cy.login()
@@ -120,14 +108,15 @@ describe('Administration properties - write scope', () => {
         addNode({ parentPathOrId: `/sites/${site}/home`, primaryNodeType: 'jnt:contentList', name: 'pagecontent' })
         addNode({ parentPathOrId: area, primaryNodeType: 'jnt:serverSettingsAdminProperties', name: placed })
 
-        rootEmail().then((value) => {
+        storedEmail(serverAdmin).then((value) => {
             originalEmail = value
         })
     })
 
     after(() => {
+        // put the account back the way it was found, through the same screen
+        submitEmail(serverAdmin, originalEmail)
         cy.login()
-        setRootEmail(originalEmail)
         deleteUser(serverAdmin)
         deleteUser(lowPriv)
         deleteSite(site)
@@ -139,15 +128,17 @@ describe('Administration properties - write scope', () => {
             expect(result.served, 'the server administrator must be served the flow').to.eq(true)
             expect(result.saved, 'the server administrator must be able to save').to.eq(true)
         })
-        cy.login()
-        rootEmail().should('eq', email)
+        storedEmail(serverAdmin).should('eq', email)
     })
 
     it('does not let a caller that administers nothing rewrite the root account', () => {
         const email = `admprop-attempt-${uniq}@jahia.invalid`
-        submitEmail(lowPriv, email)
-        cy.login()
-        // whether the render was refused or the save was, the account must be untouched
-        rootEmail().should('not.eq', email)
+        storedEmail(serverAdmin).then((before) => {
+            submitEmail(lowPriv, email).then((result) => {
+                expect(result.saved, 'a caller that administers nothing must not be able to save').to.eq(false)
+            })
+            // pinned to the exact pre-attempt value: "not the attempted one" would also pass on a failed read
+            storedEmail(serverAdmin).should('eq', before)
+        })
     })
 })

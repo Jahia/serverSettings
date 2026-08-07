@@ -64,7 +64,7 @@ import java.util.List;
 
 public class AdminPropertiesHandler implements Serializable {
     private static final long serialVersionUID = -1665000223980422529L;
-    private transient static final Logger logger = LoggerFactory.getLogger(AdminPropertiesHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(AdminPropertiesHandler.class);
 
     /**
      * Permission the caller must hold to write the root account's properties through this screen.
@@ -110,33 +110,36 @@ public class AdminPropertiesHandler implements Serializable {
         }
 
         try {
-            if (!rootNode.hasProperty("j:lastName") || !StringUtils.equals(rootNode.getProperty("j:lastName").getString(), adminProperties.getLastName())) {
-                rootNode.setProperty("j:lastName", adminProperties.getLastName());
-            }
-            if (!rootNode.hasProperty("j:firstName") || !StringUtils.equals(rootNode.getProperty("j:firstName").getString(), adminProperties.getFirstName())) {
-                rootNode.setProperty("j:firstName", adminProperties.getFirstName());
-            }
-            if (!rootNode.hasProperty("j:organization") || !StringUtils.equals(rootNode.getProperty("j:organization").getString(), adminProperties.getOrganization())) {
-                rootNode.setProperty("j:organization", adminProperties.getOrganization());
-            }
-            if (!rootNode.hasProperty("emailNotificationsDisabled") || !StringUtils.equals(rootNode.getProperty("emailNotificationsDisabled").getString(), adminProperties
-                    .getEmailNotificationsDisabled().toString())) {
-                rootNode.setProperty("emailNotificationsDisabled",
-                        Boolean.toString(adminProperties.getEmailNotificationsDisabled()));
-            }
-            if (!rootNode.hasProperty("j:email") || !StringUtils.equals(rootNode.getProperty("j:email").getString(), adminProperties.getEmail())) {
-                rootNode.setProperty("j:email", adminProperties.getEmail());
-            }
-            String lang = adminProperties.getPreferredLanguage().toString();
-            if (!rootNode.hasProperty("preferredLanguage") || !StringUtils.equals(rootNode.getProperty("preferredLanguage").getString(), lang)) {
-                rootNode.setProperty("preferredLanguage", lang);
-            }
+            setIfChanged(rootNode, "j:lastName", adminProperties.getLastName());
+            setIfChanged(rootNode, "j:firstName", adminProperties.getFirstName());
+            setIfChanged(rootNode, "j:organization", adminProperties.getOrganization());
+            setIfChanged(rootNode, "emailNotificationsDisabled",
+                    Boolean.toString(adminProperties.getEmailNotificationsDisabled()));
+            setIfChanged(rootNode, "j:email", adminProperties.getEmail());
+            setIfChanged(rootNode, "preferredLanguage", adminProperties.getPreferredLanguage().toString());
             messages.addMessage(new MessageBuilder().info().code("label.changeSaved").build());
 
             rootNode.save();
         } catch (RepositoryException e) {
             messages.addMessage(new MessageBuilder().error().code("label.error").build());
             logger.error(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Writes {@code value} to {@code name} when the node does not already hold exactly that value.
+     * <p>
+     * The six properties this screen edits share one read-compare-write shape; expressing it once keeps each
+     * of them a single line and keeps the comparison identical across all of them.
+     *
+     * @param node the node to write to
+     * @param name the property name
+     * @param value the value the property should hold
+     * @throws RepositoryException if reading or writing the property fails
+     */
+    private static void setIfChanged(JCRUserNode node, String name, String value) throws RepositoryException {
+        if (!node.hasProperty(name) || !StringUtils.equals(node.getProperty(name).getString(), value)) {
+            node.setProperty(name, value);
         }
     }
 
