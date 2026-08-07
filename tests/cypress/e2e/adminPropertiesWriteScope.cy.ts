@@ -37,20 +37,36 @@ describe('Administration properties - write scope', () => {
     let originalEmail = ''
 
     const graphql = (query: string, variables: Record<string, unknown> = {}) =>
-        cy
-            .request({ method: 'POST', url: '/modules/graphql', body: { query, variables } })
-            .then((r) => r.body?.data)
+        cy.request({ method: 'POST', url: '/modules/graphql', body: { query, variables } }).then((r) => r.body?.data)
 
     const rootEmail = () =>
-        graphql(`{ jcr { nodeByPath(path: "/users/root") { property(name: "j:email") { value } } } }`).then(
-            (data) => (data?.jcr?.nodeByPath?.property?.value as string) ?? '',
-        )
+        graphql(
+            `
+                {
+                    jcr {
+                        nodeByPath(path: "/users/root") {
+                            property(name: "j:email") {
+                                value
+                            }
+                        }
+                    }
+                }
+            `,
+        ).then((data) => (data?.jcr?.nodeByPath?.property?.value as string) ?? '')
 
     const setRootEmail = (value: string) =>
         graphql(
-            `mutation setRootEmail($value: String!) {
-                jcr { mutateNode(pathOrId: "/users/root") { mutateProperty(name: "j:email") { setValue(value: $value) } } }
-            }`,
+            `
+                mutation setRootEmail($value: String!) {
+                    jcr {
+                        mutateNode(pathOrId: "/users/root") {
+                            mutateProperty(name: "j:email") {
+                                setValue(value: $value)
+                            }
+                        }
+                    }
+                }
+            `,
             { value },
         )
 
