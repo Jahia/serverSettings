@@ -45,10 +45,11 @@ package org.jahia.modules.serversettings.flow;
 
 import org.apache.commons.lang.StringUtils;
 import org.jahia.modules.serversettings.users.admin.AdminProperties;
-import org.jahia.services.content.JCRContentUtils;
+import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.decorator.JCRGroupNode;
 import org.jahia.services.content.decorator.JCRUserNode;
 import org.jahia.services.render.RenderContext;
+import org.jahia.services.render.Resource;
 import org.jahia.services.usermanager.JahiaUserManagerService;
 import org.jahia.taglibs.user.User;
 import org.slf4j.Logger;
@@ -63,7 +64,19 @@ import java.util.List;
 
 public class AdminPropertiesHandler implements Serializable {
     private static final long serialVersionUID = -1665000223980422529L;
-    private transient static final Logger logger = LoggerFactory.getLogger(JCRContentUtils.class);
+    private transient static final Logger logger = LoggerFactory.getLogger(AdminPropertiesHandler.class);
+
+    /**
+     * Permission the caller must hold to write the root account's properties through this screen.
+     * <p>
+     * Same requirement, evaluated on the same node, as
+     * {@code org.jahia.modules.serversettings.render.SettingsComponentPermissionFilter}: {@code admin} is a
+     * core permission granted by the {@code server-administrator} role, and it is deliberately not one of the
+     * finer per-screen permissions, which resolve to {@code false} where they are not registered on an
+     * instance and would therefore fail closed for administrators too.
+     */
+    private static final String REQUIRED_PERMISSION = "admin";
+
     private AdminProperties adminProperties;
 
     public AdminProperties getAdminProperties() {
@@ -80,8 +93,17 @@ public class AdminPropertiesHandler implements Serializable {
 
     /**
      * save the bean in the JCR
+     * <p>
+     * Every write below targets the root account, so the caller's authority is established once, on entry,
+     * and covers the method as a whole — the screen is administrative in its entirety, and each property it
+     * writes carries the same requirement.
      */
     public void save(MessageContext messages, RenderContext renderContext) {
+        if (!isAdministrationGranted(renderContext)) {
+            messages.addMessage(new MessageBuilder().error().code("label.error").build());
+            return;
+        }
+
         JCRUserNode rootNode = JahiaUserManagerService.getInstance().lookupRootUser();
         if (renderContext.getUser().isRoot() && !StringUtils.isEmpty(adminProperties.getPassword())) {
             rootNode.setPassword(adminProperties.getPassword());
@@ -117,6 +139,43 @@ public class AdminPropertiesHandler implements Serializable {
             logger.error(e.getMessage(), e);
         }
     }
+
+    /**
+     * Whether the caller may write the root account's properties.
+     * <p>
+     * The requirement is evaluated on the render's <strong>main resource</strong> — the site or the global
+     * settings node the request is actually made against, which is what an administrator role is granted on.
+     * That target is load-bearing: the root user node this method writes is obtained through a system
+     * session, and {@code hasPermission} answers {@code true} for any caller on such a session, so it can
+     * express no requirement. The main resource is bound to the caller's own session and does.
+     * <p>
+     * Fails closed: without a main resource there is nothing to evaluate the requirement against, and this is
+     * an administration capability.
+     *
+     * @param renderContext the context of the render the transition was submitted from
+     * @return {@code true} when the caller holds {@link #REQUIRED_PERMISSION} on the main resource
+     */
+    private boolean isAdministrationGranted(RenderContext renderContext) {
+        Resource mainResource = renderContext != null ? renderContext.getMainResource() : null;
+        JCRNodeWrapper contextNode = mainResource != null ? mainResource.getNode() : null;
+        if (contextNode == null) {
+            logger.warn("No main resource to evaluate {} against; not saving the administration properties",
+                    REQUIRED_PERMISSION);
+            return false;
+        }
+
+        if (contextNode.hasPermission(REQUIRED_PERMISSION)) {
+            return true;
+        }
+
+        if (logger.isWarnEnabled()) {
+            logger.warn("Not saving the administration properties: {} does not hold {} on {}",
+                    renderContext.getUser() != null ? renderContext.getUser().getName() : "the current user",
+                    REQUIRED_PERMISSION, contextNode.getPath());
+        }
+        return false;
+    }
+
     public List<JCRGroupNode> getUserMembership() {
         return new LinkedList<JCRGroupNode>(User.getUserMembership(JahiaUserManagerService.getInstance().lookupRootUser().getName()).values());
     }
