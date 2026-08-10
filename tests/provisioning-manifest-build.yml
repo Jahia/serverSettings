@@ -1,3 +1,8 @@
 - addMavenRepository: 'https://devtools.jahia.com/nexus/content/groups/internal/@id=jahia-internal@snapshots'
   username: ${env:NEXUS_USERNAME}
   password: ${env:NEXUS_PASSWORD}
+
+# The site-creation specs need a deployed template set; qa-templatesSet is the lightest one available.
+- addMavenRepository: 'https://devtools.jahia.com/nexus/content/repositories/jahia-snapshots@id=jahia-snapshots@snapshots'
+- installOrUpgradeBundle: "mvn:org.jahia.qa/qa-templatesSet/1.0.0-SNAPSHOT"
+  autoStart: true

@@ -32,5 +32,9 @@ module.exports = (on, config) => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     require('cypress-terminal-report/src/installLogsPrinter')(on, optionsPrinter)
 
+    // Filesystem-side assertions for the site export/import specs (see plugins/exportArchive.js).
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    on('task', require('./exportArchive'))
+
     return config
 }
