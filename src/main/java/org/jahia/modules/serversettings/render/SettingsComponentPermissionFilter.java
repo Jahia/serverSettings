@@ -1,19 +1,4 @@
 /*
- * Copyright (C) 2002-2022 Jahia Solutions Group SA. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-/*
  * Wiring note — this is deliberately OSGi Declarative Services, not a Spring bean.
  *
  * Jahia's engineering conventions (the shared `cortex` harness, skill
@@ -202,7 +187,7 @@ public class SettingsComponentPermissionFilter extends AbstractFilter {
      * The resource the access rule is evaluated against: the ajax resource of an ajax sub-render, otherwise
      * the main resource of the render.
      */
-    private static JCRNodeWrapper contextNode(RenderContext renderContext) throws RepositoryException {
+    private static JCRNodeWrapper contextNode(RenderContext renderContext) {
         Resource contextResource = renderContext.getAjaxResource() != null
                 ? renderContext.getAjaxResource()
                 : renderContext.getMainResource();
