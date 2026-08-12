@@ -69,11 +69,9 @@ public class AdminPropertiesHandler implements Serializable {
     /**
      * Permission the caller must hold to write the root account's properties through this screen.
      * <p>
-     * Same requirement, evaluated on the same node, as
-     * {@code org.jahia.modules.serversettings.render.SettingsComponentPermissionFilter}: {@code admin} is a
-     * core permission granted by the {@code server-administrator} role, and it is deliberately not one of the
-     * finer per-screen permissions, which resolve to {@code false} where they are not registered on an
-     * instance and would therefore fail closed for administrators too.
+     * {@code admin} is a core permission granted by the {@code server-administrator} role, and it is
+     * deliberately not one of the finer per-screen permissions, which resolve to {@code false} where they are
+     * not registered on an instance and would therefore fail closed for administrators too.
      */
     private static final String REQUIRED_PERMISSION = "admin";
 
