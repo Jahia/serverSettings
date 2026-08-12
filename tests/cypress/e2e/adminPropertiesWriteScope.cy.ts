@@ -9,9 +9,11 @@
 // the boring reason that nothing was ever driven. The negative case also pins the account to its exact
 // pre-attempt value rather than merely "not the attempted one", which a failed read would satisfy too.
 //
-// The low-privilege account is proven to be an authenticated session of its own before it is refused, so
-// its refusal is a decision about administering the server and not a failure to hold a session at all.
-// The two callers differ in nothing but what they administer, and they drive the same URL.
+// The low-privilege account is a real editor of a throwaway site, which is what makes it an ordinary
+// authenticated account rather than one that holds nothing at all, and it proves that session through
+// currentUser before being refused. So its refusal is a decision about administering the server, not a
+// failure to hold a session. The two callers differ in nothing but what they administer, and they drive
+// the same URL.
 //
 // State is read back THROUGH THE SCREEN, as an administrator, rather than through a content API: the
 // rendered form is populated from the stored root account, so it observes the same state with nothing but
@@ -20,9 +22,9 @@
 // A settings component placed outside its settings container is served to no caller at all; that is the
 // invariant of settingsComponentRenderScope.cy.ts and is deliberately not re-asserted here.
 //
-// Fully self-contained: creates its own accounts in before(); restores the root account and tears
-// everything down in after().
-import { createUser, deleteUser, grantRoles } from '@jahia/cypress'
+// Fully self-contained: creates its own site and accounts in before(); restores the root account and
+// tears everything down in after().
+import { createSite, deleteSite, createUser, deleteUser, grantRoles } from '@jahia/cypress'
 
 /** What the screen did with a submitted save: was a flow served at all, and did it acknowledge a save. */
 interface SubmitOutcome {
@@ -32,9 +34,10 @@ interface SubmitOutcome {
 
 describe('Administration properties - write scope', () => {
     const uniq = Date.now().toString(36)
+    const site = 'admPropScope' + uniq
 
     const serverAdmin = 'admpropserver' + uniq // administers the server
-    const lowPriv = 'admproplow' + uniq // administers nothing
+    const lowPriv = 'admproplow' + uniq // edits the throwaway site, administers nothing
 
     // the screen reached through the administration route that declares its requirement
     const screenUrl = '/cms/adminframe/default/en/settings.adminProperties.html'
@@ -97,11 +100,15 @@ describe('Administration properties - write scope', () => {
 
     before(() => {
         cy.login()
+        createSite(site, { languages: 'en', templateSet: 'templates-system', serverName: 'localhost', locale: 'en' })
 
         createUser(serverAdmin, 'password')
         createUser(lowPriv, 'password')
 
         grantRoles('/', ['server-administrator'], serverAdmin, 'USER')
+        // an ordinary grant, so the refused caller is a real authenticated account and not one holding
+        // nothing at all — the session it proves below is what makes its refusal about authority
+        grantRoles(`/sites/${site}`, ['editor'], lowPriv, 'USER')
 
         storedEmail(serverAdmin).then((value) => {
             originalEmail = value
@@ -114,6 +121,7 @@ describe('Administration properties - write scope', () => {
         cy.login()
         deleteUser(serverAdmin)
         deleteUser(lowPriv)
+        deleteSite(site)
     })
 
     it('lets a server administrator save the root account (positive control)', () => {
