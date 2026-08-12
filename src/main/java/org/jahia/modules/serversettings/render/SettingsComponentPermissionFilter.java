@@ -1,21 +1,7 @@
-/*
- * Copyright (C) 2002-2022 Jahia Solutions Group SA. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.jahia.modules.serversettings.render;
 
 import org.apache.commons.lang.StringUtils;
+import org.jahia.services.content.JCRContentUtils;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.render.RenderContext;
 import org.jahia.services.render.Resource;
@@ -27,46 +13,60 @@ import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
+import javax.jcr.RepositoryException;
+import javax.jcr.Value;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
- * Renders a settings component only when the caller holds an administration permission on the resource the
- * request is actually made against.
+ * Renders a settings component from the settings template that declares its access rule, and only for a
+ * caller who holds that rule on the resource the request is made against.
  * <p>
- * The permission requirement belongs on the component, not only on the settings template that normally
- * hosts it ({@code j:requiredPermissionNames}): a component's access rule should travel with the component
- * and hold on every render path, regardless of where the component is placed. This filter makes the
- * requirement a property of the component so it applies uniformly. Because {@code WebflowAction} re-enters
- * the render chain for each webflow POST, it covers every transition too, not just the initial GET.
+ * The access rule of a settings screen is data: the {@code jnt:contentTemplate} that hosts the component
+ * states it in {@code j:requiredPermissionNames} — {@code adminCache} for cache management,
+ * {@code adminEmailSettings} for the mail server, and so on for each of this module's screens. This filter
+ * reads the rule from there and applies it, so the module's template definitions remain the single place the
+ * requirement is expressed and this filter has nothing to keep in step with them. That also keeps each
+ * screen's own granularity: a screen is rendered for a caller holding the permission that screen declares,
+ * whether that permission is granted directly or through an ancestor permission that aggregates it.
  * <p>
- * The check is evaluated against the <strong>main resource</strong> of the render, not against the component
- * node, and that is load-bearing rather than incidental: the component node of a <em>legitimate</em> settings
- * screen lives inside its module ({@code /modules/...}), where a site-scoped administrator holds nothing.
- * Checking the component node, which is the obvious implementation, would therefore refuse real
- * administrators. The main resource is the global settings node, which is what the corresponding
- * administrator role is actually granted on.
+ * Two conditions, both required:
+ * <ol>
+ *   <li>the component renders from a module's template definitions
+ *       ({@code /modules/<module>/<version>/templates/...}), which is where a settings screen is defined;</li>
+ *   <li>the caller holds every permission the nearest declaring template ancestor requires.</li>
+ * </ol>
+ * A component whose ancestors declare no requirement, and a render with no resolvable context resource,
+ * yield an empty fragment. Every node type below has two hosting templates on this line, standard and
+ * Material, and each declares a per-screen permission.
  * <p>
- * Only {@code admin} is accepted, so these screens stay out of reach of an administrator whose authority is
- * scoped to a single site. It is a core permission ({@code root-permissions.xml}) granted by the
- * {@code server-administrator} role; the finer per-screen permissions are contributed by this module's own
- * {@code permissions.xml} and resolve to {@code false} indistinguishably from a denial where they are not
- * registered, which would fail closed for administrators too.
- * The finer per-screen requirement declared on the settings template remains enforced on the administration
- * route, so this filter is an additional condition and never a replacement. Failing to resolve a main resource
- * yields an empty fragment rather than a rendered component.
+ * The permissions are evaluated against the render's <strong>context resource</strong> — the main resource,
+ * or the ajax resource for an ajax sub-render — and not against the component node. That is load-bearing
+ * rather than incidental: the component node of a settings screen lives inside its module
+ * ({@code /modules/...}), while the context resource is the global settings node that the
+ * server-administration route resolves, which is what the administrator role is granted on. Resolving it
+ * this way mirrors core's own evaluation of {@code j:requiredPermissionNames}
+ * ({@code TemplatePermissionCheckFilter}), so a screen reached through its administration route resolves
+ * identically here.
  * <p>
- * Registered via OSGi Declarative Services. On this line the parent predates automatic annotation scanning,
- * so {@code pom.xml} carries the {@code <_dsannotations>} bnd instruction; without it this class would ship
- * with no OSGI-INF descriptor and never register.
+ * Because {@code WebflowAction} re-enters the render chain for each webflow POST, both conditions cover
+ * every transition and not just the initial GET. In studio, template permissions stay core's business and
+ * this filter applies the placement condition alone, matching how core evaluates
+ * {@code j:requiredPermissionNames} there.
+ * <p>
+ * Registered via OSGi Declarative Services — no Spring context involvement. This line's parent
+ * ({@code jahia-modules} 8.1.0.0) does not switch on bnd's DS annotation scanning, so the
+ * {@code <_dsannotations>*</_dsannotations>} instruction in this module's pom is what makes the component
+ * register at all; see the comment there before touching it.
  */
 @Component(service = RenderFilter.class, immediate = true)
 public class SettingsComponentPermissionFilter extends AbstractFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(SettingsComponentPermissionFilter.class);
 
-    /** Node types gated by this filter — the settings components this line actually ships. */
+    /** Node types gated by this filter — every settings screen this module ships on this line. */
     private static final String APPLY_ON_NODE_TYPES =
             "jnt:serverSettingsAboutJahia," +
             "jnt:serverSettingsAdminProperties," +
@@ -78,11 +78,14 @@ public class SettingsComponentPermissionFilter extends AbstractFilter {
             "jnt:serverSettingsReportAnIssue," +
             "jnt:serverSettingsSystemInfos";
 
-    /** Any one of these on the main resource is sufficient. */
-    private static final List<String> REQUIRED_PERMISSIONS =
-            Collections.unmodifiableList(Arrays.asList("admin"));
+    /** Where a settings screen is defined: a module's template definitions. */
+    private static final Pattern MODULE_TEMPLATE_PATH = Pattern.compile("^/modules/[^/]+/[^/]+/templates/.+");
 
-    private static final String REQUIRED_PERMISSIONS_LABEL = StringUtils.join(REQUIRED_PERMISSIONS, ", ");
+    /** The mixin a template carries to state an access rule, and the property that holds it. */
+    private static final String DECLARING_TYPE = "jmix:requiredPermissions";
+    private static final String DECLARED_PERMISSIONS = "j:requiredPermissionNames";
+
+    private static final String STUDIO_MODE = "studiomode";
 
     @Activate
     public void activate() {
@@ -95,33 +98,80 @@ public class SettingsComponentPermissionFilter extends AbstractFilter {
         // to a caller who lacks the grant.
         setPriority(21.5f);
         setApplyOnNodeTypes(APPLY_ON_NODE_TYPES);
-        setDescription("Renders a settings component only for a caller holding an administration permission "
-                + "on the main resource");
+        setDescription("Renders a settings component from its settings template, for a caller holding the "
+                + "permissions that template declares");
         logger.debug("SettingsComponentPermissionFilter active on {}", APPLY_ON_NODE_TYPES);
     }
 
     @Override
     public String prepare(RenderContext renderContext, Resource resource, RenderChain chain) throws Exception {
-        Resource mainResource = renderContext.getMainResource();
-        JCRNodeWrapper contextNode = mainResource != null ? mainResource.getNode() : null;
-        if (contextNode == null) {
-            // Fail closed: with no main resource there is nothing to evaluate the permission against, and this
-            // is an administration capability.
-            logger.warn("No main resource to evaluate {} against; not rendering it", resource.getNodePath());
+        JCRNodeWrapper node = resource.getNode();
+        String nodePath = node.getPath();
+
+        if (!MODULE_TEMPLATE_PATH.matcher(nodePath).matches()) {
+            logger.warn("Not rendering {}: a settings component renders from a module's template definitions",
+                    nodePath);
             return StringUtils.EMPTY;
         }
 
-        for (String permission : REQUIRED_PERMISSIONS) {
-            if (contextNode.hasPermission(permission)) {
-                return null;
+        if (STUDIO_MODE.equals(renderContext.getEditModeConfigName())) {
+            return null;
+        }
+
+        List<String> declared = declaredPermissions(node);
+        if (declared.isEmpty()) {
+            logger.warn("Not rendering {}: no template ancestor declares {}", nodePath, DECLARED_PERMISSIONS);
+            return StringUtils.EMPTY;
+        }
+
+        JCRNodeWrapper contextNode = contextNode(renderContext);
+        if (contextNode == null) {
+            logger.warn("No resource to evaluate {} against; not rendering it", nodePath);
+            return StringUtils.EMPTY;
+        }
+
+        for (String permission : declared) {
+            if (!contextNode.hasPermission(permission)) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Not rendering {}: {} does not hold {} on {}", nodePath,
+                            renderContext.getUser() != null ? renderContext.getUser().getName() : "the current user",
+                            permission, contextNode.getPath());
+                }
+                return StringUtils.EMPTY;
             }
         }
 
-        if (logger.isWarnEnabled()) {
-            logger.warn("Not rendering {}: {} holds none of {} on {}", resource.getNodePath(),
-                    renderContext.getUser() != null ? renderContext.getUser().getName() : "the current user",
-                    REQUIRED_PERMISSIONS_LABEL, contextNode.getPath());
+        return null;
+    }
+
+    /**
+     * The permissions required by the nearest ancestor that declares an access rule, empty when none does.
+     */
+    private static List<String> declaredPermissions(JCRNodeWrapper node) throws RepositoryException {
+        JCRNodeWrapper declaring = node.isNodeType(DECLARING_TYPE)
+                ? node
+                : JCRContentUtils.getParentOfType(node, DECLARING_TYPE);
+        if (declaring == null || !declaring.hasProperty(DECLARED_PERMISSIONS)) {
+            return Collections.emptyList();
         }
-        return StringUtils.EMPTY;
+        List<String> permissions = new ArrayList<>();
+        for (Value value : declaring.getProperty(DECLARED_PERMISSIONS).getValues()) {
+            String permission = value.getString();
+            if (StringUtils.isNotBlank(permission)) {
+                permissions.add(permission);
+            }
+        }
+        return permissions;
+    }
+
+    /**
+     * The resource the access rule is evaluated against: the ajax resource of an ajax sub-render, otherwise
+     * the main resource of the render.
+     */
+    private static JCRNodeWrapper contextNode(RenderContext renderContext) {
+        Resource contextResource = renderContext.getAjaxResource() != null
+                ? renderContext.getAjaxResource()
+                : renderContext.getMainResource();
+        return contextResource != null ? contextResource.getNode() : null;
     }
 }
