@@ -43,7 +43,6 @@ describe('Manage Users - email notification on workflow publication', () => {
     const rejectedSubject = `Publication rejected by root for ${siteTitle}`
 
     before(() => {
-        cy.login()
         createSite(site, {
             languages: 'en',
             templateSet: 'templates-system',
@@ -63,7 +62,6 @@ describe('Manage Users - email notification on workflow publication', () => {
     })
 
     after(() => {
-        cy.login()
         deleteUser(editor)
         deleteSite(site)
     })
@@ -81,7 +79,7 @@ describe('Manage Users - email notification on workflow publication', () => {
     // (the legacy Selenium suite ran this against a full ACMESPACE demo site, not a minimal one) -
     // unconfirmed which template/module actually provides that wiring. Needs a live devtools/debug
     // session tracing JBPMMailProducer's caller, not a further blind guess. Un-skip once found.
-    it.skip('should send a publication-request email when a user with notifications enabled starts a workflow (FT-025)', () => {
+    it('should send a publication-request email when a user with notifications enabled starts a workflow (FT-025)', () => {
         context.tag('email-notification', 'workflow', 'publication', 'regression', 'admin')
         cy.login(editor, PASSWORD)
         startWorkflow(homePath, 'jBPM:1-step-publication', 'en')
@@ -93,7 +91,7 @@ describe('Manage Users - email notification on workflow publication', () => {
     // TODO(qa-migration): same root cause as FT-025 above - this FT's GIVEN depends on FT-025's
     // workflow actually having started and its notification path actually being wired up. Un-skip
     // together with FT-025.
-    it.skip('should NOT send a publication-rejected email once the editor has disabled notifications (FT-026)', () => {
+    it('should NOT send a publication-rejected email once the editor has disabled notifications (FT-026)', () => {
         context.tag('email-notification', 'workflow', 'publication', 'regression', 'admin')
         cy.login()
         // GIVEN (FT-026): the editor from FT-025 now has notifications disabled. Updating the

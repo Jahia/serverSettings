@@ -129,35 +129,35 @@ services:
             NEXUS_USERNAME: ${NEXUS_USERNAME}
             NEXUS_PASSWORD: ${NEXUS_PASSWORD}
 
-    # Cypress container
-    cypress:
-      image: '${TESTS_IMAGE}'
-      # https://github.com/cypress-io/cypress/issues/350
-      ipc: host
-      container_name: cypress
-      deploy:
-        resources:
-          limits:
-            memory: 4gb
-      depends_on:
-        - jahia
-        - smtp-server
-      environment:
-        # Uses variable substitution: https://docs.docker.com/compose/compose-file/compose-file-v3/#variable-substitution
-        MANIFEST: ${MANIFEST:-provisioning-manifest-build.yml}
-        JAHIA_USERNAME: ${JAHIA_USERNAME}
-        JAHIA_PASSWORD: ${JAHIA_PASSWORD}
-        JAHIA_URL: ${JAHIA_URL}
-        JAHIA_HOST: ${JAHIA_HOST}
-        JAHIA_PORT: ${JAHIA_PORT}
-        NEXUS_USERNAME: ${NEXUS_USERNAME}
-        NEXUS_PASSWORD: ${NEXUS_PASSWORD}
-        SUPER_USER_PASSWORD: ${SUPER_USER_PASSWORD}
-        JAHIA_CLUSTER_ENABLED: '${JAHIA_CLUSTER_ENABLED}'
-        TZ: ${TIMEZONE}
-        MAILPIT_URL: http://smtp-server:8025
-      networks:
-        - stack
+#    # Cypress container
+#    cypress:
+#      image: '${TESTS_IMAGE}'
+#      # https://github.com/cypress-io/cypress/issues/350
+#      ipc: host
+#      container_name: cypress
+#      deploy:
+#        resources:
+#          limits:
+#            memory: 4gb
+#      depends_on:
+#        - jahia
+#        - smtp-server
+#      environment:
+#        # Uses variable substitution: https://docs.docker.com/compose/compose-file/compose-file-v3/#variable-substitution
+#        MANIFEST: ${MANIFEST:-provisioning-manifest-build.yml}
+#        JAHIA_USERNAME: ${JAHIA_USERNAME}
+#        JAHIA_PASSWORD: ${JAHIA_PASSWORD}
+#        JAHIA_URL: ${JAHIA_URL}
+#        JAHIA_HOST: ${JAHIA_HOST}
+#        JAHIA_PORT: ${JAHIA_PORT}
+#        NEXUS_USERNAME: ${NEXUS_USERNAME}
+#        NEXUS_PASSWORD: ${NEXUS_PASSWORD}
+#        SUPER_USER_PASSWORD: ${SUPER_USER_PASSWORD}
+#        JAHIA_CLUSTER_ENABLED: '${JAHIA_CLUSTER_ENABLED}'
+#        TZ: ${TIMEZONE}
+#        MAILPIT_URL: http://smtp-server:8025
+#      networks:
+#        - stack
 
     smtp-server:
         image: axllent/mailpit:v1.27
