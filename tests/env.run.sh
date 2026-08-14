@@ -65,7 +65,19 @@ if [[ -d provisioning/ ]]; then
 fi
 
 echo "$(date +'%d %B %Y - %k:%M') == Executing manifest: ${MANIFEST} =="
-curl -u root:${SUPER_USER_PASSWORD} -X POST ${JAHIA_URL}/modules/api/provisioning --form script="@./run-artifacts/${MANIFEST};type=text/yaml"
+# Files under assets/ (e.g. provisioning.yml, setup-smtp-server.groovy) are attached alongside the
+# manifest so a manifest step like `include: 'provisioning.yml'` or `executeScript: "x.groovy"` can
+# resolve them - the provisioning API only looks up such bare (non-URL) references in the resources
+# map built from files attached to THIS SAME multipart request, never from the local filesystem the
+# manifest itself was read from (confirmed: submitting the manifest alone fails silently with
+# "Cannot include provisioning.yml", logged server-side but not surfaced as a curl/HTTP failure).
+ASSET_FORMS=()
+if [[ -d assets/ ]]; then
+  for f in assets/*; do
+    ASSET_FORMS+=(--form "file=@${f}")
+  done
+fi
+curl -u root:${SUPER_USER_PASSWORD} -X POST ${JAHIA_URL}/modules/api/provisioning --form script="@./run-artifacts/${MANIFEST};type=text/yaml" "${ASSET_FORMS[@]}"
 echo
 if [[ $? -eq 1 ]]; then
   echo "PROVISIONING FAILURE - EXITING SCRIPT, NOT RUNNING THE TESTS"
