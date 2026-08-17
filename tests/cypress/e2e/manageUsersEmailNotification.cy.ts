@@ -8,7 +8,7 @@ import {
     startWorkflow,
     jfaker,
 } from '@jahia/cypress'
-import { deleteAllEmails, getEmailBody, expectNoEmail } from './utils/mailFactor'
+import { deleteAllEmails, getEmailBody, expectNoEmail } from './utils/mailpit'
 
 /**
  * Migrated from the legacy Selenium suite: ManageUsersTest.emailNotification
@@ -29,79 +29,71 @@ import { deleteAllEmails, getEmailBody, expectNoEmail } from './utils/mailFactor
  * then rejected in a later step).
  */
 describe('Manage Users - email notification on workflow publication', () => {
-    const PASSWORD = 'TestPass12&'
-    const token = jfaker.string.alpha({ length: 8, casing: 'lower', safe: true })
-    const site = `murNotif${token}`
-    const siteTitle = `MUR Notification ${token}`
-    const editor = `murEditor${token}`
-    const editorEmail = `${editor}@smtp-server.localhost`
-    const firstName = 'Notif'
-    const lastName = 'Editor'
-    const homePath = `/sites/${site}/home`
+    const firstName = jfaker.person.firstName()
+    const lastName = jfaker.person.lastName()
+    const editorUsr = jfaker.internet.username({ firstName: firstName, lastName: lastName})
+    const editorPwd = 'test1234'
+    const editorEmail = `${editorUsr}@smtp-server.localhost`
 
-    const requestSubject = `Publication request by ${firstName} ${lastName} for ${siteTitle}`
-    const rejectedSubject = `Publication rejected by root for ${siteTitle}`
+    const siteKey = jfaker.internet.domainWord()
+    const homePath = `/sites/${siteKey}/home`
 
-    before(() => {
-        createSite(site, {
-            languages: 'en',
-            templateSet: 'templates-system',
-            serverName: 'localhost',
-            locale: 'en',
+    const requestSubject = `Publication request by ${firstName} ${lastName} for ${siteKey}`
+    const rejectedSubject = `Publication rejected by root for ${siteKey}`
+
+    /**
+     * Enables or Disables user notifications
+     * @param {boolean} status -- should notifications be enabled (true) or disabled (false)
+     */
+    const setUserNotifications = (status: boolean) => {
+        cy.executeGroovy('groovy/setUserProperty.groovy', {
+            USERNAME: editorUsr,
+            PROPERTY_NAME: 'emailNotificationsDisabled',
+            PROPERTY_VALUE: (!status).toString(),
         })
+    }
+    before(() => {
+        createSite(siteKey,
+            //{languages: 'en', templateSet: 'dx-base-demo-templates', serverName: 'localhost', locale: 'en'}
+            {languages: 'en', templateSet: 'templates-system', serverName: 'localhost', locale: 'en'}
+        )
         // GIVEN (FT-025): notifications enabled. Set explicitly rather than relying on the property
         // simply being absent, for a readable precondition matching the FT's GIVEN.
-        createUser(editor, PASSWORD, [
+        createUser(editorUsr, editorPwd, [
             { name: 'j:firstName', value: firstName },
             { name: 'j:lastName', value: lastName },
             { name: 'j:email', value: editorEmail },
             { name: 'emailNotificationsDisabled', value: 'false' },
         ])
-        grantRoles(`/sites/${site}`, ['editor'], editor, 'USER')
+        grantRoles(`/sites/${siteKey}`, ['editor'], editorUsr, 'USER')
+    })
+
+    afterEach(() => {
         deleteAllEmails()
     })
 
     after(() => {
-        deleteUser(editor)
-        deleteSite(site)
+        deleteUser(editorUsr)
+        deleteSite(siteKey)
     })
 
-    // TODO(qa-migration): live run confirms the SMTP/mail-service wiring itself is correct (same
-    // pattern as Jahia/user-password-authentication#199/#200) - raw SMTP to Mailpit works
-    // (`nc smtp-server 1025` gets a real Mailpit banner), the `mail-service` bundle is ACTIVE and
-    // logs "Mail service ready: host=smtp-server, port=1025" after picking up the config, and a
-    // user-creation-triggered mail ("Mail sent in Nms") DOES arrive. But the workflow-publication
-    // notification itself never fires: after startWorkflow(), NONE of JBPMMailSession's own log
-    // lines appear (not even its "skipping" warnings for a disabled/unavailable gate) - the
-    // task-created listener that is supposed to call JBPMMailProducer/JBPMMailSession.send() never
-    // runs at all on this site. Suspect the bare `templates-system` template set this suite uses
-    // doesn't wire up whatever triggers that listener for a "jBPM:1-step-publication" workflow
-    // (the legacy Selenium suite ran this against a full ACMESPACE demo site, not a minimal one) -
-    // unconfirmed which template/module actually provides that wiring. Needs a live devtools/debug
-    // session tracing JBPMMailProducer's caller, not a further blind guess. Un-skip once found.
     it('should send a publication-request email when a user with notifications enabled starts a workflow (FT-025)', () => {
         context.tag('email-notification', 'workflow', 'publication', 'regression', 'admin')
-        cy.login(editor, PASSWORD)
+        // login as an EDITOR
+        cy.login(editorUsr, editorPwd)
+        // switch apollo client to EDITOR user
+        cy.apolloClient({username: editorUsr, password: editorPwd});
+        // trigger workflow as an EDITOR
         startWorkflow(homePath, 'jBPM:1-step-publication', 'en')
-
-        cy.login()
+        // check email for the EDITOR user
         getEmailBody(editorEmail, requestSubject).should('contain', 'New publication request')
     })
 
-    // TODO(qa-migration): same root cause as FT-025 above - this FT's GIVEN depends on FT-025's
-    // workflow actually having started and its notification path actually being wired up. Un-skip
-    // together with FT-025.
     it('should NOT send a publication-rejected email once the editor has disabled notifications (FT-026)', () => {
         context.tag('email-notification', 'workflow', 'publication', 'regression', 'admin')
-        cy.login()
-        // GIVEN (FT-026): the editor from FT-025 now has notifications disabled. Updating the
-        // already-created user's property directly - @jahia/cypress's createUser cannot be called
-        // a second time for the same username (JahiaUserManagerService.createUser rejects duplicates).
-        cy.executeGroovy('groovy/setUserProperty.groovy', {
-            USERNAME: editor,
-            PROPERTY_NAME: 'emailNotificationsDisabled',
-            PROPERTY_VALUE: 'true',
-        })
+
+        // Turn notifications OFF
+        setUserNotifications(false)
 
         // Reject the still-pending workflow started in FT-025 (this FT's own GIVEN, per the
         // reviewed table, is literally "the publication started in FT-025 is rejected").
