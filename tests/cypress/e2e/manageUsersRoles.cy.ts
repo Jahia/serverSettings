@@ -61,7 +61,7 @@ describe('Manage Users - role grants and the edit-form role selector', () => {
         // The admin screen server-truncates a long site key with ".." to fit its column.
         ManageUsersPage.visit()
             .openUser(englishEditor)
-            .verifyRoleOptionContaining('site-privileged', siteKey.length > 13 ? `${siteKey.slice(0, 13)}..` : siteKey)
+            .verifyRoleOptionContaining('site-privileged', siteKey.length > 15 ? `${siteKey.slice(0, 13)}..` : siteKey)
             .verifyRoleOptionContaining('privileged', 'System Site')
     })
 })
