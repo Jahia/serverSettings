@@ -29,16 +29,18 @@ import { deleteAllEmails, getEmailBody, expectNoEmail } from './utils/mailpit'
  * then rejected in a later step).
  */
 describe('Manage Users - email notification on workflow publication', () => {
-    const firstName = jfaker.person.firstName()
-    const lastName = jfaker.person.lastName()
-    const editorUsr = jfaker.internet.username({ firstName: firstName, lastName: lastName})
-    const editorPwd = 'test1234'
-    const editorEmail = `${editorUsr}@smtp-server.localhost`
+    const EDITOR_USR = {
+        username: jfaker.internet.username(),
+        password: 'test1234',
+        firstName: jfaker.person.firstName(),
+        lastName: jfaker.person.lastName(),
+        email: jfaker.internet.email()
+    }
 
-    const siteKey = jfaker.internet.domainWord()
+    const siteKey = jfaker.lorem.slug()
     const homePath = `/sites/${siteKey}/home`
 
-    const requestSubject = `Publication request by ${firstName} ${lastName} for ${siteKey}`
+    const requestSubject = `Publication request by ${EDITOR_USR.firstName} ${EDITOR_USR.lastName} for ${siteKey}`
     const rejectedSubject = `Publication rejected by root for ${siteKey}`
 
     /**
@@ -47,7 +49,7 @@ describe('Manage Users - email notification on workflow publication', () => {
      */
     const setUserNotifications = (status: boolean) => {
         cy.executeGroovy('groovy/setUserProperty.groovy', {
-            USERNAME: editorUsr,
+            USERNAME: EDITOR_USR.username,
             PROPERTY_NAME: 'emailNotificationsDisabled',
             PROPERTY_VALUE: (!status).toString(),
         })
@@ -59,13 +61,13 @@ describe('Manage Users - email notification on workflow publication', () => {
         )
         // GIVEN (FT-025): notifications enabled. Set explicitly rather than relying on the property
         // simply being absent, for a readable precondition matching the FT's GIVEN.
-        createUser(editorUsr, editorPwd, [
-            { name: 'j:firstName', value: firstName },
-            { name: 'j:lastName', value: lastName },
-            { name: 'j:email', value: editorEmail },
+        createUser(EDITOR_USR.username, EDITOR_USR.password, [
+            { name: 'j:firstName', value: EDITOR_USR.firstName },
+            { name: 'j:lastName', value: EDITOR_USR.lastName },
+            { name: 'j:email', value: EDITOR_USR.email },
             { name: 'emailNotificationsDisabled', value: 'false' },
         ])
-        grantRoles(`/sites/${siteKey}`, ['editor'], editorUsr, 'USER')
+        grantRoles(`/sites/${siteKey}`, ['editor'], EDITOR_USR.username, 'USER')
     })
 
     afterEach(() => {
@@ -73,20 +75,20 @@ describe('Manage Users - email notification on workflow publication', () => {
     })
 
     after(() => {
-        deleteUser(editorUsr)
+        deleteUser(EDITOR_USR.username)
         deleteSite(siteKey)
     })
 
     it('should send a publication-request email when a user with notifications enabled starts a workflow (FT-025)', () => {
         context.tag('email-notification', 'workflow', 'publication', 'regression', 'admin')
         // login as an EDITOR
-        cy.login(editorUsr, editorPwd)
+        cy.login(EDITOR_USR.username, EDITOR_USR.password)
         // switch apollo client to EDITOR user
-        cy.apolloClient({username: editorUsr, password: editorPwd});
+        cy.apolloClient({username: EDITOR_USR.username, password: EDITOR_USR.password});
         // trigger workflow as an EDITOR
         startWorkflow(homePath, 'jBPM:1-step-publication', 'en')
         // check email for the EDITOR user
-        getEmailBody(editorEmail, requestSubject).should('contain', 'New publication request')
+        getEmailBody(EDITOR_USR.email, requestSubject).should('contain', 'New publication request')
     })
 
     it('should NOT send a publication-rejected email once the editor has disabled notifications (FT-026)', () => {
@@ -99,6 +101,6 @@ describe('Manage Users - email notification on workflow publication', () => {
         // reviewed table, is literally "the publication started in FT-025 is rejected").
         cy.executeGroovy('groovy/rejectWorkflows.groovy')
 
-        expectNoEmail(editorEmail, rejectedSubject)
+        expectNoEmail(EDITOR_USR.email, rejectedSubject)
     })
 })
