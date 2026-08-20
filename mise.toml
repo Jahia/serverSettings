@@ -1,3 +1,6 @@
 [tools]
-node = "18.18"
+# Not the node the Maven build uses: frontend-maven-plugin downloads its own
+# v18.18.0 for the module's webpack build. This one serves the Cypress suite,
+# whose @faker-js/faker requires node >= 20.19.
+node = "22"
 yarn = "1"
