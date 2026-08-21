@@ -1,3 +1,5 @@
 [tools]
-node = "18.18"
+# node >= 20.19 is a hard floor: @faker-js/faker, which @jahia/cypress pulls in,
+# refuses to install below it.
+node = "26"
 yarn = "1"
