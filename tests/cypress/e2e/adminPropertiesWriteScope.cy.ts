@@ -1,7 +1,7 @@
 // Write scope of the administration-properties screen. The screen edits the root account, and every
 // property it writes carries the same administration requirement, so the requirement holds for the save
-// as a whole. This spec drives the screen's save transition through a component placed on an ordinary
-// page and asserts that the root account only ever changes when the caller administers the server.
+// as a whole. This spec drives the screen through the administration route it is reached by, and asserts
+// that the root account only ever changes when the caller administers the server.
 //
 // Non-vacuity: the negative assertion is paired with a POSITIVE CONTROL that goes through the exact same
 // request shape and asserts the save DOES land for a server administrator. Without it, a fixture that
@@ -9,16 +9,23 @@
 // the boring reason that nothing was ever driven. The negative case also pins the account to its exact
 // pre-attempt value rather than merely "not the attempted one", which a failed read would satisfy too.
 //
-// The low-privilege account is a real editor of the hosting site, so it can read the page. That makes its
-// refusal a decision about administering the server, and not about being unable to reach the screen.
+// Both cases are driven at the same URL with the same form body, so who is calling is the only thing that
+// varies between them. The negative case asserts the outcome a customer is owed — the root account is
+// untouched — and holds wherever along that route a caller administering nothing is turned away.
+//
+// The low-privilege account is a real editor of a site, so its refusal is a decision about a caller that
+// administers nothing, and not about an account that holds nothing at all.
 //
 // State is read back THROUGH THE SCREEN, as an administrator, rather than through a content API: the
 // rendered form is populated from the stored root account, so it observes the same state with nothing but
 // the mechanism already under test — no second API surface to be gated or shaped differently.
 //
-// Fully self-contained: creates its own site, the accounts and the placed component in before(); restores
-// the root account and tears everything down in after().
-import { createSite, deleteSite, createUser, deleteUser, grantRoles, addNode } from '@jahia/cypress'
+// Fully self-contained: creates its own site and the accounts in before(); restores the root account and
+// tears everything down in after().
+import { createSite, deleteSite, createUser, deleteUser, grantRoles } from '@jahia/cypress'
+
+/** Where the administration-properties screen is reached. */
+const SCREEN_URL = '/cms/adminframe/default/en/settings.adminProperties.html'
 
 /** What the screen did with a submitted save: was a flow served at all, and did it acknowledge a save. */
 interface SubmitOutcome {
@@ -31,11 +38,7 @@ describe('Administration properties - write scope', () => {
     const site = 'admPropScope' + uniq
 
     const serverAdmin = 'admpropserver' + uniq // administers the server
-    const lowPriv = 'admproplow' + uniq // edits the hosting site, administers nothing
-
-    const placed = 'placedAdminProperties' + uniq
-    const area = `/sites/${site}/home/pagecontent`
-    const componentUrl = `/cms/render/default/en${area}/${placed}.html.ajax`
+    const lowPriv = 'admproplow' + uniq // edits a site, administers nothing
 
     // Captured before anything is driven and put back in after(), so a failing run cannot leave the
     // instance's root account rewritten.
@@ -49,21 +52,27 @@ describe('Administration properties - write scope', () => {
     const render = (user: string) => {
         cy.login(user, 'password')
         return cy
-            .request({ url: componentUrl, qs: { ec: ec() }, failOnStatusCode: false })
+            .request({ url: SCREEN_URL, qs: { ec: ec() }, failOnStatusCode: false })
             .then((res) => (typeof res.body === 'string' ? res.body : ''))
     }
+
+    // The screen's own form, isolated from the rest of the page it is served in, so that a field read out
+    // of it is the screen's field and not a same-named one belonging to something else on the page.
+    const screenForm = (body: string) => /<form[^>]*id="adminProperties"[\s\S]*?<\/form>/.exec(body)?.[0] ?? null
 
     // The email the screen currently holds for the root account, as seen by a caller who may see it.
     const storedEmail = (user: string) =>
         render(user).then((body) => {
-            const field = /name="email"[^>]*value="([^"]*)"/.exec(body)
+            const form = screenForm(body)
+            expect(form, `the screen must be served to ${user}`).to.not.eq(null)
+            const field = /<input[^>]*id="email"[^>]*value="([^"]*)"/.exec(form)
             expect(field, `the screen must render its email field to ${user}`).to.not.eq(null)
             return Cypress.$('<textarea/>').html(field[1]).text()
         })
 
-    // Render the placed component as the given user, then submit its save transition with the supplied
-    // email. Reports whether a flow was served at all and whether the screen acknowledged a save, so a
-    // refused render and a refused save are told apart.
+    // Render the screen as the given user, then submit its save transition with the supplied email.
+    // Reports whether a flow was served at all and whether the screen acknowledged a save, so a refused
+    // render and a refused save are told apart.
     const submitEmail = (user: string, email: string): Cypress.Chainable<SubmitOutcome> =>
         render(user).then((body) => {
             const action = /<form[^>]*id="adminProperties"[^>]*action="([^"]+)"/.exec(body)
@@ -101,12 +110,8 @@ describe('Administration properties - write scope', () => {
         createUser(lowPriv, 'password')
 
         grantRoles('/', ['server-administrator'], serverAdmin, 'USER')
-        // both accounts must be able to read the hosting page, so a refusal is never just an unreadable node
-        grantRoles(`/sites/${site}`, ['editor'], serverAdmin, 'USER')
+        // a real editor of a site, so its refusal is about administering nothing rather than holding nothing
         grantRoles(`/sites/${site}`, ['editor'], lowPriv, 'USER')
-
-        addNode({ parentPathOrId: `/sites/${site}/home`, primaryNodeType: 'jnt:contentList', name: 'pagecontent' })
-        addNode({ parentPathOrId: area, primaryNodeType: 'jnt:serverSettingsAdminProperties', name: placed })
 
         storedEmail(serverAdmin).then((value) => {
             originalEmail = value
