@@ -1,33 +1,40 @@
-// Render scope of the system information and About screens. Each of these screens states the permission
-// it requires next to its own default view, so the requirement travels with the screen and holds on every
-// render path, not only the settings template that normally hosts it.
+// Render scope of the system information and About screens. TWO DIFFERENT RULES govern them, and this
+// spec keeps them apart, because they refuse for different reasons and are therefore falsified by
+// different assertions.
 //
-// TWO DIFFERENT RULES govern these two screens, and this spec keeps them apart, because they refuse for
-// different reasons and are therefore falsified by different assertions.
+// THE SYSTEM INFORMATION SCREEN — the permission rule, which is what this spec was written for. The
+// screen states the permission it requires next to its own default view, so the requirement travels with
+// the screen and holds on every render path, not only the settings template that normally hosts it. It is
+// placed in an ordinary page area — a render path that does not go through that template — and asserted
+// to be served only to a caller holding server administration.
 //
-// The system information screen renders wherever its permission is held. It is placed in an ordinary page
-// area — a render path that does not go through the settings template — and asserted to be served only to
-// a caller holding server administration. That is the permission rule, and it is what this spec was
-// written for.
+// THE ABOUT SCREEN — the placement rule, which now decides before any permission is consulted.
+// `serverSettings-ee` ships a Spring WebFlow view for `jnt:serverSettingsAboutJahia` while this module
+// ships the JSP, which makes the TYPE webflow-backed; core's `TemplateOnlyComponentFilter` renders a
+// webflow-backed `jmix:studioOnly` component only from inside `/modules/<module>/<version>/templates/...`
+// and serves an empty body anywhere else. Being webflow-backed is a property of the type and not of the
+// view a given render resolved, so the rule holds even on a render that resolves this module's JSP.
 //
-// The About screen no longer renders in a page area at all, for anybody, and that is a stronger guarantee
-// rather than a weaker one. `serverSettings-ee` ships a Spring WebFlow view for
-// `jnt:serverSettingsAboutJahia` while this module ships the JSP, which makes the TYPE webflow-backed;
-// core's `TemplateOnlyComponentFilter` renders a webflow-backed `jmix:studioOnly` component only from
-// inside `/modules/<module>/<version>/templates/...` and serves an empty body anywhere else. Being
-// webflow-backed is a property of the type and not of the view a given render resolved, so the rule holds
-// even on a render that resolves this module's JSP. This screen's render scope is therefore asserted on
-// the administration route it is actually reached by, the way `adminPropertiesWriteScope` does, and its
-// page-area render is asserted to serve NOBODY — including a server administrator, which is the sharp
-// form of that assertion.
+// WHAT THIS SPEC NO LONGER COVERS, and why that is not a gap to close here. The placement rule is
+// caller-independent, so outside a module's template definitions the About screen is served to nobody and
+// its own `requirePermissions` cannot make a difference there. Inside them, the only route to the screen
+// is `/cms/adminframe/**`, whose `adminmode` edit configuration already requires `administrationAccess` at
+// the repository root — the same permission the screen declares. No render path can therefore separate
+// the screen's own requirement from the frame's, and the assertions below deliberately do not claim to:
+// the two refusals on that route assert that a caller who does not administer the server cannot reach the
+// screen, which is the outcome owed, and not that the component's own property is what turned them away.
+// The property stays where #234 put it as defence in depth, one layer behind a rule that happens to
+// subsume it for this screen; it is simply no longer observable from outside, and a spec claiming to
+// observe it would be claiming more than it can see.
 //
 // Non-vacuity: every negative assertion is paired with a POSITIVE CONTROL that goes through the exact
 // same request shape and asserts the screen IS served to a server administrator. Without it, a fixture
 // that renders nothing at all would produce a false green — the screen would be absent for the boring
-// reason that it was never reachable. The About screen's page-area refusal is the one negative whose
-// control cannot sit on its own path, because no caller is served there. The system information screen's
-// positive control stands in for it: same page area, same request shape, same caller, and it does render,
-// so a page area that renders nothing at all cannot pass both.
+// reason that it was never reachable. The About screen's page-area refusal is the one negative with no
+// control on its own path, since no caller is served there, so two other facts carry it: that render
+// asserts 200, and a missing or unreadable placed node answers 404 there, so the status alone proves the
+// node resolved; and the route positive control proves this instance's About view emits the marker for
+// that same account. Marker on the route, nothing in the page area, same type and same caller.
 //
 // The site administrator is the sharper of the two refusals: that account really does administer the
 // hosting site, so its refusal isolates the requirement to server administration rather than to "being
@@ -39,6 +46,11 @@
 // missing". The administration route serves a whole settings frame, so a refusal there is asserted as the
 // route answering 403 and the screen's own marker being absent from the body — the status so that the
 // absence is a decision and not an accident, the marker because that is the requirement.
+//
+// PRECONDITION for the About screen's page-area case: `serverSettings-ee` must be installed, because it
+// is the module that makes the type webflow-backed. Every CI lane for this module runs an EE
+// distribution, so it holds there. On a community-only instance no module ships the flow, the placement
+// rule does not fire, and that one test fails for a reason that has nothing to do with this module.
 //
 // Fully self-contained: creates its own site, the accounts and the placed screens in before(); tears
 // everything down in after().
@@ -169,7 +181,10 @@ describe('Server settings screens - render scope', () => {
         // Each refusal is asserted twice over: the route turned the caller away, and the screen's marker is
         // nowhere in what came back. The status says the absence is a decision rather than an accident; the
         // marker is the requirement, and it is what would still have to hold if the route ever answered a
-        // refusal some other way.
+        // refusal some other way. The 403 comes from the `adminmode` edit configuration, which requires
+        // `administrationAccess` at the repository root for every URL under this route — so this pair
+        // asserts that a caller who does not administer the server cannot reach the screen, and not which
+        // of the layers requiring that permission is the one that said no. See the note in the header.
         const refused = (user: string, why: string) =>
             adminRoute(user).then(({ status, body }) => {
                 expect(status, `the route must turn ${user} away`).to.eq(403)
@@ -195,6 +210,10 @@ describe('Server settings screens - render scope', () => {
     describe('the About screen, placed in an ordinary page area', () => {
         // Placement, not permission: the caller here holds everything the screen asks for and is still
         // served nothing, which is what makes this an assertion about where the component may render.
+        // Not vacuous, on two facts that need no control of their own on this path: `fragment` asserts 200,
+        // and a placed node that went missing answers 404 here, so the status proves the node resolved;
+        // and the route control above proves this account is served the marker elsewhere on this instance.
+        // Requires `serverSettings-ee` to be installed — see the precondition note in the header.
         it('is served to nobody there, not even a server administrator', () => {
             fragment(serverAdmin, about).then((body) => {
                 expect(body.trim(), 'a webflow-backed screen must not render outside a template').to.eq('')
