@@ -27,6 +27,7 @@
     }
   },
   "resolutions": {
+    "@jahia/moonstone": "https://pkg.pr.new/@jahia/moonstone@2378034",
     "*/**/tar": "4.4.18",
     "*/**/trim-newlines": "3.0.1",
     "*/**/ejs": "3.1.7",
@@ -35,7 +36,7 @@
     "*/**/path-to-regexp": "1.9.0"
   },
   "dependencies": {
-    "@jahia/moonstone": "^2.20.2",
+    "@jahia/moonstone": "https://pkg.pr.new/@jahia/moonstone@2378034",
     "@jahia/ui-extender": "^1.0.6",
     "css-loader": "^7.1.2",
     "graphql-tag": "^2.12.6",

@@ -1090,6 +1090,11 @@
     normalize-package-data "^3||^4||^5"
     xmlbuilder2 "^3.0.2"
 
+"@date-fns/tz@^1.4.1":
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@date-fns/tz/-/tz-1.5.0.tgz#e9e79b7583f0b1322c53db884a0112551095e3f3"
+  integrity sha512-lwYN/vDPeNRULcepoE/LO2Pgx+7/RV+S9ARfbc9lr2DtGkOD7pAiruHvbR1RX3Qyf6ja47EWJDMsNK5vK08DJg==
+
 "@discoveryjs/json-ext@0.5.7", "@discoveryjs/json-ext@^0.5.0":
   version "0.5.7"
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
@@ -1195,15 +1200,16 @@
     eslint-plugin-react "^7.16.0"
     eslint-plugin-react-hooks "^2.2.0"
 
-"@jahia/moonstone@^2.20.2":
-  version "2.20.2"
-  resolved "https://registry.yarnpkg.com/@jahia/moonstone/-/moonstone-2.20.2.tgz#06892ad6b246cfb48bd01c433d3ccacd7ee07809"
-  integrity sha512-dCo+bJk4saDdBavdesGTzpLCdEZ351NQckatch3Jq5ofSZ+KQb3z1+H/1K561Zx9zIZXHqEwUoMoVkG7nDP8bg==
+"@jahia/moonstone@https://pkg.pr.new/@jahia/moonstone@2378034":
+  version "2.20.3"
+  resolved "https://pkg.pr.new/@jahia/moonstone@2378034#bbb6d830587d45634b7e5270852e72f16bf42e3d"
   dependencies:
     "@floating-ui/react" "^0.27.19"
     "@tanstack/react-table" "^8.21.3"
     clsx "^2.1.1"
     re-resizable "^6.11.2"
+    react-day-picker "^9.14.0"
+    temporal-polyfill "^0.3.2"
     to-px "^1.1.0"
 
 "@jahia/ui-extender@^1.0.6":
@@ -1365,6 +1371,11 @@
   version "1.0.0-next.21"
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.21.tgz#5de5a2385a35309427f6011992b544514d559aa1"
   integrity sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==
+
+"@tabby_ai/hijri-converter@1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@tabby_ai/hijri-converter/-/hijri-converter-1.0.5.tgz#b664994892348a402ae7529e648c819eee39208b"
+  integrity sha512-r5bClKrcIusDoo049dSL8CawnHR6mRdDwhlQuIgZRNty68q0x8k3Lf1BtPAMxRf/GgnHBnIO4ujd3+GQdLWzxQ==
 
 "@tanstack/react-table@^8.21.3":
   version "8.21.3"
@@ -2318,6 +2329,16 @@ csstype@^3.0.2:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.1.2.tgz#1d4bf9d572f11c14031f0436e1c10bc1f571f50b"
   integrity sha512-I7K1Uu0MBPzaFKg4nI5Q7Vs2t+3gWWW648spaF+Rg7pI9ds18Ugn+lvg4SHczUdKlHI5LWBXyqfS8+DufyBsgQ==
+
+date-fns-jalali@4.1.0-0:
+  version "4.1.0-0"
+  resolved "https://registry.yarnpkg.com/date-fns-jalali/-/date-fns-jalali-4.1.0-0.tgz#9c7fb286004fab267a300d3e9f1ada9f10b4b6b0"
+  integrity sha512-hTIP/z+t+qKwBDcmmsnmjWTduxCg+5KfdqWQvb2X/8C9+knYY6epN/pfxdDuyVlSVeFz0sM5eEfwIUQ70U4ckg==
+
+date-fns@^4.1.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-4.4.0.tgz#806539edf45c616b2b76b5f78b88c56ed3c7e036"
+  integrity sha512-+1UMbeh68lH1SegH83CGWwpb6OHHbpSgr3+s5Eww5M4CAgswBpoWS0AjTOfEJ33HiYKz1hdj/KTFprzXHmq/6w==
 
 debug@4, debug@^4.0.1, debug@^4.1.0, debug@^4.1.1, debug@^4.3.2, debug@^4.3.4:
   version "4.3.4"
@@ -4257,6 +4278,16 @@ react-apollo@^3.1.5:
     "@apollo/react-hooks" "^3.1.5"
     "@apollo/react-ssr" "^3.1.5"
 
+react-day-picker@^9.14.0:
+  version "9.14.0"
+  resolved "https://registry.yarnpkg.com/react-day-picker/-/react-day-picker-9.14.0.tgz#b2975b48366d0c3a180520e1a4063b5a7d6c5a57"
+  integrity sha512-tBaoDWjPwe0M5pGrum4H0SR6Lyk+BO9oHnp9JbKpGKW2mlraNPgP9BMfsg5pWpwrssARmeqk7YBl2oXutZTaHA==
+  dependencies:
+    "@date-fns/tz" "^1.4.1"
+    "@tabby_ai/hijri-converter" "1.0.5"
+    date-fns "^4.1.0"
+    date-fns-jalali "4.1.0-0"
+
 react-dom@^18.3.1:
   version "18.3.1"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-18.3.1.tgz#c2265d79511b57d479b3dd3fdfa51536494c5cb4"
@@ -4934,6 +4965,18 @@ tar@4.4.18, tar@^6.1.11:
     mkdirp "^0.5.5"
     safe-buffer "^5.2.1"
     yallist "^3.1.1"
+
+temporal-polyfill@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/temporal-polyfill/-/temporal-polyfill-0.3.2.tgz#eb0f4fd36c77eac43d6e5b52851bee3648234b81"
+  integrity sha512-TzHthD/heRK947GNiSu3Y5gSPpeUDH34+LESnfsq8bqpFhsB79HFBX8+Z834IVX68P3EUyRPZK5bL/1fh437Eg==
+  dependencies:
+    temporal-spec "0.3.1"
+
+temporal-spec@0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/temporal-spec/-/temporal-spec-0.3.1.tgz#0882cf2954aac683a2484208b5f5cc7366bfdd14"
+  integrity sha512-B4TUhezh9knfSIMwt7RVggApDRJZo73uZdj8AacL2mZ8RP5KtLianh2MXxL06GN9ESYiIsiuoLQhgVfwe55Yhw==
 
 terser-webpack-plugin@^5.5.0:
   version "5.6.1"
