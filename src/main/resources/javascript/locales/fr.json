@@ -52,6 +52,10 @@
       "failed": "Échoué",
       "canceled": "Annulé"
     },
+    "search": {
+      "placeholder": "Rechercher par description, utilisateur ou type",
+      "noResults": "Aucune tâche ne correspond à votre recherche"
+    },
     "nothingToDisplay": "Rien à afficher",
     "error": "Quelque chose s'est mal passé lors de la récupération des données"
   }

@@ -52,6 +52,10 @@
       "failed": "Failed",
       "canceled": "Canceled"
     },
+    "search": {
+      "placeholder": "Search by description, user or type",
+      "noResults": "No job matches your search"
+    },
     "nothingToDisplay":"Nothing to display",
     "error": "Something went wrong while fetching the data"
   }

@@ -27,13 +27,8 @@ NothingToDisplay.propTypes = {
 };
 
 const BackgroundJobsTable = forwardRef(({data, columns, paginationProps, loading, error, refetch, ...props}, ref) => {
-    const {
-        limit,
-        setLimit,
-        totalCount,
-        currentPage,
-        setPage
-    } = paginationProps;
+    const {t} = useTranslation('serverSettings');
+    const {limit} = paginationProps;
 
     useImperativeHandle(ref, () => ({
         refetch
@@ -41,8 +36,8 @@ const BackgroundJobsTable = forwardRef(({data, columns, paginationProps, loading
 
     const tableData = useMemo(() => data.map((row, index) => ({
         ...row,
-        rowId: `${currentPage}-${index}-${row.name ?? ''}-${row.jobDescription ?? ''}-${row.begin ?? ''}-${row.userKey ?? ''}`
-    })), [data, currentPage]);
+        rowId: `${index}-${row.name ?? ''}-${row.jobDescription ?? ''}-${row.begin ?? ''}-${row.userKey ?? ''}`
+    })), [data]);
 
     if (error) {
         return <NothingToDisplay isError/>;
@@ -73,16 +68,16 @@ const BackgroundJobsTable = forwardRef(({data, columns, paginationProps, loading
             {...props}
             enableSorting
             enablePagination
-            currentPage={currentPage}
-            itemsPerPage={limit}
-            totalItems={totalCount}
+            enableSearch
+            searchColumns={['jobDescription', 'userKey', 'group']}
+            searchInputProps={{placeholder: t('backgroundJobs.search.placeholder')}}
+            noResultsMessage={t('backgroundJobs.search.noResults')}
+            defaultItemsPerPage={limit}
             itemsPerPageOptions={[5, 10, 20]}
             data={tableData}
             columns={columns}
             primaryKey="rowId"
             data-testid={testId}
-            onPageChange={setPage}
-            onItemsPerPageChange={setLimit}
         />
     );
 });
