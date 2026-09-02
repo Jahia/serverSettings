@@ -32,7 +32,46 @@
     "title": "Rôles et permissions",
     "scope": "Portées",
     "noScope": "Aucun rôle ne déclare de portée.",
-    "loadError": "Les rôles n'ont pas pu être chargés."
+    "loadError": "Les rôles n'ont pas pu être chargés.",
+    "explorer": {
+      "label": "Permissions",
+      "title": "Permissions",
+      "searchPlaceholder": "Chercher une permission par nom, libellé ou chemin",
+      "anyWorkspace": "Tout espace de travail",
+      "anyArea": "Tout domaine",
+      "anyModule": "Tout module",
+      "reset": "Réinitialiser les filtres",
+      "matchCount": "{{count}} permissions sur {{total}}",
+      "noMatch": "Aucune permission ne correspond à ces filtres.",
+      "selectPrompt": "Sélectionnez une permission pour voir où elle s'applique et quels rôles l'accordent.",
+      "detailError": "Cette permission n'a pas pu être chargée.",
+      "logicalPath": "Chemin",
+      "declaredBy": "Déclarée par",
+      "coreOnly": "Cœur de Jahia uniquement",
+      "aggregates": "Accorde {{count}} permission de plus",
+      "aggregates_plural": "Accorde {{count}} permissions de plus",
+      "grantedBy": "Accordée par {{count}} rôle",
+      "grantedBy_plural": "Accordée par {{count}} rôles",
+      "dependencies": "Nécessite",
+      "grantedByNone": "Aucun rôle n'accorde cette permission.",
+      "ambiguousTitle": "Un nom de permission est déclaré à plusieurs chemins",
+      "ambiguousNames": "Ces noms résolvent vers plusieurs chemins, donc les permissions qu'ils agrègent sont indéfinies : {{names}}"
+    },
+    "workspace": {
+      "EDIT": "Édition",
+      "LIVE": "Live",
+      "NONE": "Aucun espace de travail"
+    },
+    "target": {
+      "currentNode": "Sur le nœud où le rôle est accordé",
+      "currentSite": "Sur le site du nœud où le rôle est accordé",
+      "absolutePath": "Sur {{path}}"
+    },
+    "reason": {
+      "direct": "Accordée directement",
+      "inheritedFromRole": "Héritée du rôle {{role}}",
+      "impliedByPermission": "Accordée via {{permission}}"
+    }
   },
   "webProjects": {
     "label": "Projets"

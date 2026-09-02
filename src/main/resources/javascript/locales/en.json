@@ -32,7 +32,46 @@
     "title": "Roles and permissions",
     "scope": "Scopes",
     "noScope": "No role declares a scope.",
-    "loadError": "The roles could not be loaded."
+    "loadError": "The roles could not be loaded.",
+    "explorer": {
+      "label": "Permissions",
+      "title": "Permissions",
+      "searchPlaceholder": "Search a permission by name, label or path",
+      "anyWorkspace": "Any workspace",
+      "anyArea": "Any area",
+      "anyModule": "Any module",
+      "reset": "Reset filters",
+      "matchCount": "{{count}} of {{total}} permissions",
+      "noMatch": "No permission matches these filters.",
+      "selectPrompt": "Select a permission to see where it applies and which roles grant it.",
+      "detailError": "This permission could not be loaded.",
+      "logicalPath": "Path",
+      "declaredBy": "Declared by",
+      "coreOnly": "Jahia core only",
+      "aggregates": "Grants {{count}} more permission",
+      "aggregates_plural": "Grants {{count}} more permissions",
+      "dependencies": "Needs",
+      "grantedBy": "Granted by {{count}} role",
+      "grantedBy_plural": "Granted by {{count}} roles",
+      "grantedByNone": "No role grants this permission.",
+      "ambiguousTitle": "A permission name is declared at more than one path",
+      "ambiguousNames": "These names resolve to several paths, so which permissions they aggregate is undefined: {{names}}"
+    },
+    "workspace": {
+      "EDIT": "Edit",
+      "LIVE": "Live",
+      "NONE": "No workspace"
+    },
+    "target": {
+      "currentNode": "On the granted node",
+      "currentSite": "On the site of the granted node",
+      "absolutePath": "On {{path}}"
+    },
+    "reason": {
+      "direct": "Granted directly",
+      "inheritedFromRole": "Inherited from the {{role}} role",
+      "impliedByPermission": "Granted through {{permission}}"
+    }
   },
   "webProjects": {
     "label": "Projects"

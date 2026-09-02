@@ -9,3 +9,182 @@
 .scopeBarLabel {
     margin-right: var(--spacing-nano, 4px);
 }
+
+/* ---------- the explorer shell ---------- */
+
+.explorerPaper {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.filterBar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-small, 16px);
+    padding: var(--spacing-small, 16px);
+    border-bottom: 1px solid var(--color-gray_light, #e5e5e5);
+}
+
+.search {
+    min-width: 260px;
+}
+
+.linkButton {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--color-accent, #00a0e3);
+    font: inherit;
+}
+
+.matchCount {
+    margin-left: auto;
+    color: var(--color-gray_dark, #6b6b6b);
+    font-size: 0.85em;
+}
+
+/* The list and the detail sit side by side, and stack on a narrow viewport. */
+.explorerBody {
+    display: grid;
+    grid-template-columns: minmax(280px, 2fr) minmax(320px, 3fr);
+    min-height: 420px;
+}
+
+@media (max-width: 900px) {
+    .explorerBody {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ---------- the permission list ---------- */
+
+.permissionList {
+    overflow-y: auto;
+    max-height: 60vh;
+    border-right: 1px solid var(--color-gray_light, #e5e5e5);
+}
+
+.permissionRow {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-small, 16px);
+    width: 100%;
+    padding: 6px 12px 6px 8px;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--color-gray_light, #f0f0f0);
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+}
+
+.permissionRow:hover {
+    background: var(--color-gray_light, #f5f5f5);
+}
+
+.permissionRowSelected {
+    background: var(--color-accent_light, #e6f5fc);
+}
+
+.permissionRowLabel {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.permissionRowName {
+    color: var(--color-gray_dark, #6b6b6b);
+    overflow-wrap: anywhere;
+}
+
+.workspaceTag {
+    margin-left: auto;
+    flex: 0 0 auto;
+    padding: 1px 6px;
+    border: 1px solid var(--color-gray, #c9c9c9);
+    border-radius: 3px;
+    color: var(--color-gray_dark, #6b6b6b);
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* ---------- the permission detail ---------- */
+
+.permissionDetailPane {
+    overflow-y: auto;
+    max-height: 60vh;
+}
+
+.detail {
+    padding: var(--spacing-medium, 24px);
+}
+
+.detailName {
+    color: var(--color-gray_dark, #6b6b6b);
+    overflow-wrap: anywhere;
+}
+
+.detailDescription {
+    margin-top: var(--spacing-small, 16px);
+}
+
+.detailEmpty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+    padding: var(--spacing-medium, 24px);
+}
+
+.field {
+    margin-top: var(--spacing-medium, 24px);
+}
+
+.fieldLabel {
+    color: var(--color-gray_dark, #6b6b6b);
+    letter-spacing: 0.06em;
+}
+
+.fieldValue {
+    margin-top: var(--spacing-nano, 4px);
+}
+
+.chipRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-nano, 4px);
+}
+
+.usageList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-nano, 4px);
+}
+
+.usage {
+    display: grid;
+    grid-template-columns: minmax(120px, auto) minmax(120px, auto) 1fr;
+    gap: var(--spacing-small, 16px);
+    align-items: baseline;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--color-gray_light, #f0f0f0);
+}
+
+@media (max-width: 700px) {
+    .usage {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+}
+
+.usageTarget,
+.usageReason {
+    color: var(--color-gray_dark, #6b6b6b);
+}

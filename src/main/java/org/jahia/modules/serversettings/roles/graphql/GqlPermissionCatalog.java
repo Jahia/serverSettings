@@ -8,14 +8,16 @@ import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
 import org.jahia.modules.serversettings.roles.PermissionCatalog;
+import org.jahia.modules.serversettings.roles.PermissionEntry;
 import org.jahia.modules.serversettings.roles.RolesAndPermissionsService;
 
 /**
  * The logical permission graph, as one flat list.
  * <p>
  * The list is flat on purpose. Every entry names its parent and its children, so a client builds the
- * tree once from a single response, and the whole graph is 367 entries on a full instance. A nested
- * GraphQL type would need a depth the schema cannot bound, and would answer the same data.
+ * tree once from a single response. One entry per permission an instance declares fits in one
+ * response, so the field needs no page limit. A nested GraphQL type would need a depth the schema
+ * cannot bound, and would answer the same data.
  */
 @GraphQLName("PermissionCatalog")
 @GraphQLDescription("Every permission this instance declares, as a flat list with parent and child names")
@@ -41,6 +43,14 @@ public class GqlPermissionCatalog {
                 .filter(entry -> area == null || area.equals(entry.getArea()))
                 .map(entry -> new GqlPermission(entry, service, usageIndex))
                 .collect(Collectors.toList());
+    }
+
+    @GraphQLField
+    @GraphQLDescription("One permission by name, or null when this instance declares none of that name")
+    public GqlPermission getPermission(
+            @GraphQLName("name") @GraphQLNonNull @GraphQLDescription("The permission name") String name) {
+        PermissionEntry entry = catalog.get(name);
+        return entry == null ? null : new GqlPermission(entry, service, usageIndex);
     }
 
     @GraphQLField
