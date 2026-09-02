@@ -2,27 +2,10 @@ import React, {useCallback, useState} from 'react';
 import PropTypes from 'prop-types';
 import {useLazyQuery, useMutation} from 'react-apollo';
 import {useTranslation} from 'react-i18next';
-import {Button, Chip, Dropdown, Input, Switch, Textarea, Typography} from '@jahia/moonstone';
+import {Button, Chip, Dropdown, Field, Input, Switch, Textarea, Typography} from '@jahia/moonstone';
 import {RESET_ROLE, ROLE_RESET_PLAN, SAVE_ROLE_GROUP, SAVE_ROLE_METADATA, SAVE_ROLE_TEXT} from './RolesAndPermissions.gql-queries';
 import RoleResetDialog from './RoleResetDialog';
 import classes from './styles.css';
-
-const Field = ({label, hint, children, testId}) => (
-    <div className={classes.formField} data-testid={testId}>
-        <Typography isUpperCase variant="caption" className={classes.fieldLabel}>{label}</Typography>
-        <div className={classes.fieldValue}>{children}</div>
-        {hint ? <Typography variant="caption" className={classes.fieldHint}>{hint}</Typography> : null}
-    </div>
-);
-
-Field.propTypes = {
-    label: PropTypes.string.isRequired,
-    hint: PropTypes.string,
-    children: PropTypes.node.isRequired,
-    testId: PropTypes.string
-};
-
-Field.defaultProps = {hint: null, testId: undefined};
 
 export const RoleIdentityTab = ({role, roleGroups, language, onSaved}) => {
     const {t} = useTranslation('serverSettings');
@@ -129,9 +112,10 @@ export const RoleIdentityTab = ({role, roleGroups, language, onSaved}) => {
     return (
         <div className={classes.form} data-testid="role-identity-tab">
             <Field
-                testId="role-title-field"
+                id="role-title-field"
+                data-testid="role-title-field"
                 label={t('rolesAndPermissions.detail.title', {language})}
-                hint={t('rolesAndPermissions.detail.titleHint')}
+                helper={t('rolesAndPermissions.detail.titleHint')}
             >
                 <Input
                     className={classes.textInput}
@@ -144,7 +128,8 @@ export const RoleIdentityTab = ({role, roleGroups, language, onSaved}) => {
             </Field>
 
             <Field
-                testId="role-description-field"
+                id="role-description-field"
+                data-testid="role-description-field"
                 label={t('rolesAndPermissions.detail.description', {language})}
             >
                 <Textarea
@@ -158,9 +143,10 @@ export const RoleIdentityTab = ({role, roleGroups, language, onSaved}) => {
             </Field>
 
             <Field
-                testId="role-scope-field"
+                id="role-scope-field"
+                data-testid="role-scope-field"
                 label={t('rolesAndPermissions.detail.scope')}
-                hint={t('rolesAndPermissions.detail.scopeHint')}
+                helper={t('rolesAndPermissions.detail.scopeHint')}
             >
                 <Dropdown
                     variant="outlined"
@@ -177,9 +163,10 @@ export const RoleIdentityTab = ({role, roleGroups, language, onSaved}) => {
             </Field>
 
             <Field
-                testId="role-nodetypes-field"
+                id="role-nodetypes-field"
+                data-testid="role-nodetypes-field"
                 label={t('rolesAndPermissions.detail.nodeTypes')}
-                hint={t('rolesAndPermissions.detail.nodeTypesHint')}
+                helper={t('rolesAndPermissions.detail.nodeTypesHint')}
             >
                 <Input
                     className={classes.textInput}
@@ -192,7 +179,7 @@ export const RoleIdentityTab = ({role, roleGroups, language, onSaved}) => {
                     }}/>
             </Field>
 
-            <Field testId="role-hidden-field" label={t('rolesAndPermissions.detail.visibility')}>
+            <Field id="role-hidden-field" data-testid="role-hidden-field" label={t('rolesAndPermissions.detail.visibility')}>
                 <span className={classes.switchRow}>
                     <Switch
                         checked={hidden}
@@ -206,9 +193,10 @@ export const RoleIdentityTab = ({role, roleGroups, language, onSaved}) => {
             </Field>
 
             <Field
-                testId="role-privileged-field"
+                id="role-privileged-field"
+                data-testid="role-privileged-field"
                 label={t('rolesAndPermissions.detail.privileged')}
-                hint={role.hasEffectivePrivilegedAccess && !privileged ?
+                helper={role.hasEffectivePrivilegedAccess && !privileged ?
                     t('rolesAndPermissions.detail.privilegedByParentHint', {parent: role.parentRoleName}) :
                     t('rolesAndPermissions.detail.privilegedHint')}
             >
@@ -225,7 +213,7 @@ export const RoleIdentityTab = ({role, roleGroups, language, onSaved}) => {
             </Field>
 
             {role.dependencies.length > 0 ?
-                <Field testId="role-dependencies-field" label={t('rolesAndPermissions.detail.dependencies')}>
+                <Field id="role-dependencies-field" data-testid="role-dependencies-field" label={t('rolesAndPermissions.detail.dependencies')}>
                     <div className={classes.chipRow}>
                         {role.dependencies.map(dependency => (
                             <Chip key={dependency} label={dependency}/>
@@ -235,7 +223,7 @@ export const RoleIdentityTab = ({role, roleGroups, language, onSaved}) => {
                 null}
 
             {role.subRoleNames.length > 0 ?
-                <Field testId="role-subroles-field" label={t('rolesAndPermissions.detail.subRoles')}>
+                <Field id="role-subroles-field" data-testid="role-subroles-field" label={t('rolesAndPermissions.detail.subRoles')}>
                     <div className={classes.chipRow}>
                         {role.subRoleNames.map(subRole => (
                             <Chip key={subRole} label={subRole}/>

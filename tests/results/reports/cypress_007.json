@@ -5,9 +5,9 @@
     "passes": 7,
     "pending": 0,
     "failures": 0,
-    "start": "2026-09-02T19:09:49.544Z",
-    "end": "2026-09-02T19:09:49.997Z",
-    "duration": 453,
+    "start": "2026-09-02T20:24:56.887Z",
+    "end": "2026-09-02T20:24:57.324Z",
+    "duration": 437,
     "testsRegistered": 7,
     "passPercent": 100,
     "pendingPercent": 0,
@@ -18,7 +18,7 @@
   },
   "results": [
     {
-      "uuid": "96703120-9916-4dd8-8e01-58c48815237b",
+      "uuid": "35995414-63f9-4ae0-aa5e-cc56917e59fb",
       "title": "",
       "fullFile": "cypress/e2e/rolesAndPermissions/roleModel.cy.ts",
       "file": "cypress/e2e/rolesAndPermissions/roleModel.cy.ts",
@@ -27,7 +27,7 @@
       "tests": [],
       "suites": [
         {
-          "uuid": "bb9d5fd5-c0cb-4120-aea7-d067a94b51a2",
+          "uuid": "a8fed682-9d93-47b1-b1c8-700992334b90",
           "title": "Roles and permissions - what a role effectively grants",
           "fullFile": "",
           "file": "",
@@ -36,7 +36,7 @@
           "tests": [],
           "suites": [
             {
-              "uuid": "0b60b47d-3777-4423-876d-4e8c3f32197f",
+              "uuid": "5c3eb9b6-dd54-4e48-a863-b0c9a59a2e3a",
               "title": "a permission granted on a target grants everything it aggregates",
               "fullFile": "",
               "file": "",
@@ -47,7 +47,7 @@
                   "title": "gives editor-in-chief engineTabs on the current site, through jContent",
                   "fullTitle": "Roles and permissions - what a role effectively grants a permission granted on a target grants everything it aggregates gives editor-in-chief engineTabs on the current site, through jContent",
                   "timedOut": null,
-                  "duration": 120,
+                  "duration": 108,
                   "state": "passed",
                   "speed": "fast",
                   "pass": true,
@@ -56,26 +56,26 @@
                   "context": null,
                   "code": "readRole('editor-in-chief').then(function (role) {\n    var site = grantOf(role, 'currentSite-access');\n    expect(site.kind, 'the target resolves to the site of the granted node').to.eq('CURRENT_SITE');\n    expect(site.path).to.eq('currentSite');\n    // root-roles.xml gives this target exactly one permission name.\n    expect(site.directPermissions, 'the target names jContent and nothing else').to.deep.eq([\n        'jContent',\n    ]);\n    var jContent = effectiveOf(site, 'jContent');\n    expect(jContent.isDirect, 'jContent is the name the target holds').to.be.true;\n    expect(jContent.lockKind, 'nothing else holds jContent, so the row is free').to.be.null;\n    // engineTabs is a child of jContent in the permission tree, and the parent role does not\n    // grant it. So it is granted here, and only the local jContent grant holds it.\n    var engineTabs = effectiveOf(site, 'engineTabs');\n    expect(engineTabs.isDirect, 'the target does not name engineTabs').to.be.false;\n    expect(engineTabs.lockKind).to.eq('IMPLIED_BY_PERMISSION');\n    expect(engineTabs.lockedBy, 'jContent is the ancestor that grants it').to.eq('jContent');\n    // Aggregation is transitive. viewComponentRightsTab sits three levels below jContent, at\n    // /permissions/jContent/engineTabs/viewRolesTab/viewComponentRightsTab, and the editor\n    // role grants none of the three permissions between them. So only jContent holds it.\n    var deep = effectiveOf(site, 'viewComponentRightsTab');\n    expect(deep.isDirect).to.be.false;\n    expect(deep.lockKind).to.eq('IMPLIED_BY_PERMISSION');\n    expect(deep.lockedBy, 'the lock names the granted ancestor, not the nearest one').to.eq('jContent');\n});",
                   "err": {},
-                  "uuid": "9e23b10f-5fcb-41c9-9240-28b5d90b12be",
-                  "parentUUID": "0b60b47d-3777-4423-876d-4e8c3f32197f",
+                  "uuid": "7ef6b120-8e4f-49a8-bd9c-12f6ca125f3b",
+                  "parentUUID": "5c3eb9b6-dd54-4e48-a863-b0c9a59a2e3a",
                   "isHook": false,
                   "skipped": false
                 }
               ],
               "suites": [],
               "passes": [
-                "9e23b10f-5fcb-41c9-9240-28b5d90b12be"
+                "7ef6b120-8e4f-49a8-bd9c-12f6ca125f3b"
               ],
               "failures": [],
               "pending": [],
               "skipped": [],
-              "duration": 120,
+              "duration": 108,
               "root": false,
               "rootEmpty": false,
               "_timeout": 2000
             },
             {
-              "uuid": "105d1409-c7aa-4060-a4b9-0ac516e8ebee",
+              "uuid": "9f65738b-8b2d-4f33-bd04-cc8cc643ad12",
               "title": "a sub-role adds to its parent role",
               "fullFile": "",
               "file": "",
@@ -86,7 +86,7 @@
                   "title": "gives editor-in-chief the editor permissions, locked by the parent role",
                   "fullTitle": "Roles and permissions - what a role effectively grants a sub-role adds to its parent role gives editor-in-chief the editor permissions, locked by the parent role",
                   "timedOut": null,
-                  "duration": 44,
+                  "duration": 45,
                   "state": "passed",
                   "speed": "fast",
                   "pass": true,
@@ -95,8 +95,8 @@
                   "context": null,
                   "code": "readRole('editor-in-chief').then(function (role) {\n    expect(role.parentRoleName).to.eq('editor');\n    var node = grantOf(role, '');\n    expect(node.kind, 'the empty identity is the node the role is granted on').to.eq('CURRENT_NODE');\n    // root-roles.xml gives editor-in-chief these two names on the granted node.\n    expect(node.directPermissions).to.include.members(['publish', 'workflow-tasks']);\n    var publish = effectiveOf(node, 'publish');\n    expect(publish.isDirect).to.be.true;\n    // editor names api-access on the granted node, and editor-in-chief does not.\n    var apiAccess = effectiveOf(node, 'api-access');\n    expect(apiAccess.isDirect, 'editor-in-chief does not name api-access').to.be.false;\n    expect(apiAccess.lockKind).to.eq('INHERITED_FROM_ROLE');\n    expect(apiAccess.lockedBy).to.eq('editor');\n});",
                   "err": {},
-                  "uuid": "3e652dee-711c-443c-a5fd-7607ba59daea",
-                  "parentUUID": "105d1409-c7aa-4060-a4b9-0ac516e8ebee",
+                  "uuid": "1f41ab3f-0f30-4cc0-a0b5-dc490066fc3d",
+                  "parentUUID": "9f65738b-8b2d-4f33-bd04-cc8cc643ad12",
                   "isHook": false,
                   "skipped": false
                 },
@@ -104,7 +104,7 @@
                   "title": "reports a parent role lock ahead of a local aggregate, because no local edit frees it",
                   "fullTitle": "Roles and permissions - what a role effectively grants a sub-role adds to its parent role reports a parent role lock ahead of a local aggregate, because no local edit frees it",
                   "timedOut": null,
-                  "duration": 45,
+                  "duration": 39,
                   "state": "passed",
                   "speed": "fast",
                   "pass": true,
@@ -113,27 +113,27 @@
                   "context": null,
                   "code": "readRole('editor-in-chief').then(function (role) {\n    // jContentAccess is granted twice over on this target. The editor role names it on its own\n    // currentSite-access, and editor-in-chief grants jContent, which aggregates it. Clearing\n    // jContent here would not remove it, so the parent role is the lock worth reporting.\n    var site = grantOf(role, 'currentSite-access');\n    var jContentAccess = effectiveOf(site, 'jContentAccess');\n    expect(jContentAccess.isDirect, 'the target names jContent, not jContentAccess').to.be.false;\n    expect(jContentAccess.lockKind).to.eq('INHERITED_FROM_ROLE');\n    expect(jContentAccess.lockedBy).to.eq('editor');\n});",
                   "err": {},
-                  "uuid": "33be1acf-6b1a-479f-a1fc-45770de94719",
-                  "parentUUID": "105d1409-c7aa-4060-a4b9-0ac516e8ebee",
+                  "uuid": "3bc02a3b-90f6-463e-9826-6ced86e7feaa",
+                  "parentUUID": "9f65738b-8b2d-4f33-bd04-cc8cc643ad12",
                   "isHook": false,
                   "skipped": false
                 }
               ],
               "suites": [],
               "passes": [
-                "3e652dee-711c-443c-a5fd-7607ba59daea",
-                "33be1acf-6b1a-479f-a1fc-45770de94719"
+                "1f41ab3f-0f30-4cc0-a0b5-dc490066fc3d",
+                "3bc02a3b-90f6-463e-9826-6ced86e7feaa"
               ],
               "failures": [],
               "pending": [],
               "skipped": [],
-              "duration": 89,
+              "duration": 84,
               "root": false,
               "rootEmpty": false,
               "_timeout": 2000
             },
             {
-              "uuid": "f0c95494-9570-4344-85db-e175a99aa6ad",
+              "uuid": "75e5293d-e45b-45b1-8e6c-4665a74e2d8b",
               "title": "role inheritance matches a target by node name",
               "fullFile": "",
               "file": "",
@@ -144,7 +144,7 @@
                   "title": "gives translator-en the translator site permissions, on a target it does not declare",
                   "fullTitle": "Roles and permissions - what a role effectively grants role inheritance matches a target by node name gives translator-en the translator site permissions, on a target it does not declare",
                   "timedOut": null,
-                  "duration": 38,
+                  "duration": 37,
                   "state": "passed",
                   "speed": "fast",
                   "pass": true,
@@ -153,26 +153,26 @@
                   "context": null,
                   "code": "readRole('translator-en').then(function (role) {\n    expect(role.parentRoleName).to.eq('translator');\n    var site = grantOf(role, 'currentSite-access');\n    expect(site.isInheritedOnly, 'translator-en declares no external target of its own').to.be.true;\n    expect(site.directPermissions, 'so it names nothing there').to.deep.eq([]);\n    expect(site.path, 'the ancestor target decides where the permissions apply').to.eq('currentSite');\n    // translator/currentSite-access names jContentAccess, so translator-en grants it too.\n    var jContentAccess = effectiveOf(site, 'jContentAccess');\n    expect(jContentAccess.isDirect).to.be.false;\n    expect(jContentAccess.lockKind).to.eq('INHERITED_FROM_ROLE');\n    expect(jContentAccess.lockedBy).to.eq('translator');\n});",
                   "err": {},
-                  "uuid": "18d5c840-5e94-4813-8d1a-75b61db28f2d",
-                  "parentUUID": "f0c95494-9570-4344-85db-e175a99aa6ad",
+                  "uuid": "ed3148e6-01c6-4400-acd2-c37286c10256",
+                  "parentUUID": "75e5293d-e45b-45b1-8e6c-4665a74e2d8b",
                   "isHook": false,
                   "skipped": false
                 }
               ],
               "suites": [],
               "passes": [
-                "18d5c840-5e94-4813-8d1a-75b61db28f2d"
+                "ed3148e6-01c6-4400-acd2-c37286c10256"
               ],
               "failures": [],
               "pending": [],
               "skipped": [],
-              "duration": 38,
+              "duration": 37,
               "root": false,
               "rootEmpty": false,
               "_timeout": 2000
             },
             {
-              "uuid": "71b9332c-3120-4eb1-92d8-b78192690ee3",
+              "uuid": "273238cd-a4ed-4459-a0e1-acf6e2aea041",
               "title": "privileged access is read on the whole role chain",
               "fullFile": "",
               "file": "",
@@ -183,7 +183,7 @@
                   "title": "makes a sub-role of a privileged role privileged, whatever its own property says",
                   "fullTitle": "Roles and permissions - what a role effectively grants privileged access is read on the whole role chain makes a sub-role of a privileged role privileged, whatever its own property says",
                   "timedOut": null,
-                  "duration": 60,
+                  "duration": 59,
                   "state": "passed",
                   "speed": "fast",
                   "pass": true,
@@ -192,8 +192,8 @@
                   "context": null,
                   "code": "readRole(fixture).then(function (role) {\n    expect(role.parentRoleName).to.eq('editor');\n    expect(role.hasPrivilegedAccess, 'the fixture sets no property of its own').to.be.false;\n    expect(role.hasEffectivePrivilegedAccess, 'editor sets it, and AclListener reads the whole chain').to.be.true;\n});",
                   "err": {},
-                  "uuid": "d0a22623-3b1f-47a0-8896-14503f4f99be",
-                  "parentUUID": "71b9332c-3120-4eb1-92d8-b78192690ee3",
+                  "uuid": "ca3866af-68b3-45ed-89f7-67e47b5fb224",
+                  "parentUUID": "273238cd-a4ed-4459-a0e1-acf6e2aea041",
                   "isHook": false,
                   "skipped": false
                 },
@@ -201,7 +201,7 @@
                   "title": "keeps a granted permission no module declares, and marks it unknown",
                   "fullTitle": "Roles and permissions - what a role effectively grants privileged access is read on the whole role chain keeps a granted permission no module declares, and marks it unknown",
                   "timedOut": null,
-                  "duration": 39,
+                  "duration": 40,
                   "state": "passed",
                   "speed": "fast",
                   "pass": true,
@@ -210,16 +210,16 @@
                   "context": null,
                   "code": "readRole(fixture).then(function (role) {\n    var node = grantOf(role, '');\n    expect(node.directPermissions).to.include(unknownPermission);\n    var unknown = effectiveOf(node, unknownPermission);\n    expect(unknown.isDirect).to.be.true;\n    expect(unknown.isKnown, 'no installed module declares this name').to.be.false;\n    expect(unknown.lockKind, 'nothing holds it, so an administrator can remove it').to.be.null;\n});",
                   "err": {},
-                  "uuid": "0f96f143-bd73-4519-8393-35f79498964a",
-                  "parentUUID": "71b9332c-3120-4eb1-92d8-b78192690ee3",
+                  "uuid": "0070d044-233b-4bcd-8d3d-89037a91b08f",
+                  "parentUUID": "273238cd-a4ed-4459-a0e1-acf6e2aea041",
                   "isHook": false,
                   "skipped": false
                 }
               ],
               "suites": [],
               "passes": [
-                "d0a22623-3b1f-47a0-8896-14503f4f99be",
-                "0f96f143-bd73-4519-8393-35f79498964a"
+                "ca3866af-68b3-45ed-89f7-67e47b5fb224",
+                "0070d044-233b-4bcd-8d3d-89037a91b08f"
               ],
               "failures": [],
               "pending": [],
@@ -230,7 +230,7 @@
               "_timeout": 2000
             },
             {
-              "uuid": "4dc1f08d-3fd7-4baa-814d-b374bc14a82f",
+              "uuid": "8ba1f512-9b92-4eaf-81e3-3d6308e973eb",
               "title": "the reverse index",
               "fullFile": "",
               "file": "",
@@ -241,7 +241,7 @@
                   "title": "names the role that grants adminRoles, and the aggregate that carries it",
                   "fullTitle": "Roles and permissions - what a role effectively grants the reverse index names the role that grants adminRoles, and the aggregate that carries it",
                   "timedOut": null,
-                  "duration": 37,
+                  "duration": 41,
                   "state": "passed",
                   "speed": "fast",
                   "pass": true,
@@ -250,20 +250,20 @@
                   "context": null,
                   "code": "cy.apolloClient()\n    .apollo({ query: GRANTED_BY })\n    .then(function (result) {\n    var entries = result.data.admin.rolesAndPermissions.permissionCatalog.entries;\n    var adminRoles = entries.find(function (entry) { return entry.name === 'adminRoles'; });\n    expect(adminRoles, 'adminRoles is declared by the rolesmanager module').to.not.be.undefined;\n    // server-administrator names `admin` on the granted node and never names adminRoles.\n    var byServerAdmin = adminRoles.grantedBy.filter(function (usage) { return usage.roleName === 'server-administrator' && usage.grantId === ''; });\n    expect(byServerAdmin, 'server-administrator must grant adminRoles').to.have.length(1);\n    expect(byServerAdmin[0].targetKind).to.eq('CURRENT_NODE');\n    expect(byServerAdmin[0].effective.isDirect).to.be.false;\n    expect(byServerAdmin[0].effective.lockKind).to.eq('IMPLIED_BY_PERMISSION');\n    expect(byServerAdmin[0].effective.lockedBy, 'the admin permission aggregates adminRoles').to.eq('admin');\n});",
                   "err": {},
-                  "uuid": "0081ec56-a7c5-4647-8ad9-52e3a981bc69",
-                  "parentUUID": "4dc1f08d-3fd7-4baa-814d-b374bc14a82f",
+                  "uuid": "49a1f252-d1cf-4bde-bf88-42ded569723e",
+                  "parentUUID": "8ba1f512-9b92-4eaf-81e3-3d6308e973eb",
                   "isHook": false,
                   "skipped": false
                 }
               ],
               "suites": [],
               "passes": [
-                "0081ec56-a7c5-4647-8ad9-52e3a981bc69"
+                "49a1f252-d1cf-4bde-bf88-42ded569723e"
               ],
               "failures": [],
               "pending": [],
               "skipped": [],
-              "duration": 37,
+              "duration": 41,
               "root": false,
               "rootEmpty": false,
               "_timeout": 2000

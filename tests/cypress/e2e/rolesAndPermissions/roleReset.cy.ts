@@ -256,6 +256,11 @@ describe('Roles and permissions - resetting a role to the declared baseline', ()
         dialog.confirm().should('not.be.disabled')
         dialog.confirm().click()
 
+        // The dialog closes only once the mutation has answered, so this is the signal that the write
+        // landed. Reading straight after the click races the server, and wins that race only while the
+        // server is warm.
+        dialog.root().should('not.exist')
+
         read(SEEDED_ROLE).then(({ role }) => {
             expect(role.directPermissionNames, 'the declared permission is back').to.include(
                 'canSeeAdvancedOptionsTab',

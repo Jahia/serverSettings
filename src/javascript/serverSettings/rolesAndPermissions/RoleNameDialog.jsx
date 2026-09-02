@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import {useTranslation} from 'react-i18next';
-import {Button, Checkbox, Dropdown, Input, Modal, ModalBody, ModalFooter, ModalHeader, Typography} from '@jahia/moonstone';
+import {Button, Checkbox, Dropdown, Field, Input, Modal, ModalBody, ModalFooter, ModalHeader, Typography} from '@jahia/moonstone';
 import classes from './styles.css';
 
 const NO_PARENT = '';
@@ -25,26 +25,21 @@ export const RoleNameDialog = ({mode, sourceRole, roleGroups, roleNames, error, 
             <div data-testid="role-name-dialog">
                 <ModalHeader title={t(`rolesAndPermissions.list.${mode}Title`, {role: sourceRole})}/>
                 <ModalBody>
-                    <div className={classes.formField}>
-                        <Typography isUpperCase variant="caption" className={classes.fieldLabel}>
-                            {t('rolesAndPermissions.list.roleName')}
-                        </Typography>
+                    <Field
+                        id="role-name"
+                        label={t('rolesAndPermissions.list.roleName')}
+                        helper={t('rolesAndPermissions.list.roleNameHint')}
+                    >
                         <Input
                             className={classes.textInput}
                             value={name}
                             data-testid="role-name-input"
                             onChange={event => setName(event.target.value)}/>
-                        <Typography variant="caption" className={classes.fieldHint}>
-                            {t('rolesAndPermissions.list.roleNameHint')}
-                        </Typography>
-                    </div>
+                    </Field>
 
                     {mode === 'create' ?
                         <>
-                            <div className={classes.formField}>
-                                <Typography isUpperCase variant="caption" className={classes.fieldLabel}>
-                                    {t('rolesAndPermissions.detail.scope')}
-                                </Typography>
+                            <Field id="role-new-scope-field" label={t('rolesAndPermissions.detail.scope')}>
                                 <Dropdown
                                     variant="outlined"
                                     size="small"
@@ -56,12 +51,13 @@ export const RoleNameDialog = ({mode, sourceRole, roleGroups, roleNames, error, 
                                         attributes: {'data-testid': `role-new-scope-${group}`}
                                     }))}
                                     onChange={(event, item) => setRoleGroup(item.value)}/>
-                            </div>
+                            </Field>
 
-                            <div className={classes.formField}>
-                                <Typography isUpperCase variant="caption" className={classes.fieldLabel}>
-                                    {t('rolesAndPermissions.list.parentRole')}
-                                </Typography>
+                            <Field
+                                id="role-new-parent-field"
+                                label={t('rolesAndPermissions.list.parentRole')}
+                                helper={t('rolesAndPermissions.list.parentRoleHint')}
+                            >
                                 <Dropdown
                                     variant="outlined"
                                     size="small"
@@ -80,10 +76,7 @@ export const RoleNameDialog = ({mode, sourceRole, roleGroups, roleNames, error, 
                                         }))
                                     ]}
                                     onChange={(event, item) => setParentRole(item.value)}/>
-                                <Typography variant="caption" className={classes.fieldHint}>
-                                    {t('rolesAndPermissions.list.parentRoleHint')}
-                                </Typography>
-                            </div>
+                            </Field>
                         </> :
                         <div className={classes.switchRow}>
                             <Checkbox

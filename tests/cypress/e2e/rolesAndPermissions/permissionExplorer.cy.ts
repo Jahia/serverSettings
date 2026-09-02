@@ -101,4 +101,38 @@ describe('Roles and permissions - the permission explorer', () => {
         page.getEmptyDetail().should('be.visible')
         cy.get('[data-testid="permission-detail"]').should('not.exist')
     })
+    it('draws the catalogue hierarchy, and never re-parents a permission', () => {
+        const page = PermissionExplorerPage.visit()
+
+        // The list is a Moonstone TreeView, so the depth is the tree's own aria-level and no longer a
+        // padding this module wrote. jContentActions is a child of jContent in the repository, so it must
+        // sit one level deeper. Nothing here asserts a pixel.
+        page.getRow('jContent').should('have.attr', 'aria-level', '1')
+        page.getRow('jContentActions').then(($child) => {
+            const level = Number($child.attr('aria-level'))
+            expect(level, 'a child sits deeper than its parent').to.be.greaterThan(1)
+        })
+    })
+
+    it('shows a filtered result flat, because a match whose parent is filtered out has no parent', () => {
+        const page = PermissionExplorerPage.visit()
+
+        // Building a tree from a filtered subset would mean hanging an orphan somewhere it does not
+        // belong, which is the re-parenting this interface refuses. A search result is a list.
+        page.search('jContentActions')
+        page.getRow('jContentActions').should('have.attr', 'aria-level', '1')
+    })
+
+    it('marks the selected row, and states the workspace of the permission picked', () => {
+        const page = PermissionExplorerPage.visit()
+
+        page.getRow('jcr:read_live').click()
+
+        // The selected state is the tree's own aria state and not a class this module writes.
+        page.getSelectedRow().should('have.attr', 'data-testid', 'permission-row-jcr:read_live')
+
+        // The workspace marker moved off the row and into the detail pane, so this is where the
+        // screen now states which workspace the permission decides in.
+        page.getWorkspace().should('have.text', 'Live')
+    })
 })

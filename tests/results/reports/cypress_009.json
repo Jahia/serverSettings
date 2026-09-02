@@ -5,9 +5,9 @@
     "passes": 3,
     "pending": 0,
     "failures": 0,
-    "start": "2026-09-02T19:10:01.705Z",
-    "end": "2026-09-02T19:10:02.436Z",
-    "duration": 731,
+    "start": "2026-09-02T20:25:10.885Z",
+    "end": "2026-09-02T20:25:11.632Z",
+    "duration": 747,
     "testsRegistered": 3,
     "passPercent": 100,
     "pendingPercent": 0,
@@ -18,7 +18,7 @@
   },
   "results": [
     {
-      "uuid": "3eb94fb1-d3d0-4444-9182-99beaf06877e",
+      "uuid": "29cddd34-5f75-41d2-aaae-4339ad4fd3e9",
       "title": "",
       "fullFile": "cypress/e2e/rolesAndPermissions/rolesAndPermissionsApi.cy.ts",
       "file": "cypress/e2e/rolesAndPermissions/rolesAndPermissionsApi.cy.ts",
@@ -27,7 +27,7 @@
       "tests": [],
       "suites": [
         {
-          "uuid": "2b49f81b-dbc3-47fe-b47e-c425ba6a2597",
+          "uuid": "220ec642-b4f9-43af-a1c2-5ac581f82ab0",
           "title": "Roles and permissions - the GraphQL permission gate",
           "fullFile": "",
           "file": "",
@@ -38,7 +38,7 @@
               "title": "answers a server administrator (positive control)",
               "fullTitle": "Roles and permissions - the GraphQL permission gate answers a server administrator (positive control)",
               "timedOut": null,
-              "duration": 436,
+              "duration": 453,
               "state": "passed",
               "speed": "fast",
               "pass": true,
@@ -47,8 +47,8 @@
               "context": null,
               "code": "callAs(serverAdmin, PASSWORD).then(function (_a) {\n    var roleGroups = _a.roleGroups, errorPath = _a.errorPath;\n    expect(errorPath, 'a server administrator must not be refused').to.be.undefined;\n    // Every Jahia instance seeds these two role groups in root-roles.xml, so the assertion names\n    // values rather than only a count. A count alone would pass on an unrelated list.\n    expect(roleGroups, 'the seeded role groups must be listed').to.include.members([\n        'edit-role',\n        'server-role',\n    ]);\n});",
               "err": {},
-              "uuid": "c379c85e-bd5a-4b5e-8686-fe9e30d609b1",
-              "parentUUID": "2b49f81b-dbc3-47fe-b47e-c425ba6a2597",
+              "uuid": "41f22c1e-ee82-44e2-abb7-cb20c8298e5b",
+              "parentUUID": "220ec642-b4f9-43af-a1c2-5ac581f82ab0",
               "isHook": false,
               "skipped": false
             },
@@ -56,7 +56,7 @@
               "title": "answers root (positive control)",
               "fullTitle": "Roles and permissions - the GraphQL permission gate answers root (positive control)",
               "timedOut": null,
-              "duration": 16,
+              "duration": 17,
               "state": "passed",
               "speed": "fast",
               "pass": true,
@@ -65,8 +65,8 @@
               "context": null,
               "code": "callAs('root', Cypress.env('SUPER_USER_PASSWORD')).then(function (_a) {\n    var roleGroups = _a.roleGroups, errorPath = _a.errorPath;\n    expect(errorPath, 'root must not be refused').to.be.undefined;\n    expect(roleGroups, 'the seeded role groups must be listed').to.include.members(['edit-role']);\n});",
               "err": {},
-              "uuid": "17cb283f-39cd-4ada-a16d-664d488e128d",
-              "parentUUID": "2b49f81b-dbc3-47fe-b47e-c425ba6a2597",
+              "uuid": "1d05a2be-57fd-485a-8715-3b67c5c689f2",
+              "parentUUID": "220ec642-b4f9-43af-a1c2-5ac581f82ab0",
               "isHook": false,
               "skipped": false
             },
@@ -83,22 +83,22 @@
               "context": null,
               "code": "callAs(outsider, PASSWORD).then(function (_a) {\n    var roleGroups = _a.roleGroups, errorPath = _a.errorPath;\n    // The path is the assertion. `admin.rolesAndPermissions` says this module's gate turned the\n    // caller away; a bare `admin` would say the outer root did, and would tell us nothing here.\n    expect(errorPath, \"the refusal must come from this module's own gate\").to.eq('admin.rolesAndPermissions');\n    expect(roleGroups, 'no role group may be served to a caller that does not administer roles').to.be\n        .undefined;\n});",
               "err": {},
-              "uuid": "0c3e1a86-98d4-4bc9-86cc-d32f1df27c2c",
-              "parentUUID": "2b49f81b-dbc3-47fe-b47e-c425ba6a2597",
+              "uuid": "3647af77-5f9b-49c3-994e-514397843b6f",
+              "parentUUID": "220ec642-b4f9-43af-a1c2-5ac581f82ab0",
               "isHook": false,
               "skipped": false
             }
           ],
           "suites": [],
           "passes": [
-            "c379c85e-bd5a-4b5e-8686-fe9e30d609b1",
-            "17cb283f-39cd-4ada-a16d-664d488e128d",
-            "0c3e1a86-98d4-4bc9-86cc-d32f1df27c2c"
+            "41f22c1e-ee82-44e2-abb7-cb20c8298e5b",
+            "1d05a2be-57fd-485a-8715-3b67c5c689f2",
+            "3647af77-5f9b-49c3-994e-514397843b6f"
           ],
           "failures": [],
           "pending": [],
           "skipped": [],
-          "duration": 467,
+          "duration": 485,
           "root": false,
           "rootEmpty": false,
           "_timeout": 2000

@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import {useTranslation} from 'react-i18next';
-import {Button, Chip, Input, Loader, Modal, ModalBody, ModalFooter, ModalHeader, Typography} from '@jahia/moonstone';
+import {Button, Chip, Field, Input, Loader, Modal, ModalBody, ModalFooter, ModalHeader, Typography} from '@jahia/moonstone';
 import classes from './styles.css';
 
 // One side of the difference: the names written, and the permissions the role then grants or stops
@@ -114,10 +114,7 @@ export const RoleResetDialog = ({roleName, plan, error, isApplying, onConfirm, o
                         null}
 
                     {gated ?
-                        <div className={classes.formField}>
-                            <Typography isUpperCase variant="caption" className={classes.fieldLabel}>
-                                {t('rolesAndPermissions.reset.typeToConfirm')}
-                            </Typography>
+                        <Field id="reset-field" label={t('rolesAndPermissions.reset.typeToConfirm')}>
                             <Typography variant="body" className={classes.confirmWord} data-testid="reset-expected">
                                 {roleName}
                             </Typography>
@@ -126,7 +123,7 @@ export const RoleResetDialog = ({roleName, plan, error, isApplying, onConfirm, o
                                 value={typed}
                                 data-testid="reset-word"
                                 onChange={event => setTyped(event.target.value)}/>
-                        </div> :
+                        </Field> :
                         null}
 
                     {error ?

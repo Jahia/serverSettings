@@ -260,4 +260,12 @@ describe('Roles and permissions - editing what a role grants', () => {
         page.getAreaCount('jContent').should('contain', '4 of')
         page.getAreaCount('admin').should('contain', '0 of')
     })
+
+    it('marks the selected area in the rail', () => {
+        const page = RoleDetailPage.visit('editor').openPermissionsTab()
+        page.selectArea('admin')
+
+        // The rail is a Moonstone TreeView, so which area is selected is the tree's own aria state.
+        page.getSelectedArea().should('have.attr', 'data-testid', 'role-area-admin')
+    })
 })

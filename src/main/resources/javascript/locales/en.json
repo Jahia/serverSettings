@@ -118,13 +118,13 @@
       "removeTarget": "Remove this target",
       "newTargetPlaceholder": "currentSite, or an absolute path",
       "targetInheritedOnly": "Only a parent role declares this target, so this role adds nothing here yet.",
-      "areaCount": "{{granted}} of {{total}}",
       "searchPlaceholder": "Search a permission in every area",
       "collapse": "Group",
       "staleRevision": "Another administrator changed this role. The screen has been reloaded.",
       "notApplicable": "That change does not apply to this target.",
       "unknownGranted": "Granted and declared by no module: {{names}}",
-      "removeUnknown": "Remove {{name}}"
+      "removeUnknown": "Remove {{name}}",
+      "areaWithCount": "{{area}} ({{granted}} of {{total}})"
     },
     "dialog": {
       "revokeTitle": "Remove a permission",
@@ -162,7 +162,8 @@
       "grantedBy_plural": "Granted by {{count}} roles",
       "grantedByNone": "No role grants this permission.",
       "ambiguousTitle": "A permission name is declared at more than one path",
-      "ambiguousNames": "These names resolve to several paths, so which permissions they aggregate is undefined: {{names}}"
+      "ambiguousNames": "These names resolve to several paths, so which permissions they aggregate is undefined: {{names}}",
+      "workspace": "Workspace"
     },
     "workspace": {
       "EDIT": "Edit",

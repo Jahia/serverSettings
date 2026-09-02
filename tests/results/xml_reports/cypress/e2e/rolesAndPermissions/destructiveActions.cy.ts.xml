@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Mocha Tests" time="7.547" tests="5" failures="0">
-  <testsuite name="Root Suite" timestamp="2026-09-02T19:08:50" tests="0" file="cypress/e2e/rolesAndPermissions/destructiveActions.cy.ts" time="0.000" failures="0">
+<testsuites name="Mocha Tests" time="5.967" tests="5" failures="0">
+  <testsuite name="Root Suite" timestamp="2026-09-02T20:23:56" tests="0" file="cypress/e2e/rolesAndPermissions/destructiveActions.cy.ts" time="0.000" failures="0">
   </testsuite>
-  <testsuite name="Roles and permissions - nothing irreversible happens on one click" timestamp="2026-09-02T19:08:50" tests="5" time="7.455" failures="0">
-    <testcase name="Roles and permissions - nothing irreversible happens on one click does not delete a seeded role on one click, and says who would lose access" time="1.855" classname="does not delete a seeded role on one click, and says who would lose access">
+  <testsuite name="Roles and permissions - nothing irreversible happens on one click" timestamp="2026-09-02T20:23:56" tests="5" time="5.878" failures="0">
+    <testcase name="Roles and permissions - nothing irreversible happens on one click does not delete a seeded role on one click, and says who would lose access" time="2.089" classname="does not delete a seeded role on one click, and says who would lose access">
     </testcase>
-    <testcase name="Roles and permissions - nothing irreversible happens on one click refuses to delete until the typed name matches exactly" time="1.019" classname="refuses to delete until the typed name matches exactly">
+    <testcase name="Roles and permissions - nothing irreversible happens on one click refuses to delete until the typed name matches exactly" time="1.222" classname="refuses to delete until the typed name matches exactly">
     </testcase>
-    <testcase name="Roles and permissions - nothing irreversible happens on one click asks once, and no typing, for a role nobody holds" time="1.779" classname="asks once, and no typing, for a role nobody holds">
+    <testcase name="Roles and permissions - nothing irreversible happens on one click asks once, and no typing, for a role nobody holds" time="0.742" classname="asks once, and no typing, for a role nobody holds">
     </testcase>
-    <testcase name="Roles and permissions - nothing irreversible happens on one click does not remove a target on one click, and lists the permissions that would go" time="0.942" classname="does not remove a target on one click, and lists the permissions that would go">
+    <testcase name="Roles and permissions - nothing irreversible happens on one click does not remove a target on one click, and lists the permissions that would go" time="0.811" classname="does not remove a target on one click, and lists the permissions that would go">
     </testcase>
-    <testcase name="Roles and permissions - nothing irreversible happens on one click removes the target once the path is typed, and only then" time="1.815" classname="removes the target once the path is typed, and only then">
+    <testcase name="Roles and permissions - nothing irreversible happens on one click removes the target once the path is typed, and only then" time="0.965" classname="removes the target once the path is typed, and only then">
     </testcase>
   </testsuite>
 </testsuites>

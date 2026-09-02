@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import {useTranslation} from 'react-i18next';
-import {Button, Input, Modal, ModalBody, ModalFooter, ModalHeader, Typography} from '@jahia/moonstone';
+import {Button, Field, Input, Modal, ModalBody, ModalFooter, ModalHeader, Typography} from '@jahia/moonstone';
 import classes from './styles.css';
 
 // The confirmation for an action that cannot be undone.
@@ -35,14 +35,11 @@ export const ConfirmDestructiveDialog = ({title, message, consequences, confirmL
                         null}
 
                     {gated ?
-                        <div className={classes.formField}>
-                            <Typography isUpperCase variant="caption" className={classes.fieldLabel}>
-                                {t('rolesAndPermissions.confirm.typeToConfirm')}
-                            </Typography>
+                        <Field id="confirm-destructive-field" label={t('rolesAndPermissions.confirm.typeToConfirm')}>
                             {/*
-                              * The word sits outside the label, and keeps its own case. The label is
-                              * styled uppercase, and a name is case-sensitive, so a name inside it
-                              * would tell the administrator to type something that does not match.
+                              * The word sits beside the label rather than inside it, and keeps its own
+                              * case. A role name is case-sensitive, and a label that spells it out is
+                              * one rename away from telling the administrator to type the wrong thing.
                               */}
                             <Typography variant="body" className={classes.confirmWord} data-testid="confirm-destructive-expected">
                                 {confirmWord}
@@ -52,7 +49,7 @@ export const ConfirmDestructiveDialog = ({title, message, consequences, confirmL
                                 value={typed}
                                 data-testid="confirm-destructive-word"
                                 onChange={event => setTyped(event.target.value)}/>
-                        </div> :
+                        </Field> :
                         null}
 
                     {error ?

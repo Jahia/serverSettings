@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Mocha Tests" time="0.453" tests="7" failures="0">
-  <testsuite name="Root Suite" timestamp="2026-09-02T19:09:49" tests="0" file="cypress/e2e/rolesAndPermissions/roleModel.cy.ts" time="0.000" failures="0">
+<testsuites name="Mocha Tests" time="0.437" tests="7" failures="0">
+  <testsuite name="Root Suite" timestamp="2026-09-02T20:24:56" tests="0" file="cypress/e2e/rolesAndPermissions/roleModel.cy.ts" time="0.000" failures="0">
   </testsuite>
-  <testsuite name="Roles and permissions - what a role effectively grants" timestamp="2026-09-02T19:09:49" tests="0" time="0.000" failures="0">
+  <testsuite name="Roles and permissions - what a role effectively grants" timestamp="2026-09-02T20:24:56" tests="0" time="0.000" failures="0">
   </testsuite>
-  <testsuite name="a permission granted on a target grants everything it aggregates" timestamp="2026-09-02T19:09:49" tests="1" time="0.052" failures="0">
-    <testcase name="Roles and permissions - what a role effectively grants a permission granted on a target grants everything it aggregates gives editor-in-chief engineTabs on the current site, through jContent" time="0.120" classname="gives editor-in-chief engineTabs on the current site, through jContent">
+  <testsuite name="a permission granted on a target grants everything it aggregates" timestamp="2026-09-02T20:24:56" tests="1" time="0.060" failures="0">
+    <testcase name="Roles and permissions - what a role effectively grants a permission granted on a target grants everything it aggregates gives editor-in-chief engineTabs on the current site, through jContent" time="0.108" classname="gives editor-in-chief engineTabs on the current site, through jContent">
     </testcase>
   </testsuite>
-  <testsuite name="a sub-role adds to its parent role" timestamp="2026-09-02T19:09:49" tests="2" time="0.103" failures="0">
-    <testcase name="Roles and permissions - what a role effectively grants a sub-role adds to its parent role gives editor-in-chief the editor permissions, locked by the parent role" time="0.044" classname="gives editor-in-chief the editor permissions, locked by the parent role">
+  <testsuite name="a sub-role adds to its parent role" timestamp="2026-09-02T20:24:57" tests="2" time="0.098" failures="0">
+    <testcase name="Roles and permissions - what a role effectively grants a sub-role adds to its parent role gives editor-in-chief the editor permissions, locked by the parent role" time="0.045" classname="gives editor-in-chief the editor permissions, locked by the parent role">
     </testcase>
-    <testcase name="Roles and permissions - what a role effectively grants a sub-role adds to its parent role reports a parent role lock ahead of a local aggregate, because no local edit frees it" time="0.045" classname="reports a parent role lock ahead of a local aggregate, because no local edit frees it">
-    </testcase>
-  </testsuite>
-  <testsuite name="role inheritance matches a target by node name" timestamp="2026-09-02T19:09:49" tests="1" time="0.045" failures="0">
-    <testcase name="Roles and permissions - what a role effectively grants role inheritance matches a target by node name gives translator-en the translator site permissions, on a target it does not declare" time="0.038" classname="gives translator-en the translator site permissions, on a target it does not declare">
+    <testcase name="Roles and permissions - what a role effectively grants a sub-role adds to its parent role reports a parent role lock ahead of a local aggregate, because no local edit frees it" time="0.039" classname="reports a parent role lock ahead of a local aggregate, because no local edit frees it">
     </testcase>
   </testsuite>
-  <testsuite name="privileged access is read on the whole role chain" timestamp="2026-09-02T19:09:49" tests="2" time="0.134" failures="0">
-    <testcase name="Roles and permissions - what a role effectively grants privileged access is read on the whole role chain makes a sub-role of a privileged role privileged, whatever its own property says" time="0.060" classname="makes a sub-role of a privileged role privileged, whatever its own property says">
-    </testcase>
-    <testcase name="Roles and permissions - what a role effectively grants privileged access is read on the whole role chain keeps a granted permission no module declares, and marks it unknown" time="0.039" classname="keeps a granted permission no module declares, and marks it unknown">
+  <testsuite name="role inheritance matches a target by node name" timestamp="2026-09-02T20:24:57" tests="1" time="0.043" failures="0">
+    <testcase name="Roles and permissions - what a role effectively grants role inheritance matches a target by node name gives translator-en the translator site permissions, on a target it does not declare" time="0.037" classname="gives translator-en the translator site permissions, on a target it does not declare">
     </testcase>
   </testsuite>
-  <testsuite name="the reverse index" timestamp="2026-09-02T19:09:49" tests="1" time="0.043" failures="0">
-    <testcase name="Roles and permissions - what a role effectively grants the reverse index names the role that grants adminRoles, and the aggregate that carries it" time="0.037" classname="names the role that grants adminRoles, and the aggregate that carries it">
+  <testsuite name="privileged access is read on the whole role chain" timestamp="2026-09-02T20:24:57" tests="2" time="0.134" failures="0">
+    <testcase name="Roles and permissions - what a role effectively grants privileged access is read on the whole role chain makes a sub-role of a privileged role privileged, whatever its own property says" time="0.059" classname="makes a sub-role of a privileged role privileged, whatever its own property says">
+    </testcase>
+    <testcase name="Roles and permissions - what a role effectively grants privileged access is read on the whole role chain keeps a granted permission no module declares, and marks it unknown" time="0.040" classname="keeps a granted permission no module declares, and marks it unknown">
+    </testcase>
+  </testsuite>
+  <testsuite name="the reverse index" timestamp="2026-09-02T20:24:57" tests="1" time="0.049" failures="0">
+    <testcase name="Roles and permissions - what a role effectively grants the reverse index names the role that grants adminRoles, and the aggregate that carries it" time="0.041" classname="names the role that grants adminRoles, and the aggregate that carries it">
     </testcase>
   </testsuite>
 </testsuites>

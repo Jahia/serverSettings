@@ -54,3 +54,47 @@ export const isUnfiltered = filters =>
     filters.workspace === ANY &&
     filters.module === ANY &&
     filters.area === ANY;
+
+/**
+ * The matches as tree data, for a component that draws a hierarchy.
+ *
+ * The hierarchy is the repository's own: a node's children are the permissions whose parent it is.
+ * Nothing is ever re-parented. A filtered result is therefore returned FLAT, because a match whose
+ * parent the filter removed has no place to sit, and hanging it somewhere else would invent a
+ * hierarchy the repository does not have.
+ *
+ * @param matches the entries the filters kept
+ * @param isFiltered whether any filter is active
+ * @param decorate builds the node fields a component needs from one entry
+ */
+export const asTreeData = (matches, isFiltered, decorate) => {
+    if (isFiltered) {
+        return matches.map(entry => decorate(entry));
+    }
+
+    const byName = new Map(matches.map(entry => [entry.name, entry]));
+    const childrenOf = new Map();
+    const roots = [];
+
+    matches.forEach(entry => {
+        // A parent the matches do not carry makes this entry a root of what is shown. That happens
+        // only for a genuine top-level permission when nothing is filtered.
+        if (entry.parentName && byName.has(entry.parentName)) {
+            const siblings = childrenOf.get(entry.parentName) || [];
+            siblings.push(entry);
+            childrenOf.set(entry.parentName, siblings);
+        } else {
+            roots.push(entry);
+        }
+    });
+
+    const build = entry => {
+        const children = childrenOf.get(entry.name);
+        return {
+            ...decorate(entry),
+            ...(children ? {children: children.map(build)} : {})
+        };
+    };
+
+    return roots.map(build);
+};

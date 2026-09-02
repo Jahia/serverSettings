@@ -2,17 +2,7 @@ import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import {useQuery} from 'react-apollo';
 import {useTranslation} from 'react-i18next';
-import {
-    ChevronLeft,
-    EmptyData,
-    Header,
-    LayoutContent,
-    Loader,
-    Paper,
-    Tab,
-    TabItem,
-    Typography
-} from '@jahia/moonstone';
+import {Button, ChevronLeft, EmptyData, Header, LayoutContent, Loader, Paper, Tab, TabItem, Typography} from '@jahia/moonstone';
 import {GET_PERMISSION_CATALOG, GET_ROLE} from './RolesAndPermissions.gql-queries';
 import RoleIdentityTab from './RoleIdentityTab';
 import RolePermissionsTab from './RolePermissionsTab';
@@ -43,10 +33,12 @@ export const RoleDetail = ({roleName, onClose}) => {
             title={role ? (role.title || role.name) : roleName}
             data-testid="role-detail-header"
             backButton={
-                <button type="button" className={classes.linkButton} data-testid="role-detail-back" onClick={onClose}>
-                    <ChevronLeft/>
-                    {t('rolesAndPermissions.detail.back')}
-                </button>
+                <Button
+                    variant="ghost"
+                    icon={<ChevronLeft/>}
+                    label={t('rolesAndPermissions.detail.back')}
+                    data-testid="role-detail-back"
+                    onClick={onClose}/>
             }
             mainActions={role ?
                 [<RoleWarnings key="warnings" roleName={role.name} warnings={role.warnings}/>] :

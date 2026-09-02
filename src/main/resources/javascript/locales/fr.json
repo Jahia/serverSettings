@@ -118,13 +118,13 @@
       "removeTarget": "Retirer cette cible",
       "newTargetPlaceholder": "currentSite, ou un chemin absolu",
       "targetInheritedOnly": "Seul un rôle parent déclare cette cible, donc ce rôle n'y ajoute rien pour l'instant.",
-      "areaCount": "{{granted}} sur {{total}}",
       "searchPlaceholder": "Chercher une permission dans tous les domaines",
       "collapse": "Regrouper",
       "staleRevision": "Un autre administrateur a modifié ce rôle. L'écran a été rechargé.",
       "notApplicable": "Ce changement ne s'applique pas à cette cible.",
       "unknownGranted": "Accordées et déclarées par aucun module : {{names}}",
-      "removeUnknown": "Retirer {{name}}"
+      "removeUnknown": "Retirer {{name}}",
+      "areaWithCount": "{{area}} ({{granted}} sur {{total}})"
     },
     "dialog": {
       "revokeTitle": "Retirer une permission",
@@ -162,7 +162,8 @@
       "dependencies": "Nécessite",
       "grantedByNone": "Aucun rôle n'accorde cette permission.",
       "ambiguousTitle": "Un nom de permission est déclaré à plusieurs chemins",
-      "ambiguousNames": "Ces noms résolvent vers plusieurs chemins, donc les permissions qu'ils agrègent sont indéfinies : {{names}}"
+      "ambiguousNames": "Ces noms résolvent vers plusieurs chemins, donc les permissions qu'ils agrègent sont indéfinies : {{names}}",
+      "workspace": "Espace de travail"
     },
     "workspace": {
       "EDIT": "Édition",

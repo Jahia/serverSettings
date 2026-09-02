@@ -85,6 +85,7 @@ export const GET_PERMISSION_DETAIL = gql`
                     permission(name: $name) {
                         name
                         logicalPath
+                        workspace
                         label(language: $language)
                         description(language: $language)
                         dependencies

@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Mocha Tests" time="7.579" tests="5" failures="0">
-  <testsuite name="Root Suite" timestamp="2026-09-02T19:09:23" tests="0" file="cypress/e2e/rolesAndPermissions/roleActions.cy.ts" time="0.000" failures="0">
+<testsuites name="Mocha Tests" time="6.148" tests="5" failures="0">
+  <testsuite name="Root Suite" timestamp="2026-09-02T20:24:30" tests="0" file="cypress/e2e/rolesAndPermissions/roleActions.cy.ts" time="0.000" failures="0">
   </testsuite>
-  <testsuite name="Roles and permissions - creating, copying and deleting a role" timestamp="2026-09-02T19:09:23" tests="5" time="7.499" failures="0">
-    <testcase name="Roles and permissions - creating, copying and deleting a role creates a role, and the list shows it with the scope chosen" time="2.156" classname="creates a role, and the list shows it with the scope chosen">
+  <testsuite name="Roles and permissions - creating, copying and deleting a role" timestamp="2026-09-02T20:24:31" tests="5" time="6.067" failures="0">
+    <testcase name="Roles and permissions - creating, copying and deleting a role creates a role, and the list shows it with the scope chosen" time="1.853" classname="creates a role, and the list shows it with the scope chosen">
     </testcase>
-    <testcase name="Roles and permissions - creating, copying and deleting a role refuses a name another role already carries, and says which" time="0.981" classname="refuses a name another role already carries, and says which">
+    <testcase name="Roles and permissions - creating, copying and deleting a role refuses a name another role already carries, and says which" time="0.921" classname="refuses a name another role already carries, and says which">
     </testcase>
-    <testcase name="Roles and permissions - creating, copying and deleting a role copies a role with the permissions it names" time="1.714" classname="copies a role with the permissions it names">
+    <testcase name="Roles and permissions - creating, copying and deleting a role copies a role with the permissions it names" time="1.251" classname="copies a role with the permissions it names">
     </testcase>
-    <testcase name="Roles and permissions - creating, copying and deleting a role creates a role nested inside another, which then adds to it" time="1.279" classname="creates a role nested inside another, which then adds to it">
+    <testcase name="Roles and permissions - creating, copying and deleting a role creates a role nested inside another, which then adds to it" time="1.184" classname="creates a role nested inside another, which then adds to it">
     </testcase>
-    <testcase name="Roles and permissions - creating, copying and deleting a role deletes a role, and the list stops showing it" time="1.315" classname="deletes a role, and the list stops showing it">
+    <testcase name="Roles and permissions - creating, copying and deleting a role deletes a role, and the list stops showing it" time="0.801" classname="deletes a role, and the list stops showing it">
     </testcase>
   </testsuite>
 </testsuites>

@@ -57,8 +57,19 @@ export class RoleDetailPage extends BasePage {
         return this
     }
 
+    /**
+     * The area row, which carries its own granted/total count.
+     *
+     * The count used to be a separate element. The rail is a Moonstone TreeView now, and a tree row
+     * takes a string label and an icon beside it, so the count is part of the label.
+     */
     getAreaCount(area: string) {
-        return cy.get(`[data-testid="role-area-count-${area}"]`)
+        return cy.get(`[data-testid="role-area-${area}"]`)
+    }
+
+    /** The area rail row that is selected, read from the tree's own aria state. */
+    getSelectedArea() {
+        return cy.get('[data-testid="role-area-rail"] [role="treeitem"][aria-selected="true"]')
     }
 
     searchPermission(text: string) {

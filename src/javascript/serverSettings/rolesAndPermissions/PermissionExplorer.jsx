@@ -1,9 +1,9 @@
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {useQuery} from 'react-apollo';
 import {useTranslation} from 'react-i18next';
-import {Banner, EmptyData, Header, LayoutContent, Loader, Paper, Pill, Typography} from '@jahia/moonstone';
+import {Banner, EmptyData, Header, LayoutContent, Loader, Paper, TreeView} from '@jahia/moonstone';
 import {GET_PERMISSION_CATALOG} from './RolesAndPermissions.gql-queries';
-import {applyFilters, emptyFilters, modulesOf} from './permissionFilters';
+import {applyFilters, asTreeData, emptyFilters, isUnfiltered, modulesOf} from './permissionFilters';
 import PermissionFilterBar from './PermissionFilterBar';
 import PermissionDetail from './PermissionDetail';
 import classes from './styles.css';
@@ -27,6 +27,33 @@ export const PermissionExplorer = () => {
     const entries = useMemo(() => catalog?.entries || [], [catalog]);
     const modules = useMemo(() => modulesOf(entries), [entries]);
     const matches = useMemo(() => applyFilters(entries, filters), [entries, filters]);
+
+    const treeData = useMemo(
+        () => asTreeData(matches, !isUnfiltered(filters), entry => ({
+            id: entry.name,
+            label: entry.label || entry.name,
+            treeItemProps: {'data-testid': `permission-row-${entry.name}`}
+        })),
+        [matches, filters]
+    );
+
+    const parentIds = useMemo(() => {
+        const ids = new Set();
+        const walk = nodes => nodes.forEach(node => {
+            if (node.children) {
+                ids.add(node.id);
+                walk(node.children);
+            }
+        });
+        walk(treeData);
+        return ids;
+    }, [treeData]);
+
+    const [openedItems, setOpenedItems] = useState(parentIds);
+
+    // Whatever the filters now keep is shown in full, and a node the reader closed by hand stays
+    // closed only while the data behind it is the same data.
+    useEffect(() => setOpenedItems(parentIds), [parentIds]);
 
     if (error) {
         return (
@@ -80,33 +107,27 @@ export const PermissionExplorer = () => {
                                 </div> :
                                 null}
 
-                            {matches.map(entry => (
-                                <button
-                                    key={entry.logicalPath}
-                                    type="button"
-                                    className={
-                                        entry.name === selected ?
-                                            `${classes.permissionRow} ${classes.permissionRowSelected}` :
-                                            classes.permissionRow
-                                    }
-                                    style={{paddingLeft: `${8 + ((entry.depth - 1) * 16)}px`}}
-                                    data-testid={`permission-row-${entry.name}`}
-                                    onClick={() => setSelected(entry.name)}
-                                >
-                                    <span className={classes.permissionRowLabel}>
-                                        <Typography variant="body">{entry.label}</Typography>
-                                        <Typography variant="caption" className={classes.permissionRowName}>
-                                            {entry.name}
-                                        </Typography>
-                                    </span>
-                                    {entry.workspace === 'NONE' ?
-                                        null :
-                                        <Pill
-                                            className={classes.workspacePill}
-                                            label={t(`rolesAndPermissions.workspace.${entry.workspace}`)}
-                                            data-testid={`permission-workspace-${entry.name}`}/>}
-                                </button>
-                            ))}
+                            {/*
+                              * The catalog's own hierarchy, drawn by TreeView. It carries the depth,
+                              * the expanding, the selected state and the keyboard navigation, all of
+                              * which this screen used to draw with an inline padding and two classes.
+                              *
+                              * The technical name and the workspace are not on the row: TreeView takes
+                              * a string label and an icon beside it, and neither is an icon. Both are
+                              * in the detail pane, which is where a reader looks once a row is picked.
+                              */}
+                            <TreeView
+                                size="small"
+                                data={treeData}
+                                openedItems={[...openedItems]}
+                                selectedItems={[selected]}
+                                onOpenItem={node => setOpenedItems(open => new Set(open).add(node.id))}
+                                onCloseItem={node => setOpenedItems(open => {
+                                    const next = new Set(open);
+                                    next.delete(node.id);
+                                    return next;
+                                })}
+                                onClickItem={node => setSelected(node.id)}/>
                         </div>
 
                         <div className={classes.permissionDetailPane}>

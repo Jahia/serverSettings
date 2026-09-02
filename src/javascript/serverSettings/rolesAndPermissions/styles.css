@@ -19,15 +19,6 @@
     min-width: 260px;
 }
 
-.linkButton {
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    color: var(--color-accent);
-    font: inherit;
-}
-
 .matchCount {
     margin-left: auto;
     color: var(--color-gray_dark);
@@ -53,44 +44,6 @@
     overflow-y: auto;
     max-height: 60vh;
     border-right: 1px solid var(--color-gray_light);
-}
-
-.permissionRow {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-small);
-    width: 100%;
-    padding: 6px 12px 6px 8px;
-    background: none;
-    border: none;
-    border-bottom: 1px solid var(--color-gray_light);
-    text-align: left;
-    cursor: pointer;
-    font: inherit;
-}
-
-.permissionRow:hover {
-    background: var(--color-gray_light);
-}
-
-.permissionRowSelected {
-    background: var(--color-accent_light);
-}
-
-.permissionRowLabel {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
-
-.permissionRowName {
-    color: var(--color-gray_dark);
-    overflow-wrap: anywhere;
-}
-
-.workspacePill {
-    margin-left: auto;
-    flex: 0 0 auto;
 }
 
 /* ---------- the permission detail ---------- */
@@ -121,17 +74,9 @@
     padding: var(--spacing-medium);
 }
 
-.field {
-    margin-top: var(--spacing-medium);
-}
-
 .fieldLabel {
     color: var(--color-gray_dark);
     letter-spacing: 0.06em;
-}
-
-.fieldValue {
-    margin-top: var(--spacing-nano);
 }
 
 .chipRow {
@@ -210,13 +155,17 @@
 
 /* ---------- the role detail ---------- */
 
+/*
+ * The form spaces its own children. Moonstone's Field carries no outer margin, on purpose: what sits
+ * between two fields is the container's business, and a margin on the field would be a guess about a
+ * container it cannot see.
+ */
 .form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-medium);
     padding: var(--spacing-medium);
     max-width: 720px;
-}
-
-.formField {
-    margin-bottom: var(--spacing-medium);
 }
 
 .fieldHint {
@@ -276,35 +225,6 @@
     overflow-y: auto;
     max-height: 60vh;
     border-right: 1px solid var(--color-gray_light);
-}
-
-.areaRow {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--spacing-small);
-    width: 100%;
-    padding: 8px 12px;
-    background: none;
-    border: none;
-    border-bottom: 1px solid var(--color-gray_light);
-    text-align: left;
-    cursor: pointer;
-    font: inherit;
-}
-
-.areaRow:hover {
-    background: var(--color-gray_light);
-}
-
-.areaRowSelected {
-    background: var(--color-accent_light);
-}
-
-.areaCount {
-    color: var(--color-gray_dark);
-    font-size: 0.85em;
-    white-space: nowrap;
 }
 
 .permissionPane {
@@ -398,7 +318,6 @@
     border-radius: 3px;
     font-family: monospace;
 }
-
 
 /* One side of a reset difference, and the target it applies to. */
 .diffTarget {

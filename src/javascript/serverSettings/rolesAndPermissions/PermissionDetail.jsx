@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {useQuery} from 'react-apollo';
 import {useTranslation} from 'react-i18next';
-import {Chip, EmptyData, Loader, Typography} from '@jahia/moonstone';
+import {Chip, EmptyData, Field, Loader, Pill, Typography} from '@jahia/moonstone';
 import {GET_PERMISSION_DETAIL} from './RolesAndPermissions.gql-queries';
 import classes from './styles.css';
 
@@ -30,18 +30,6 @@ const reasonLabel = (effective, t) => {
     }
 
     return t('rolesAndPermissions.reason.direct');
-};
-
-const Field = ({label, children}) => (
-    <div className={classes.field}>
-        <Typography isUpperCase variant="caption" className={classes.fieldLabel}>{label}</Typography>
-        <div className={classes.fieldValue}>{children}</div>
-    </div>
-);
-
-Field.propTypes = {
-    label: PropTypes.string.isRequired,
-    children: PropTypes.node.isRequired
 };
 
 export const PermissionDetail = ({permissionName, language}) => {
@@ -89,11 +77,24 @@ export const PermissionDetail = ({permissionName, language}) => {
                 </Typography> :
                 null}
 
-            <Field label={t('rolesAndPermissions.explorer.logicalPath')}>
+            {/*
+              * The workspace used to be a pill on the list row. TreeView draws a row its own way, so
+              * the marker lives here now. It is the only place the screen states which workspace a
+              * permission decides in, and _default or _live is the whole of that decision.
+              */}
+            {permission.workspace === 'NONE' ?
+                null :
+                <Field id="permission-field-workspace" label={t('rolesAndPermissions.explorer.workspace')}>
+                    <Pill
+                        label={t(`rolesAndPermissions.workspace.${permission.workspace}`)}
+                        data-testid="permission-detail-workspace"/>
+                </Field>}
+
+            <Field id="permission-field-logicalPath" label={t('rolesAndPermissions.explorer.logicalPath')}>
                 <code data-testid="permission-detail-path">{permission.logicalPath}</code>
             </Field>
 
-            <Field label={t('rolesAndPermissions.explorer.declaredBy')}>
+            <Field id="permission-field-declaredBy" label={t('rolesAndPermissions.explorer.declaredBy')}>
                 {permission.providedByModules.length === 0 ?
                     <Typography variant="body">{t('rolesAndPermissions.explorer.coreOnly')}</Typography> :
                     <div className={classes.chipRow} data-testid="permission-detail-modules">
@@ -114,7 +115,7 @@ export const PermissionDetail = ({permissionName, language}) => {
                 null}
 
             {permission.dependencies.length > 0 ?
-                <Field label={t('rolesAndPermissions.explorer.dependencies')}>
+                <Field id="permission-field-dependencies" label={t('rolesAndPermissions.explorer.dependencies')}>
                     <div className={classes.chipRow}>
                         {permission.dependencies.map(dependency => (
                             <Chip key={dependency} label={dependency}/>

@@ -20,6 +20,21 @@ export class PermissionExplorerPage extends BasePage {
         return cy.get(`[data-testid="permission-row-${permission}"]`)
     }
 
+    /**
+     * The selected row, read from the tree's own aria state.
+     *
+     * The list is a Moonstone TreeView, so the selected state is `aria-selected` rather than a class
+     * this module wrote. Asserting the aria state tests the behaviour and not the styling.
+     */
+    getSelectedRow() {
+        return cy.get('[data-testid="permission-list"] [role="treeitem"][aria-selected="true"]')
+    }
+
+    /** The workspace marker, which sits in the detail pane and no longer on the row. */
+    getWorkspace() {
+        return cy.get('[data-testid="permission-detail-workspace"]')
+    }
+
     /** Every permission name the list currently shows, in list order. */
     getVisibleNames(): Cypress.Chainable<string[]> {
         return this.getList()

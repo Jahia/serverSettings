@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {useTranslation} from 'react-i18next';
-import {Dropdown, SearchInput} from '@jahia/moonstone';
+import {Button, Dropdown, SearchInput} from '@jahia/moonstone';
 import {ANY, emptyFilters} from './permissionFilters';
 import classes from './styles.css';
 
@@ -71,14 +71,11 @@ export const PermissionFilterBar = ({filters, setFilters, areas, modules, matchC
                 onChange={(event, item) => update({module: item.value})}
             />
 
-            <button
-                type="button"
-                className={classes.linkButton}
+            <Button
+                variant="ghost"
+                label={t('rolesAndPermissions.explorer.reset')}
                 data-testid="permission-filter-reset"
-                onClick={() => setFilters(emptyFilters)}
-            >
-                {t('rolesAndPermissions.explorer.reset')}
-            </button>
+                onClick={() => setFilters(emptyFilters)}/>
 
             <span className={classes.matchCount} data-testid="permission-match-count">
                 {t('rolesAndPermissions.explorer.matchCount', {count: matchCount, total: totalCount})}

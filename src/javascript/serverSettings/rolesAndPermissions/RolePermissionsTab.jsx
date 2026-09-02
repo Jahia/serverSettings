@@ -2,7 +2,7 @@ import React, {useMemo, useState} from 'react';
 import PropTypes from 'prop-types';
 import {useApolloClient, useMutation} from 'react-apollo';
 import {useTranslation} from 'react-i18next';
-import {Add, Button, Checkbox, Chip, Delete, EmptyData, Input, SearchInput, Typography} from '@jahia/moonstone';
+import {Add, Button, Checkbox, Chip, Delete, EmptyData, Input, SearchInput, TreeView, Typography} from '@jahia/moonstone';
 import {
     ADD_TARGET,
     COLLAPSE_PERMISSION,
@@ -293,28 +293,30 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
 
             <div className={classes.permissionsBody}>
                 <div className={classes.areaRail} data-testid="role-area-rail">
-                    {catalog.areas.map(candidate => {
-                        const counts = grantedByArea.get(candidate) || {granted: 0, total: 0};
-                        return (
-                            <button
-                                key={candidate}
-                                type="button"
-                                className={candidate === area && search.trim() === '' ?
-                                    `${classes.areaRow} ${classes.areaRowSelected}` :
-                                    classes.areaRow}
-                                data-testid={`role-area-${candidate}`}
-                                onClick={() => {
-                                    setSearch('');
-                                    setArea(candidate);
-                                }}
-                            >
-                                <Typography variant="body">{candidate}</Typography>
-                                <span className={classes.areaCount} data-testid={`role-area-count-${candidate}`}>
-                                    {t('rolesAndPermissions.detail.areaCount', counts)}
-                                </span>
-                            </button>
-                        );
-                    })}
+                    {/*
+                      * A rail of areas, one selected. TreeView carries the selected state and the
+                      * keyboard navigation, so neither is written here. Its label is a string and its
+                      * trailing slot takes an icon, so the count rides in the label rather than beside
+                      * it: the component decides how a row looks, and this screen supplies the words.
+                      */}
+                    <TreeView
+                        size="small"
+                        data={catalog.areas.map(candidate => {
+                            const counts = grantedByArea.get(candidate) || {granted: 0, total: 0};
+                            return {
+                                id: candidate,
+                                label: t('rolesAndPermissions.detail.areaWithCount', {
+                                    area: candidate,
+                                    ...counts
+                                }),
+                                treeItemProps: {'data-testid': `role-area-${candidate}`}
+                            };
+                        })}
+                        selectedItems={search.trim() === '' ? [area] : []}
+                        onClickItem={node => {
+                            setSearch('');
+                            setArea(node.id);
+                        }}/>
                 </div>
 
                 <div className={classes.permissionPane}>
