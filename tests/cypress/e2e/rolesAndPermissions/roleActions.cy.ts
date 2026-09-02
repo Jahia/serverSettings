@@ -36,9 +36,16 @@ const READ = gql`
             rolesAndPermissions {
                 role(name: $role) {
                     roleGroup
+                    parentRoleName
                     grants {
                         id
                         directPermissions
+                        effectivePermissions {
+                            name
+                            isDirect
+                            lockKind
+                            lockedBy
+                        }
                     }
                 }
             }
@@ -57,6 +64,7 @@ describe('Roles and permissions - creating, copying and deleting a role', () => 
     const uniq = Date.now().toString(36)
     const created = `rpNew${uniq}`
     const copy = `rpNew${uniq}-copy`
+    const nested = `rpNested${uniq}`
 
     beforeEach(() => {
         cy.login()
@@ -64,7 +72,7 @@ describe('Roles and permissions - creating, copying and deleting a role', () => 
 
     after(() => {
         cy.login()
-        ;[copy, created].forEach((role) => {
+        ;[copy, nested, created].forEach((role) => {
             cy.apolloClient().apollo({ mutation: DELETE, variables: { role } })
         })
     })
@@ -120,6 +128,44 @@ describe('Roles and permissions - creating, copying and deleting a role', () => 
                     role.grants.find((grant) => grant.id === '').directPermissions,
                     'and it names what the source names',
                 ).to.deep.eq(['clearLock', 'publish'])
+            })
+    })
+
+    it('creates a role nested inside another, which then adds to it', () => {
+        const page = RoleListPage.visit()
+
+        cy.get('[data-testid="role-create"]').click()
+        nameDialog.name().clear()
+        nameDialog.name().type(nested)
+        // The parent is what makes this a nested role rather than a top-level one. Without this field
+        // the screen could only create top-level roles, whatever the API allowed.
+        cy.get('[data-testid="role-new-parent"]').click()
+        cy.get('[data-testid="role-new-parent-editor"]').click()
+        nameDialog.confirm().click()
+
+        // The list indents a nested role and names the role it sits in.
+        page.getRoleName(nested).should('contain', `inside editor`)
+
+        cy.apolloClient()
+            .apollo({ query: READ, variables: { role: nested } })
+            .then((result) => {
+                const role = result.data.admin.rolesAndPermissions.role
+                expect(role.parentRoleName, 'the role is nested inside editor').to.eq('editor')
+
+                const own = role.grants.find((grant) => grant.id === '')
+                expect(own.directPermissions, 'and it names nothing of its own').to.deep.eq([])
+
+                // A nested role ADDS to its parent, so it already grants what editor grants, and every
+                // one of those is locked by editor rather than named here. That is the difference from
+                // a copy, which would name the same permissions and be independent.
+                const inherited = own.effectivePermissions.find(
+                    (effective) => effective.name === 'api-access',
+                )
+                expect(inherited, 'editor grants api-access, so the nested role grants it too').to.not.be
+                    .undefined
+                expect(inherited.isDirect, 'without naming it').to.be.false
+                expect(inherited.lockKind).to.eq('INHERITED_FROM_ROLE')
+                expect(inherited.lockedBy).to.eq('editor')
             })
     })
 

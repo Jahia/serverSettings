@@ -48,11 +48,11 @@ export const RoleList = ({onOpenRole}) => {
 
     // The server refuses a name another role carries, and its message is what the dialog shows. The
     // check cannot live here: two administrators could pick one name at the same time.
-    const confirmDialog = async ({name, roleGroup, withSubRoles}) => {
+    const confirmDialog = async ({name, roleGroup, parentRole, withSubRoles}) => {
         setDialogError(null);
         try {
             if (dialog.mode === 'create') {
-                await createRole({variables: {name, roleGroup}});
+                await createRole({variables: {name, roleGroup, parentRole}});
             } else {
                 await duplicateRole({variables: {role: dialog.sourceRole, newName: name, withSubRoles}});
             }
@@ -308,6 +308,7 @@ export const RoleList = ({onOpenRole}) => {
                             mode={dialog.mode}
                             sourceRole={dialog.sourceRole}
                             roleGroups={roleGroups}
+                            roleNames={roles.map(role => role.name)}
                             error={dialogError}
                             onCancel={() => setDialog(null)}
                             onConfirm={confirmDialog}/> :

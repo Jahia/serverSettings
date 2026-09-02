@@ -367,3 +367,17 @@
     max-width: 100%;
     overflow: hidden;
 }
+
+/*
+ * The Moonstone modal overlay is position: fixed with z-index: auto, and the sticky head of the
+ * Moonstone data table is z-index: 5. So the table head paints across any dialog opened over the
+ * role list, and the band it covers hides whatever the dialog put there.
+ *
+ * The overlay is raised rather than the table head lowered, because a dialog belongs above the page
+ * whatever the page contains. The rule is global on purpose: the overlay is Moonstone's own element
+ * and this stylesheet is compiled as a CSS module, so a plain selector would be renamed and match
+ * nothing.
+ */
+:global(.moonstone-modal_overlay) {
+    z-index: 100;
+}
