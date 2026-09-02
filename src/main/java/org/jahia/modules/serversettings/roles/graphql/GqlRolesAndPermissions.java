@@ -26,4 +26,12 @@ public class GqlRolesAndPermissions {
     public List<String> getRoleGroups() throws RepositoryException {
         return rolesAndPermissionsService.getRoleGroups();
     }
+
+    @GraphQLField
+    @GraphQLNonNull
+    @GraphQLDescription("Every permission this instance declares, merged by logical path")
+    public GqlPermissionCatalog getPermissionCatalog() throws RepositoryException {
+        return new GqlPermissionCatalog(rolesAndPermissionsService.getPermissionCatalog(),
+                rolesAndPermissionsService);
+    }
 }

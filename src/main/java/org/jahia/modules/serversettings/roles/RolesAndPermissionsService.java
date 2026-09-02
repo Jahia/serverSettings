@@ -1,6 +1,7 @@
 package org.jahia.modules.serversettings.roles;
 
 import java.util.List;
+import java.util.Locale;
 
 import javax.jcr.RepositoryException;
 
@@ -23,4 +24,34 @@ public interface RolesAndPermissionsService {
      * @throws RepositoryException when the query fails
      */
     List<String> getRoleGroups() throws RepositoryException;
+
+    /**
+     * The logical permission graph of this instance.
+     * <p>
+     * The catalog is built from every {@code jnt:permission} node the caller can read, which is core's
+     * own subtree plus one subtree per installed module. It is small enough to build per call, so the
+     * answer always reflects the modules installed right now.
+     *
+     * @return the catalog, never null
+     * @throws RepositoryException when the query fails
+     */
+    PermissionCatalog getPermissionCatalog() throws RepositoryException;
+
+    /**
+     * The label of the given permission, read from the core bundle and then from each declaring module.
+     *
+     * @param entry a permission of the catalog
+     * @param locale the locale to read the bundles in
+     * @return the label, and the humanised permission name when no bundle answers
+     */
+    String getPermissionLabel(PermissionEntry entry, Locale locale);
+
+    /**
+     * The description of the given permission, read the same way as its label.
+     *
+     * @param entry a permission of the catalog
+     * @param locale the locale to read the bundles in
+     * @return the description, and an empty string when no bundle answers
+     */
+    String getPermissionDescription(PermissionEntry entry, Locale locale);
 }
