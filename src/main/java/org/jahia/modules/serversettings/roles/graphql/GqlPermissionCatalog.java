@@ -23,10 +23,13 @@ public class GqlPermissionCatalog {
 
     private final PermissionCatalog catalog;
     private final RolesAndPermissionsService service;
+    private final PermissionUsageIndex usageIndex;
 
-    GqlPermissionCatalog(PermissionCatalog catalog, RolesAndPermissionsService service) {
+    GqlPermissionCatalog(PermissionCatalog catalog, RolesAndPermissionsService service,
+                         PermissionUsageIndex usageIndex) {
         this.catalog = catalog;
         this.service = service;
+        this.usageIndex = usageIndex;
     }
 
     @GraphQLField
@@ -36,7 +39,7 @@ public class GqlPermissionCatalog {
             @GraphQLName("area") @GraphQLDescription("Keep only the permissions of this area") String area) {
         return catalog.getEntries().stream()
                 .filter(entry -> area == null || area.equals(entry.getArea()))
-                .map(entry -> new GqlPermission(entry, service))
+                .map(entry -> new GqlPermission(entry, service, usageIndex))
                 .collect(Collectors.toList());
     }
 

@@ -1,6 +1,7 @@
 package org.jahia.modules.serversettings.roles;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -30,6 +31,13 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
     private static final String ROLE_GROUP_PROPERTY = "j:roleGroup";
     private static final String IS_ABSTRACT_PROPERTY = "j:isAbstract";
     private static final String DEPENDENCIES_PROPERTY = "j:dependencies";
+    private static final String PERMISSION_NAMES_PROPERTY = "j:permissionNames";
+    private static final String NODE_TYPES_PROPERTY = "j:nodeTypes";
+    private static final String HIDDEN_PROPERTY = "j:hidden";
+    private static final String PRIVILEGED_ACCESS_PROPERTY = "j:privilegedAccess";
+    private static final String EXTERNAL_PATH_PROPERTY = "j:path";
+
+    private static final String EXTERNAL_PERMISSIONS_TYPE = "jnt:externalPermissions";
 
     // Every role lives under /roles, so the query needs no parameter and carries no caller input.
     private static final String ROLES_QUERY =
@@ -119,6 +127,114 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
 
         catalog.orderAreas(readAreaOrder(session));
         return catalog;
+    }
+
+    @Override
+    public RoleModel getRoleModel() throws RepositoryException {
+        return getRoleModel(getPermissionCatalog());
+    }
+
+    @Override
+    public RoleModel getRoleModel(PermissionCatalog catalog) throws RepositoryException {
+        // The roles are read in path order, so a parent role is always added before the roles nested
+        // inside it and the model needs no second ordering pass.
+        List<JCRNodeWrapper> roles = new ArrayList<>();
+        NodeIterator found = query(ROLES_QUERY);
+        while (found.hasNext()) {
+            roles.add((JCRNodeWrapper) found.nextNode());
+        }
+        roles.sort(Comparator.comparing(JCRNodeWrapper::getPath));
+
+        RoleModel model = new RoleModel(catalog);
+        Map<String, String> roleNameByIdentifier = new HashMap<>();
+        Map<RoleView, List<String>> dependencyIdentifiers = new LinkedHashMap<>();
+
+        for (JCRNodeWrapper node : roles) {
+            JCRNodeWrapper parent = node.getParent();
+            String parentRolePath = parent.isNodeType(Constants.JAHIANT_ROLE) ? parent.getPath() : null;
+
+            RoleView role = new RoleView(node.getName(), node.getPath(), parentRolePath,
+                    stringOrNull(node, ROLE_GROUP_PROPERTY),
+                    booleanValue(node, HIDDEN_PROPERTY),
+                    booleanValue(node, PRIVILEGED_ACCESS_PROPERTY));
+            role.addNodeTypes(multipleValues(node, NODE_TYPES_PROPERTY));
+
+            RoleGrant onCurrentNode = RoleGrant.onCurrentNode();
+            onCurrentNode.addPermissions(multipleValues(node, PERMISSION_NAMES_PROPERTY));
+            role.addGrant(onCurrentNode);
+
+            NodeIterator children = node.getNodes();
+            while (children.hasNext()) {
+                JCRNodeWrapper child = (JCRNodeWrapper) children.nextNode();
+                if (child.isNodeType(EXTERNAL_PERMISSIONS_TYPE)) {
+                    RoleGrant external = RoleGrant.onExternalPath(child.getName(),
+                            stringOrNull(child, EXTERNAL_PATH_PROPERTY));
+                    external.addPermissions(multipleValues(child, PERMISSION_NAMES_PROPERTY));
+                    role.addGrant(external);
+                } else if (child.isNodeType(Constants.JAHIANT_TRANSLATION)) {
+                    readTranslation(child, role);
+                }
+            }
+
+            roleNameByIdentifier.put(node.getIdentifier(), role.getName());
+            List<String> identifiers = multipleValues(node, DEPENDENCIES_PROPERTY);
+            if (!identifiers.isEmpty()) {
+                dependencyIdentifiers.put(role, identifiers);
+            }
+            model.add(role);
+        }
+
+        // j:dependencies is a weak reference to another role, so the value is an identifier. Every role
+        // was read above, so the map resolves it without a second read.
+        dependencyIdentifiers.forEach((role, identifiers) -> {
+            List<String> names = new ArrayList<>();
+            identifiers.stream().map(roleNameByIdentifier::get).filter(Objects::nonNull).forEach(names::add);
+            role.addDependencies(names);
+        });
+
+        model.link();
+        return model;
+    }
+
+    /**
+     * Read one {@code jnt:translation} child into the role's titles and descriptions.
+     * <p>
+     * {@code jcr:title} and {@code jcr:description} are i18n on {@code jnt:role}, so their values live
+     * on these children and not on the role node.
+     */
+    private void readTranslation(JCRNodeWrapper translation, RoleView role) throws RepositoryException {
+        if (!translation.hasProperty(Constants.JCR_LANGUAGE)) {
+            return;
+        }
+        String language = translation.getProperty(Constants.JCR_LANGUAGE).getString();
+        String title = stringOrNull(translation, Constants.JCR_TITLE);
+        if (title != null) {
+            role.putTitle(language, title);
+        }
+        String description = stringOrNull(translation, Constants.JCR_DESCRIPTION);
+        if (description != null) {
+            role.putDescription(language, description);
+        }
+    }
+
+    private static String stringOrNull(JCRNodeWrapper node, String propertyName) throws RepositoryException {
+        return node.hasProperty(propertyName) ? node.getProperty(propertyName).getString() : null;
+    }
+
+    private static boolean booleanValue(JCRNodeWrapper node, String propertyName) throws RepositoryException {
+        return node.hasProperty(propertyName) && node.getProperty(propertyName).getBoolean();
+    }
+
+    private static List<String> multipleValues(JCRNodeWrapper node, String propertyName)
+            throws RepositoryException {
+        if (!node.hasProperty(propertyName)) {
+            return Collections.emptyList();
+        }
+        List<String> values = new ArrayList<>();
+        for (Value value : node.getProperty(propertyName).getValues()) {
+            values.add(value.getString());
+        }
+        return values;
     }
 
     /**

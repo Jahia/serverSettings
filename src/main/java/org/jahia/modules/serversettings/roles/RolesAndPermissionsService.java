@@ -38,6 +38,26 @@ public interface RolesAndPermissionsService {
     PermissionCatalog getPermissionCatalog() throws RepositoryException;
 
     /**
+     * Every role of the instance, and what each one effectively grants.
+     *
+     * @return the model, never null
+     * @throws RepositoryException when the query fails
+     */
+    RoleModel getRoleModel() throws RepositoryException;
+
+    /**
+     * Every role of the instance, resolved against a catalog the caller already read.
+     * <p>
+     * A request that reads both the catalog and the roles builds the catalog once and passes it here,
+     * because the model resolves each granted permission against it.
+     *
+     * @param catalog the permission catalog to resolve the grants against
+     * @return the model, never null
+     * @throws RepositoryException when the query fails
+     */
+    RoleModel getRoleModel(PermissionCatalog catalog) throws RepositoryException;
+
+    /**
      * The label of the given permission, read from the core bundle and then from each declaring module.
      *
      * @param entry a permission of the catalog

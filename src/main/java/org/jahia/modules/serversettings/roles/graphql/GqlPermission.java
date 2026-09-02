@@ -2,6 +2,9 @@ package org.jahia.modules.serversettings.roles.graphql;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
+
+import javax.jcr.RepositoryException;
 
 import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
@@ -19,10 +22,12 @@ public class GqlPermission {
 
     private final PermissionEntry entry;
     private final RolesAndPermissionsService service;
+    private final PermissionUsageIndex usageIndex;
 
-    GqlPermission(PermissionEntry entry, RolesAndPermissionsService service) {
+    GqlPermission(PermissionEntry entry, RolesAndPermissionsService service, PermissionUsageIndex usageIndex) {
         this.entry = entry;
         this.service = service;
+        this.usageIndex = usageIndex;
     }
 
     @GraphQLField
@@ -111,6 +116,16 @@ public class GqlPermission {
     public String getDescription(
             @GraphQLName("language") @GraphQLDescription("Language code, defaults to English") String language) {
         return service.getPermissionDescription(entry, toLocale(language));
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
+    @GraphQLDescription("Every role and target that grants this permission, and why. Selecting this "
+            + "field is what makes the query read the roles")
+    public List<GqlPermissionUsage> getGrantedBy() throws RepositoryException {
+        return usageIndex.forPermission(entry.getName()).stream()
+                .map(GqlPermissionUsage::new)
+                .collect(Collectors.toList());
     }
 
     private static Locale toLocale(String language) {
