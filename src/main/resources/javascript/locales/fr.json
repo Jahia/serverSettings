@@ -27,6 +27,13 @@
     "serverRoles": "Rôles serveur",
     "systemRoles": "Rôles système"
   },
+  "rolesAndPermissions": {
+    "label": "Rôles et permissions (nouveau)",
+    "title": "Rôles et permissions",
+    "scope": "Portées",
+    "noScope": "Aucun rôle ne déclare de portée.",
+    "loadError": "Les rôles n'ont pas pu être chargés."
+  },
   "webProjects": {
     "label": "Projets"
   },

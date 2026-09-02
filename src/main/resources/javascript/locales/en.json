@@ -27,6 +27,13 @@
     "serverRoles": "Server roles",
     "systemRoles": "System roles"
   },
+  "rolesAndPermissions": {
+    "label": "Roles and permissions (new)",
+    "title": "Roles and permissions",
+    "scope": "Scopes",
+    "noScope": "No role declares a scope.",
+    "loadError": "The roles could not be loaded."
+  },
   "webProjects": {
     "label": "Projects"
   },

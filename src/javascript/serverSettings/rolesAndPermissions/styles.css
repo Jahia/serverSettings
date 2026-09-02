@@ -1,0 +1,11 @@
+.scopeBar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-nano, 4px);
+    align-items: center;
+    padding: var(--spacing-small, 16px);
+}
+
+.scopeBarLabel {
+    margin-right: var(--spacing-nano, 4px);
+}
