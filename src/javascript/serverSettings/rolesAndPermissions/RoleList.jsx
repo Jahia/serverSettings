@@ -1,9 +1,11 @@
-import React, {useMemo, useState} from 'react';
-import {useQuery} from 'react-apollo';
+import React, {useCallback, useMemo, useState} from 'react';
+import PropTypes from 'prop-types';
+import {useMutation, useQuery} from 'react-apollo';
 import {useTranslation} from 'react-i18next';
-import {Banner, Chip, DataTable, EmptyData, Header, LayoutContent, Loader, Paper, SearchInput, Typography} from '@jahia/moonstone';
+import {Add, Banner, Button, Chip, Copy, DataTable, Delete, EmptyData, Header, LayoutContent, Loader, Paper, SearchInput, Typography} from '@jahia/moonstone';
 import {stringColumn} from '@jahia/moonstone/DataTable';
-import {GET_ROLES} from './RolesAndPermissions.gql-queries';
+import {CREATE_ROLE, DELETE_ROLE, DUPLICATE_ROLE, GET_ROLES} from './RolesAndPermissions.gql-queries';
+import RoleNameDialog from './RoleNameDialog';
 import RoleWarnings from './RoleWarnings';
 import classes from './styles.css';
 
@@ -26,17 +28,46 @@ const filterRoles = (roles, search, scope) => {
     });
 };
 
-export const RoleList = () => {
+export const RoleList = ({onOpenRole}) => {
     const {t, i18n} = useTranslation('serverSettings');
     const language = i18n.language || 'en';
 
     const [search, setSearch] = useState('');
     const [scope, setScope] = useState(ANY_SCOPE);
+    const [dialog, setDialog] = useState(null);
+    const [dialogError, setDialogError] = useState(null);
 
-    const {data, loading, error} = useQuery(GET_ROLES, {
+    const {data, loading, error, refetch} = useQuery(GET_ROLES, {
         variables: {language},
         fetchPolicy: 'network-only'
     });
+
+    const [createRole] = useMutation(CREATE_ROLE);
+    const [duplicateRole] = useMutation(DUPLICATE_ROLE);
+    const [deleteRole] = useMutation(DELETE_ROLE);
+
+    // The server refuses a name another role carries, and its message is what the dialog shows. The
+    // check cannot live here: two administrators could pick one name at the same time.
+    const confirmDialog = async ({name, roleGroup, withSubRoles}) => {
+        setDialogError(null);
+        try {
+            if (dialog.mode === 'create') {
+                await createRole({variables: {name, roleGroup}});
+            } else {
+                await duplicateRole({variables: {role: dialog.sourceRole, newName: name, withSubRoles}});
+            }
+
+            setDialog(null);
+            refetch();
+        } catch (mutationError) {
+            setDialogError(mutationError.message);
+        }
+    };
+
+    const removeRole = useCallback(async roleName => {
+        await deleteRole({variables: {role: roleName}});
+        refetch();
+    }, [deleteRole, refetch]);
 
     const answer = data?.admin?.rolesAndPermissions;
     const roles = useMemo(() => answer?.roles || [], [answer]);
@@ -50,9 +81,13 @@ export const RoleList = () => {
             // A sub-role is indented, so the chain that decides what it adds to is visible without a
             // second widget. The repository nests roles one level deep in practice.
             render: ({data: role}) => (
-                <span
-                    className={role.parentRoleName ? classes.subRoleName : classes.roleName}
+                <button
+                    type="button"
+                    className={role.parentRoleName ?
+                        `${classes.roleNameButton} ${classes.subRoleName}` :
+                        `${classes.roleNameButton} ${classes.roleName}`}
                     data-testid={`role-name-${role.name}`}
+                    onClick={() => onOpenRole(role.name)}
                 >
                     <Typography variant="body">{role.title || role.name}</Typography>
                     <Typography variant="caption" className={classes.roleTechnicalName}>
@@ -60,7 +95,7 @@ export const RoleList = () => {
                             t('rolesAndPermissions.list.subRoleOf', {name: role.name, parent: role.parentRoleName}) :
                             role.name}
                     </Typography>
-                </span>
+                </button>
             )
         },
         {
@@ -128,14 +163,15 @@ export const RoleList = () => {
         {
             key: 'flags',
             label: t('rolesAndPermissions.list.columns.flags'),
-            width: '230px',
+            // No fixed width. The chips of a role with several flags outgrew one, and the overflow
+            // covered the action button of the row below.
             render: ({data: role}) => (
                 <span className={classes.warningRow} data-testid={`role-flags-${role.name}`}>
                     {role.hasEffectivePrivilegedAccess ?
                         <Chip
                             label={role.hasPrivilegedAccess ?
                                 t('rolesAndPermissions.list.privileged') :
-                                t('rolesAndPermissions.list.privilegedByParent', {parent: role.parentRoleName})}
+                                t('rolesAndPermissions.list.privilegedVia', {parent: role.parentRoleName})}
                             data-testid={`role-privileged-${role.name}`}/> :
                         null}
                     {role.isHidden ?
@@ -144,8 +180,30 @@ export const RoleList = () => {
                     <RoleWarnings roleName={role.name} warnings={role.warnings}/>
                 </span>
             )
+        },
+        {
+            key: 'path',
+            label: t('rolesAndPermissions.list.columns.actions'),
+            width: '110px',
+            render: ({data: role}) => (
+                <span className={classes.rowActions}>
+                    <Button
+                        variant="ghost"
+                        icon={<Copy/>}
+                        data-testid={`role-duplicate-${role.name}`}
+                        onClick={() => {
+                            setDialogError(null);
+                            setDialog({mode: 'duplicate', sourceRole: role.name});
+                        }}/>
+                    <Button
+                        variant="ghost"
+                        icon={<Delete/>}
+                        data-testid={`role-delete-${role.name}`}
+                        onClick={() => removeRole(role.name)}/>
+                </span>
+            )
         }
-    ], [t]);
+    ], [t, onOpenRole, removeRole]);
 
     const content = () => {
         if (error) {
@@ -181,7 +239,24 @@ export const RoleList = () => {
     return (
         <LayoutContent
             isLoading={loading}
-            header={<Header title={t('rolesAndPermissions.title')} data-testid="role-list-header"/>}
+            header={
+                <Header
+                    title={t('rolesAndPermissions.title')}
+                    data-testid="role-list-header"
+                    mainActions={[
+                        <Button
+                            key="create"
+                            size="big"
+                            color="accent"
+                            icon={<Add/>}
+                            label={t('rolesAndPermissions.list.create')}
+                            data-testid="role-create"
+                            onClick={() => {
+                                setDialogError(null);
+                                setDialog({mode: 'create'});
+                            }}/>
+                    ]}/>
+            }
             content={
                 <Paper>
                     {answer?.ambiguousRoleNames?.length > 0 ?
@@ -227,9 +302,23 @@ export const RoleList = () => {
                     </div>
 
                     {content()}
+
+                    {dialog ?
+                        <RoleNameDialog
+                            mode={dialog.mode}
+                            sourceRole={dialog.sourceRole}
+                            roleGroups={roleGroups}
+                            error={dialogError}
+                            onCancel={() => setDialog(null)}
+                            onConfirm={confirmDialog}/> :
+                        null}
                 </Paper>
             }/>
     );
+};
+
+RoleList.propTypes = {
+    onOpenRole: PropTypes.func.isRequired
 };
 
 export default RoleList;

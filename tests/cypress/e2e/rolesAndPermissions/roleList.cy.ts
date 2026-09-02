@@ -129,7 +129,7 @@ describe('Roles and permissions - the role list', () => {
 
         // The fixture sets no j:privilegedAccess. Its parent, editor, does, and AclListener reads the
         // whole chain, so granting the fixture makes the principal privileged.
-        page.getPrivilegedFlag(fixture).should('contain', 'Privileged through editor')
+        page.getPrivilegedFlag(fixture).should('contain', 'Privileged via editor')
 
         // editor sets the property itself, so its flag names no parent.
         page.getPrivilegedFlag('editor').should('have.text', 'Privileged access')

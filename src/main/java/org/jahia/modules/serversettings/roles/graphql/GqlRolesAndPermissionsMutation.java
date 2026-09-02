@@ -139,6 +139,24 @@ public class GqlRolesAndPermissionsMutation {
     }
 
     @GraphQLField
+    @GraphQLName("setRoleText")
+    @GraphQLNonNull
+    // graphql-java-annotations derives a field name from the method name, and it strips a `set`
+    // prefix the way it strips `get` and `is`. Without this the field is published as `roleText`.
+    @GraphQLDescription("Set the title and the description of a role in one language. Both are i18n on "
+            + "jnt:role, so the write goes through a session opened in that language. The generic JCR "
+            + "mutation takes no language, and a write through it leaves nothing a per-language read finds")
+    public boolean setRoleText(
+            @GraphQLName("role") @GraphQLNonNull @GraphQLDescription("The role") String role,
+            @GraphQLName("language") @GraphQLNonNull @GraphQLDescription("The language code") String language,
+            @GraphQLName("title") @GraphQLDescription("The title, or null to remove it") String title,
+            @GraphQLName("description") @GraphQLDescription("The description, or null to remove it")
+            String description) throws RepositoryException {
+        rolesAndPermissionsService.setRoleText(role, language, title, description);
+        return true;
+    }
+
+    @GraphQLField
     @GraphQLNonNull
     @GraphQLDescription("Remove a target from a role. Answers false when only an ancestor role declares "
             + "it, because such a target is not this role's to remove")

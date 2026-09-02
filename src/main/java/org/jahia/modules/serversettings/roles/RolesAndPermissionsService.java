@@ -191,4 +191,21 @@ public interface RolesAndPermissionsService {
      * @throws RepositoryException when the write fails
      */
     boolean removeTarget(String roleName, String grantId) throws RepositoryException;
+
+    /**
+     * Set the title and the description of a role in one language.
+     * <p>
+     * Both are i18n on {@code jnt:role}, so their values live on a {@code jnt:translation} child and
+     * not on the role node. A write has to go through a session opened in that language, which is why
+     * the generic JCR mutation cannot carry it: that mutation takes no language, and a write through
+     * it reports success while leaving nothing a per-language read can find.
+     *
+     * @param roleName the role
+     * @param language the language code
+     * @param title the title, or null to remove it
+     * @param description the description, or null to remove it
+     * @throws RepositoryException when the write fails
+     */
+    void setRoleText(String roleName, String language, String title, String description)
+            throws RepositoryException;
 }

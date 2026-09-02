@@ -28,6 +28,7 @@ import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionFactory;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.templates.JahiaTemplateManagerService;
+import org.jahia.utils.LanguageCodeConverters;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -535,6 +536,37 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
         roleNode.getNode(grantId).remove();
         session.save();
         return true;
+    }
+
+    @Override
+    public void setRoleText(String roleName, String language, String title, String description)
+            throws RepositoryException {
+        RoleView role = getRoleModel().get(roleName);
+        if (role == null) {
+            throw new PathNotFoundException("No role is named " + roleName);
+        }
+
+        // The session carries the language, and Jahia routes an i18n property to the translation child
+        // of that language. A session with no language would write a value no per-language read finds.
+        Locale locale = LanguageCodeConverters.languageCodeToLocale(language);
+        JCRSessionWrapper session = JCRSessionFactory.getInstance()
+                .getCurrentUserSession(Constants.EDIT_WORKSPACE, locale);
+        JCRNodeWrapper node = session.getNode(role.getPath());
+
+        setOrRemove(node, Constants.JCR_TITLE, title);
+        setOrRemove(node, Constants.JCR_DESCRIPTION, description);
+        session.save();
+    }
+
+    private static void setOrRemove(JCRNodeWrapper node, String propertyName, String value)
+            throws RepositoryException {
+        if (value == null || value.trim().isEmpty()) {
+            if (node.hasProperty(propertyName)) {
+                node.getProperty(propertyName).remove();
+            }
+            return;
+        }
+        node.setProperty(propertyName, value);
     }
 
     /**

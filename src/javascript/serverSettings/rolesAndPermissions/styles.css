@@ -206,3 +206,164 @@
 .scopeChip {
     cursor: pointer;
 }
+
+/* ---------- the role detail ---------- */
+
+.form {
+    padding: var(--spacing-medium, 24px);
+    max-width: 720px;
+}
+
+.formField {
+    margin-bottom: var(--spacing-medium, 24px);
+}
+
+.fieldHint {
+    display: block;
+    margin-top: var(--spacing-nano, 4px);
+    color: var(--color-gray_dark, #6b6b6b);
+}
+
+.textInput {
+    width: 100%;
+}
+
+.switchRow {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-small, 16px);
+}
+
+.formActions {
+    display: flex;
+    gap: var(--spacing-small, 16px);
+    margin-top: var(--spacing-medium, 24px);
+}
+
+.formError {
+    color: var(--color-danger, #c1272d);
+}
+
+.detailHeaderName {
+    color: var(--color-gray_dark, #6b6b6b);
+}
+
+/* ---------- the permissions tab ---------- */
+
+.targetBar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-small, 16px);
+    padding: var(--spacing-small, 16px);
+    border-bottom: 1px solid var(--color-gray_light, #e5e5e5);
+}
+
+.permissionsBody {
+    display: grid;
+    grid-template-columns: minmax(200px, 1fr) minmax(360px, 3fr);
+    min-height: 420px;
+}
+
+@media (max-width: 900px) {
+    .permissionsBody {
+        grid-template-columns: 1fr;
+    }
+}
+
+.areaRail {
+    overflow-y: auto;
+    max-height: 60vh;
+    border-right: 1px solid var(--color-gray_light, #e5e5e5);
+}
+
+.areaRow {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--spacing-small, 16px);
+    width: 100%;
+    padding: 8px 12px;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--color-gray_light, #f0f0f0);
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+}
+
+.areaRow:hover {
+    background: var(--color-gray_light, #f5f5f5);
+}
+
+.areaRowSelected {
+    background: var(--color-accent_light, #e6f5fc);
+}
+
+.areaCount {
+    color: var(--color-gray_dark, #6b6b6b);
+    font-size: 0.85em;
+    white-space: nowrap;
+}
+
+.permissionPane {
+    overflow-y: auto;
+    max-height: 60vh;
+}
+
+.permissionEditRow {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-small, 16px);
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--color-gray_light, #f0f0f0);
+}
+
+.permissionEditLabel {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+
+.permissionReason {
+    color: var(--color-gray_dark, #6b6b6b);
+}
+
+.permissionUnknown {
+    color: var(--color-warning_dark, #8d5a10);
+}
+
+.rowActions {
+    display: flex;
+    gap: var(--spacing-nano, 4px);
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+.dialogList {
+    margin: var(--spacing-small, 16px) 0 0;
+    padding-left: var(--spacing-medium, 24px);
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.roleNameButton {
+    background: none;
+    border: none;
+    padding: 0;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    width: 100%;
+}
+
+.roleNameButton:hover {
+    text-decoration: underline;
+}
+
+/* A flags cell holds several chips, and they wrap inside the cell rather than overflowing it. */
+.warningRow {
+    max-width: 100%;
+    overflow: hidden;
+}

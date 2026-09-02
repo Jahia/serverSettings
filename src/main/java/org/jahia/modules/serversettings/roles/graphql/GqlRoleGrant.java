@@ -85,6 +85,34 @@ public class GqlRoleGrant {
 
     @GraphQLField
     @GraphQLNonNull
+    @GraphQLDescription("The permissions of this target that could be grouped onto a parent, because "
+            + "the target names every direct child of that parent. Offered, never required")
+    public List<String> getCollapsablePermissions() {
+        return model.getCollapsablePermissions(roleName, grantId);
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
+    @GraphQLDescription("What grouping onto one permission would do. The role starts granting that "
+            + "permission, because the target named its children and not the permission itself")
+    public GqlCollapsePlan collapsePlan(
+            @GraphQLName("permission") @GraphQLNonNull @GraphQLDescription("The permission to group onto")
+            String permission) {
+        return new GqlCollapsePlan(model.planCollapse(roleName, grantId, permission));
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
+    @GraphQLDescription("What removing one permission from this target would do. Read it before the "
+            + "write, so the interface states the effect whenever it exceeds the row clicked")
+    public GqlRevokePlan revokePlan(
+            @GraphQLName("permission") @GraphQLNonNull @GraphQLDescription("The permission to remove")
+            String permission) {
+        return new GqlRevokePlan(model.planRevoke(roleName, grantId, permission));
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
     @GraphQLDescription("Every permission granted on this target, and why, sorted by permission name")
     public List<GqlEffectivePermission> getEffectivePermissions() {
         return model.getEffectivePermissions(roleName, grantId).stream()
