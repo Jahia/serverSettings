@@ -165,7 +165,7 @@ public final class RoleModel {
         if (parent != null) {
             for (EffectivePermission inherited : effectiveOf(parent, grantId)) {
                 reasons.put(inherited.getName(),
-                        Reason.locked(EffectivePermission.LockKind.INHERITED_FROM_ROLE, parent.getName(),
+                        Reason.locked(PermissionLockKind.INHERITED_FROM_ROLE, parent.getName(),
                                 inherited.isKnown()));
             }
         }
@@ -187,12 +187,12 @@ public final class RoleModel {
                         // A permission named by this target stays direct, and its own lock is kept.
                         continue;
                     }
-                    if (current != null && current.lockKind == EffectivePermission.LockKind.INHERITED_FROM_ROLE) {
+                    if (current != null && current.lockKind == PermissionLockKind.INHERITED_FROM_ROLE) {
                         // A parent role already holds it, and that lock is the one no local edit frees.
                         continue;
                     }
                     reasons.put(descendant,
-                            Reason.locked(EffectivePermission.LockKind.IMPLIED_BY_PERMISSION, granted, true));
+                            Reason.locked(PermissionLockKind.IMPLIED_BY_PERMISSION, granted, true));
                 }
             }
         }
@@ -240,7 +240,7 @@ public final class RoleModel {
      */
     public SortedSet<String> getInheritedPermissionNames(String roleName) {
         return collectNames(roleName,
-                effective -> effective.getLockKind() == EffectivePermission.LockKind.INHERITED_FROM_ROLE);
+                effective -> effective.getLockKind() == PermissionLockKind.INHERITED_FROM_ROLE);
     }
 
     /**
@@ -279,7 +279,7 @@ public final class RoleModel {
             }
             String previous = nameByPath.putIfAbsent(grant.getPath(), grant.getNodeName());
             if (previous != null) {
-                warnings.add(new RoleWarning(RoleWarning.Code.DUPLICATE_TARGET_PATH, grant.getPath()));
+                warnings.add(new RoleWarning(RoleWarningCode.DUPLICATE_TARGET_PATH, grant.getPath()));
             }
         }
 
@@ -295,16 +295,210 @@ public final class RoleModel {
                 }
                 RoleGrant shadowed = ancestor.getGrant(grant.getId());
                 if (shadowed != null && !Objects.equals(shadowed.getPath(), grant.getPath())) {
-                    warnings.add(new RoleWarning(RoleWarning.Code.SHADOWED_TARGET_PATH, grant.getNodeName()));
+                    warnings.add(new RoleWarning(RoleWarningCode.SHADOWED_TARGET_PATH, grant.getNodeName()));
                     break;
                 }
             }
         }
 
         getUnknownPermissionNames(roleName).forEach(
-                name -> warnings.add(new RoleWarning(RoleWarning.Code.UNKNOWN_PERMISSION, name)));
+                name -> warnings.add(new RoleWarning(RoleWarningCode.UNKNOWN_PERMISSION, name)));
 
         return warnings;
+    }
+
+    /**
+     * What removing one permission from one target of the role would do.
+     * <p>
+     * The effect is measured and not derived. The method builds the set the write would store, then
+     * computes the effective set again from it, and the difference is what the role stops granting.
+     * So the answer counts the permission itself and everything it aggregated, at any depth, without
+     * a second traversal that could disagree with the first.
+     *
+     * @param roleName the role
+     * @param grantId the target identity
+     * @param permissionName the permission to remove
+     * @return the plan, never null
+     */
+    public RevokePlan planRevoke(String roleName, String grantId, String permissionName) {
+        RoleView role = get(roleName);
+        if (role == null) {
+            return emptyPlan(RevokeOutcome.NOT_GRANTED);
+        }
+
+        EffectivePermission current = effectiveOf(role, grantId).stream()
+                .filter(effective -> effective.getName().equals(permissionName))
+                .findFirst().orElse(null);
+        if (current == null) {
+            return emptyPlan(RevokeOutcome.NOT_GRANTED);
+        }
+
+        RoleGrant own = role.getGrant(grantId);
+        SortedSet<String> before = new TreeSet<>(own == null ? Collections.emptyList() : own.getDirectPermissions());
+        SortedSet<String> after = new TreeSet<>(before);
+        SortedSet<String> added = new TreeSet<>();
+        SortedSet<String> removed = new TreeSet<>();
+
+        // The target's own name for the permission goes, whatever else holds it. A redundant name is
+        // worth removing even when the permission stays granted.
+        if (after.remove(permissionName)) {
+            removed.add(permissionName);
+        }
+
+        // Every granted ancestor has to be expanded, and not only the nearest one. Two granted
+        // ancestors of one permission both hold it, so replacing one would leave it granted.
+        for (String ancestor : catalog.getAncestorNames(permissionName)) {
+            if (!before.contains(ancestor)) {
+                continue;
+            }
+            after.remove(ancestor);
+            removed.add(ancestor);
+            // Walk back down from the ancestor to the permission, granting the siblings at each step.
+            for (String step : pathDown(ancestor, permissionName)) {
+                catalog.getChildNames(step).stream()
+                        .filter(child -> !isOnPath(child, permissionName))
+                        .forEach(child -> {
+                            after.add(child);
+                            added.add(child);
+                        });
+            }
+        }
+
+        SortedSet<String> lost = new TreeSet<>(closureOf(before));
+        lost.removeAll(closureOf(after));
+
+        RevokeOutcome outcome;
+        String blockedBy = null;
+        if (current.getLockKind() == PermissionLockKind.INHERITED_FROM_ROLE) {
+            outcome = RevokeOutcome.BLOCKED_BY_PARENT_ROLE;
+            blockedBy = current.getLockedBy();
+        } else if (!added.isEmpty()) {
+            outcome = RevokeOutcome.EXPANDS_ANCESTORS;
+        } else if (lost.size() > 1) {
+            outcome = RevokeOutcome.CASCADES;
+        } else {
+            outcome = RevokeOutcome.IMMEDIATE;
+        }
+
+        return new RevokePlan(outcome, added, removed, lost, blockedBy, after);
+    }
+
+    /**
+     * The set a write would store to grant the given permissions on the given target.
+     * <p>
+     * A name an ancestor already grants is not added, because it would change nothing and would leave
+     * a redundant name behind.
+     *
+     * @param roleName the role
+     * @param grantId the target identity
+     * @param permissionNames the permissions to grant
+     * @return the whole set to store, sorted
+     */
+    public SortedSet<String> planGrant(String roleName, String grantId, Collection<String> permissionNames) {
+        RoleView role = get(roleName);
+        RoleGrant own = role == null ? null : role.getGrant(grantId);
+        SortedSet<String> result = new TreeSet<>(own == null ? Collections.emptyList() : own.getDirectPermissions());
+        SortedSet<String> alreadyGranted = closureOf(result);
+
+        permissionNames.stream()
+                .filter(name -> !alreadyGranted.contains(name))
+                .forEach(result::add);
+        return result;
+    }
+
+    /**
+     * What replacing the grants on every direct child of the given permission with one grant on the
+     * permission itself would do.
+     * <p>
+     * The collapse grants the permission itself, which the target did not name. That gain is measured
+     * and reported rather than refused, because refusing it would make the operation unreachable.
+     *
+     * @param roleName the role
+     * @param grantId the target identity
+     * @param permissionName the permission to collapse onto
+     * @return the plan, never null
+     */
+    public CollapsePlan planCollapse(String roleName, String grantId, String permissionName) {
+        RoleView role = get(roleName);
+        RoleGrant own = role == null ? null : role.getGrant(grantId);
+        List<String> children = catalog.getChildNames(permissionName);
+        SortedSet<String> current = new TreeSet<>(
+                own == null ? Collections.emptyList() : own.getDirectPermissions());
+
+        if (own == null || children.isEmpty() || !current.containsAll(children)) {
+            List<String> none = Collections.emptyList();
+            return new CollapsePlan(false, none, none, none, new ArrayList<>(current));
+        }
+
+        SortedSet<String> result = new TreeSet<>(current);
+        children.forEach(result::remove);
+        result.add(permissionName);
+
+        SortedSet<String> gained = new TreeSet<>(closureOf(result));
+        gained.removeAll(closureOf(current));
+
+        return new CollapsePlan(true, Collections.singletonList(permissionName), children, gained, result);
+    }
+
+    /**
+     * The permissions a target could collapse onto, sorted.
+     * <p>
+     * A permission is collapsable when the target names every one of its direct children. The
+     * interface offers the operation on those, and never requires it.
+     *
+     * @param roleName the role
+     * @param grantId the target identity
+     * @return the parent names, empty when nothing can be collapsed
+     */
+    public List<String> getCollapsablePermissions(String roleName, String grantId) {
+        RoleView role = get(roleName);
+        RoleGrant own = role == null ? null : role.getGrant(grantId);
+        if (own == null) {
+            return Collections.emptyList();
+        }
+
+        SortedSet<String> named = new TreeSet<>(own.getDirectPermissions());
+        SortedSet<String> parents = new TreeSet<>();
+        for (String name : named) {
+            String parent = catalog.getParentName(name);
+            if (parent != null && !named.contains(parent) && named.containsAll(catalog.getChildNames(parent))) {
+                parents.add(parent);
+            }
+        }
+        return new ArrayList<>(parents);
+    }
+
+    /** Every permission the given set of names grants, itself included. */
+    SortedSet<String> closureOf(Collection<String> directNames) {
+        SortedSet<String> closure = new TreeSet<>();
+        for (String name : directNames) {
+            closure.add(name);
+            closure.addAll(catalog.getDescendantNames(name));
+        }
+        return closure;
+    }
+
+    /** The permissions between the ancestor and the target, the ancestor first and the target left out. */
+    private List<String> pathDown(String ancestor, String target) {
+        List<String> upwards = new ArrayList<>();
+        for (String name = catalog.getParentName(target); name != null; name = catalog.getParentName(name)) {
+            upwards.add(name);
+            if (name.equals(ancestor)) {
+                break;
+            }
+        }
+        Collections.reverse(upwards);
+        return upwards;
+    }
+
+    /** True when the candidate is the target or aggregates it, so it must not be granted as a sibling. */
+    private boolean isOnPath(String candidate, String target) {
+        return candidate.equals(target) || catalog.getAncestorNames(target).contains(candidate);
+    }
+
+    private RevokePlan emptyPlan(RevokeOutcome outcome) {
+        List<String> none = Collections.emptyList();
+        return new RevokePlan(outcome, none, none, none, null, none);
     }
 
     private SortedSet<String> collectNames(String roleName, Predicate<EffectivePermission> keep) {
@@ -379,17 +573,17 @@ public final class RoleModel {
     private static final class Reason {
         private final boolean direct;
         private final boolean known;
-        private final EffectivePermission.LockKind lockKind;
+        private final PermissionLockKind lockKind;
         private final String lockedBy;
 
-        private Reason(boolean direct, boolean known, EffectivePermission.LockKind lockKind, String lockedBy) {
+        private Reason(boolean direct, boolean known, PermissionLockKind lockKind, String lockedBy) {
             this.direct = direct;
             this.known = known;
             this.lockKind = lockKind;
             this.lockedBy = lockedBy;
         }
 
-        static Reason locked(EffectivePermission.LockKind lockKind, String lockedBy, boolean known) {
+        static Reason locked(PermissionLockKind lockKind, String lockedBy, boolean known) {
             return new Reason(false, known, lockKind, lockedBy);
         }
 

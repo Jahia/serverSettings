@@ -171,6 +171,38 @@ public class GqlRole {
 
     @GraphQLField
     @GraphQLNonNull
+    @GraphQLDescription("What removing one permission from one target would do. Read this before the "
+            + "write, so the interface can state the effect whenever it exceeds the row clicked")
+    public GqlRevokePlan getRevokePlan(
+            @GraphQLName("target") @GraphQLNonNull @GraphQLDescription("The target identity, empty for "
+                    + "the node the role is granted on") String target,
+            @GraphQLName("permission") @GraphQLNonNull @GraphQLDescription("The permission to remove")
+            String permission) {
+        return new GqlRevokePlan(model.planRevoke(role.getName(), target, permission));
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
+    @GraphQLDescription("What collapsing onto one permission would do. The role starts granting that "
+            + "permission, because the target named its children and not the permission itself")
+    public GqlCollapsePlan getCollapsePlan(
+            @GraphQLName("target") @GraphQLNonNull @GraphQLDescription("The target identity") String target,
+            @GraphQLName("permission") @GraphQLNonNull @GraphQLDescription("The permission to collapse onto")
+            String permission) {
+        return new GqlCollapsePlan(model.planCollapse(role.getName(), target, permission));
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
+    @GraphQLDescription("The permissions of one target that could be collapsed onto a parent, because "
+            + "the target names every direct child of that parent. Offered, never required")
+    public List<String> getCollapsablePermissions(
+            @GraphQLName("target") @GraphQLNonNull @GraphQLDescription("The target identity") String target) {
+        return model.getCollapsablePermissions(role.getName(), target);
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
     @GraphQLDescription("Every target this role grants on, the node it is granted on first, then the "
             + "external targets sorted. A target only an ancestor role declares is included")
     public List<GqlRoleGrant> getGrants() {

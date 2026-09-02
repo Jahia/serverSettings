@@ -1,6 +1,7 @@
 package org.jahia.modules.serversettings.roles;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -9,14 +10,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Function;
 
+import javax.jcr.ItemExistsException;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
+import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.jcr.query.Query;
 
+import org.apache.jackrabbit.util.ISO9075;
 import org.jahia.api.Constants;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionFactory;
@@ -38,6 +44,8 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
     private static final String EXTERNAL_PATH_PROPERTY = "j:path";
 
     private static final String EXTERNAL_PERMISSIONS_TYPE = "jnt:externalPermissions";
+
+    private static final String ROLES_ROOT = "/roles";
 
     // Every role lives under /roles, so the query needs no parameter and carries no caller input.
     private static final String ROLES_QUERY =
@@ -281,6 +289,275 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
             labelResolver = new PermissionLabelResolver(templateManagerService);
         }
         return labelResolver;
+    }
+
+
+    // ---------------------------------------------------------------------------------------------
+    // Writes
+    // ---------------------------------------------------------------------------------------------
+
+    @Override
+    public WriteResult grantPermissions(String roleName, String grantId, List<String> permissionNames,
+                                        String expectedRevision) throws RepositoryException {
+        return write(roleName, grantId, expectedRevision,
+                model -> model.planGrant(roleName, grantId, permissionNames));
+    }
+
+    @Override
+    public WriteResult revokePermission(String roleName, String grantId, String permissionName,
+                                        String expectedRevision) throws RepositoryException {
+        return write(roleName, grantId, expectedRevision,
+                model -> new TreeSet<>(model.planRevoke(roleName, grantId, permissionName)
+                        .getResultingPermissions()));
+    }
+
+    @Override
+    public WriteResult collapsePermission(String roleName, String grantId, String permissionName,
+                                          String expectedRevision) throws RepositoryException {
+        RoleModel model = getRoleModel();
+        CollapsePlan plan = model.planCollapse(roleName, grantId, permissionName);
+        if (!plan.isApplicable()) {
+            // Nothing is written, and the answer says so rather than reporting a write that changed
+            // nothing.
+            RoleGrant own = model.get(roleName) == null ? null : model.get(roleName).getGrant(grantId);
+            String revision = own == null ? RoleGrant.onCurrentNode().getRevision() : own.getRevision();
+            return new WriteResult(WriteOutcome.NOT_APPLICABLE, revision, plan.getResultingPermissions());
+        }
+        return write(roleName, grantId, expectedRevision,
+                unused -> new TreeSet<>(plan.getResultingPermissions()));
+    }
+
+    /**
+     * Apply one planned permission set to one target.
+     * <p>
+     * The revision is read from the same model the plan is computed on, so a plan and the check that
+     * guards it cannot disagree. A stale revision refuses the write and answers what the repository
+     * holds, which is what lets the interface reload rather than guess.
+     */
+    private WriteResult write(String roleName, String grantId, String expectedRevision,
+                              Function<RoleModel, SortedSet<String>> planner) throws RepositoryException {
+        RoleModel model = getRoleModel();
+        RoleView role = model.get(roleName);
+        if (role == null) {
+            throw new PathNotFoundException("No role is named " + roleName);
+        }
+
+        RoleGrant own = role.getGrant(grantId);
+        String currentRevision = own == null ? RoleGrant.onCurrentNode().getRevision() : own.getRevision();
+        if (expectedRevision != null && !expectedRevision.equals(currentRevision)) {
+            return new WriteResult(WriteOutcome.REFUSED_STALE_REVISION, currentRevision,
+                    own == null ? Collections.emptyList() : own.getDirectPermissions());
+        }
+
+        SortedSet<String> planned = planner.apply(model);
+
+        JCRSessionWrapper session = currentSession();
+        JCRNodeWrapper target = resolveTargetNode(session, model, role, grantId);
+        setPermissionNames(session, target, planned);
+        session.save();
+
+        RoleGrant written = RoleGrant.onCurrentNode();
+        written.addPermissions(planned);
+        return new WriteResult(WriteOutcome.APPLIED, written.getRevision(), planned);
+    }
+
+    /**
+     * The node whose {@code j:permissionNames} carries the target's set.
+     * <p>
+     * A target only an ancestor role declares has no node on this role. Writing to it creates one,
+     * with the path the ancestor's target declares, because that is the path the access control entry
+     * already uses.
+     */
+    private JCRNodeWrapper resolveTargetNode(JCRSessionWrapper session, RoleModel model, RoleView role,
+                                             String grantId) throws RepositoryException {
+        JCRNodeWrapper roleNode = session.getNode(role.getPath());
+        if (RoleGrant.CURRENT_NODE_ID.equals(grantId)) {
+            return roleNode;
+        }
+        if (roleNode.hasNode(grantId)) {
+            return roleNode.getNode(grantId);
+        }
+
+        RoleGrant inherited = model.getDecidingGrant(role.getName(), grantId);
+        if (inherited == null) {
+            throw new PathNotFoundException("The role " + role.getName() + " has no target named " + grantId);
+        }
+        JCRNodeWrapper created = roleNode.addNode(grantId, EXTERNAL_PERMISSIONS_TYPE);
+        created.setProperty(EXTERNAL_PATH_PROPERTY, inherited.getPath());
+        return created;
+    }
+
+    private void setPermissionNames(JCRSessionWrapper session, JCRNodeWrapper node,
+                                    Collection<String> permissionNames) throws RepositoryException {
+        if (permissionNames.isEmpty()) {
+            if (node.hasProperty(PERMISSION_NAMES_PROPERTY)) {
+                node.getProperty(PERMISSION_NAMES_PROPERTY).remove();
+            }
+            return;
+        }
+        List<Value> values = new ArrayList<>(permissionNames.size());
+        for (String name : permissionNames) {
+            values.add(session.getValueFactory().createValue(name, PropertyType.STRING));
+        }
+        node.setProperty(PERMISSION_NAMES_PROPERTY, values.toArray(new Value[0]));
+    }
+
+    @Override
+    public CollapsePlan planCollapse(String roleName, String grantId, String permissionName)
+            throws RepositoryException {
+        return getRoleModel().planCollapse(roleName, grantId, permissionName);
+    }
+
+    @Override
+    public String createRole(String name, String parentRoleName, String roleGroup) throws RepositoryException {
+        RoleModel model = getRoleModel();
+        refuseTakenRoleName(model, name);
+
+        JCRSessionWrapper session = currentSession();
+        JCRNodeWrapper parent;
+        if (parentRoleName == null) {
+            parent = session.getNode(ROLES_ROOT);
+        } else {
+            RoleView parentRole = model.get(parentRoleName);
+            if (parentRole == null) {
+                throw new PathNotFoundException("No role is named " + parentRoleName);
+            }
+            parent = session.getNode(parentRole.getPath());
+        }
+
+        JCRNodeWrapper created = parent.addNode(name, Constants.JAHIANT_ROLE);
+        if (roleGroup != null) {
+            created.setProperty(ROLE_GROUP_PROPERTY, roleGroup);
+        }
+        session.save();
+        return created.getPath();
+    }
+
+    @Override
+    public String duplicateRole(String roleName, String newName, boolean withSubRoles)
+            throws RepositoryException {
+        RoleModel model = getRoleModel();
+        RoleView source = model.get(roleName);
+        if (source == null) {
+            throw new PathNotFoundException("No role is named " + roleName);
+        }
+        refuseTakenRoleName(model, newName);
+
+        JCRSessionWrapper session = currentSession();
+        JCRNodeWrapper sourceNode = session.getNode(source.getPath());
+        JCRNodeWrapper parent = sourceNode.getParent();
+        JCRNodeWrapper copy = parent.addNode(newName, Constants.JAHIANT_ROLE);
+
+        copyRoleProperties(session, sourceNode, copy);
+        copyRoleChildren(session, sourceNode, copy, withSubRoles);
+        session.save();
+        return copy.getPath();
+    }
+
+    private void copyRoleProperties(JCRSessionWrapper session, JCRNodeWrapper from, JCRNodeWrapper to)
+            throws RepositoryException {
+        for (String property : new String[]{ROLE_GROUP_PROPERTY, HIDDEN_PROPERTY, PRIVILEGED_ACCESS_PROPERTY}) {
+            if (from.hasProperty(property)) {
+                to.setProperty(property, from.getProperty(property).getValue());
+            }
+        }
+        for (String property : new String[]{NODE_TYPES_PROPERTY, PERMISSION_NAMES_PROPERTY}) {
+            List<String> values = multipleValues(from, property);
+            if (property.equals(PERMISSION_NAMES_PROPERTY)) {
+                setPermissionNames(session, to, values);
+            } else if (!values.isEmpty()) {
+                to.setProperty(property, values.toArray(new String[0]));
+            }
+        }
+    }
+
+    private void copyRoleChildren(JCRSessionWrapper session, JCRNodeWrapper from, JCRNodeWrapper to,
+                                  boolean withSubRoles) throws RepositoryException {
+        NodeIterator children = from.getNodes();
+        while (children.hasNext()) {
+            JCRNodeWrapper child = (JCRNodeWrapper) children.nextNode();
+            if (child.isNodeType(EXTERNAL_PERMISSIONS_TYPE)) {
+                JCRNodeWrapper copy = to.addNode(child.getName(), EXTERNAL_PERMISSIONS_TYPE);
+                if (child.hasProperty(EXTERNAL_PATH_PROPERTY)) {
+                    copy.setProperty(EXTERNAL_PATH_PROPERTY, child.getProperty(EXTERNAL_PATH_PROPERTY).getString());
+                }
+                setPermissionNames(session, copy, multipleValues(child, PERMISSION_NAMES_PROPERTY));
+            } else if (child.isNodeType(Constants.JAHIANT_TRANSLATION)) {
+                session.getWorkspace().copy(child.getPath(), to.getPath() + "/" + child.getName());
+            } else if (withSubRoles && child.isNodeType(Constants.JAHIANT_ROLE)) {
+                session.getWorkspace().copy(child.getPath(), to.getPath() + "/" + child.getName());
+            }
+        }
+    }
+
+    @Override
+    public boolean deleteRole(String roleName) throws RepositoryException {
+        RoleView role = getRoleModel().get(roleName);
+        if (role == null) {
+            return false;
+        }
+        JCRSessionWrapper session = currentSession();
+        session.getNode(role.getPath()).remove();
+        session.save();
+        return true;
+    }
+
+    @Override
+    public String addTarget(String roleName, String path) throws RepositoryException {
+        RoleView role = getRoleModel().get(roleName);
+        if (role == null) {
+            throw new PathNotFoundException("No role is named " + roleName);
+        }
+
+        JCRSessionWrapper session = currentSession();
+        JCRNodeWrapper roleNode = session.getNode(role.getPath());
+        String nodeName = toTargetNodeName(path);
+        if (!roleNode.hasNode(nodeName)) {
+            JCRNodeWrapper created = roleNode.addNode(nodeName, EXTERNAL_PERMISSIONS_TYPE);
+            created.setProperty(EXTERNAL_PATH_PROPERTY, path);
+            session.save();
+        }
+        return nodeName;
+    }
+
+    @Override
+    public boolean removeTarget(String roleName, String grantId) throws RepositoryException {
+        RoleView role = getRoleModel().get(roleName);
+        if (role == null || RoleGrant.CURRENT_NODE_ID.equals(grantId)) {
+            return false;
+        }
+
+        JCRSessionWrapper session = currentSession();
+        JCRNodeWrapper roleNode = session.getNode(role.getPath());
+        if (!roleNode.hasNode(grantId)) {
+            return false;
+        }
+        roleNode.getNode(grantId).remove();
+        session.save();
+        return true;
+    }
+
+    /**
+     * The node name a target of the given path takes.
+     * <p>
+     * The name is derived the way the previous screen derives it, so a target this screen creates and
+     * a target that screen created carry the same name. Role inheritance matches a target by name, so
+     * two names for one path would make a sub-role inherit from neither.
+     */
+    static String toTargetNodeName(String path) {
+        if ("/".equals(path)) {
+            return "root-access";
+        }
+        String relative = path.startsWith("/") ? path.substring(1) : path;
+        return ISO9075.encode(relative.replace("/", "-")) + "-access";
+    }
+
+    private void refuseTakenRoleName(RoleModel model, String name) throws RepositoryException {
+        if (model.get(name) != null) {
+            // An access control entry holds a role NAME, so two roles of one name make the applied
+            // permissions undefined. The screen refuses to create the second one.
+            throw new ItemExistsException("A role is already named " + name);
+        }
     }
 
     private JCRSessionWrapper currentSession() throws RepositoryException {

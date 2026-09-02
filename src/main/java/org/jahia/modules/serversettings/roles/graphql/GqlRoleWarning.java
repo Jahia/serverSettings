@@ -4,6 +4,7 @@ import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
+import org.jahia.modules.serversettings.roles.RoleWarningCode;
 import org.jahia.modules.serversettings.roles.RoleWarning;
 
 /**
@@ -26,7 +27,7 @@ public class GqlRoleWarning {
     @GraphQLField
     @GraphQLNonNull
     @GraphQLDescription("What the warning is about")
-    public RoleWarning.Code getCode() {
+    public RoleWarningCode getCode() {
         return warning.getCode();
     }
 

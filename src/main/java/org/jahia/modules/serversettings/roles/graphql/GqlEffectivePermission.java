@@ -4,6 +4,7 @@ import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
+import org.jahia.modules.serversettings.roles.PermissionLockKind;
 import org.jahia.modules.serversettings.roles.EffectivePermission;
 
 /**
@@ -47,7 +48,7 @@ public class GqlEffectivePermission {
 
     @GraphQLField
     @GraphQLDescription("What holds the permission granted beyond the target's own names, or null")
-    public EffectivePermission.LockKind getLockKind() {
+    public PermissionLockKind getLockKind() {
         return effective.getLockKind();
     }
 

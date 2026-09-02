@@ -73,13 +73,32 @@ administrator reads are derived from them.
 A parent role lock is reported ahead of a granted ancestor permission, because no edit on this role
 frees it.
 
-### An explicit operation instead of a hidden one
+### One verb, and a preview when the cost exceeds the row
 
-Removing one descendant of a granted permission requires replacing that grant with an explicit grant
-on each of its direct children. That is the operation the configured maps performed silently. It
-becomes a named operation with a read-only preview that states what it adds and what it removes.
-Nothing is written before the administrator confirms it. The reverse operation replaces the grants
-on every direct child with one grant on the parent.
+Removing one descendant of a granted permission requires replacing that grant with explicit grants on
+the children of every permission between the two. That is the work the configured maps performed
+silently, and one level of it is not enough. A permission three levels below a granted one needs
+three such replacements.
+
+So the interface offers one verb the administrator already understands, which is to remove a
+permission. A preview explains the expansion when a removal costs more than a removal. Whatever
+depth the expansion spans, it is applied as one operation.
+
+A preview appears when the effect exceeds the row the administrator clicked, and four outcomes cover
+every case.
+
+- The permission is named by the target, nothing else holds it, and it aggregates nothing. The
+  removal is applied with no preview.
+- The permission is named by the target and aggregates others. The preview states how many
+  permissions go with it.
+- An ancestor permission is granted. The preview states how many grants replace it, and every level
+  is applied in one write.
+- A parent role grants it. No write on this role removes it, so the preview names the role that
+  grants it and offers no write.
+
+The reverse operation replaces the grants on every direct child with one grant on the parent. It is
+offered when every direct child is granted, and it is never required.
+
 
 ### Facets filter, and never re-parent
 

@@ -74,4 +74,121 @@ public interface RolesAndPermissionsService {
      * @return the description, and an empty string when no bundle answers
      */
     String getPermissionDescription(PermissionEntry entry, Locale locale);
+
+    /**
+     * Grant the given permissions on the given target of the given role.
+     * <p>
+     * A permission an ancestor permission already grants is not added, because adding it would change
+     * nothing and would leave a redundant name behind.
+     *
+     * @param roleName the role
+     * @param grantId the target identity, empty for the node the role is granted on
+     * @param permissionNames the permissions to grant
+     * @param expectedRevision the revision the read returned for that target
+     * @return what the write did
+     * @throws RepositoryException when the write fails
+     */
+    WriteResult grantPermissions(String roleName, String grantId, List<String> permissionNames,
+                                 String expectedRevision) throws RepositoryException;
+
+    /**
+     * Remove one permission from the given target of the given role.
+     * <p>
+     * A granted ancestor permission is replaced by explicit grants on the children of every permission
+     * between it and the one being removed, at every level and in one write.
+     *
+     * @param roleName the role
+     * @param grantId the target identity, empty for the node the role is granted on
+     * @param permissionName the permission to remove
+     * @param expectedRevision the revision the read returned for that target
+     * @return what the write did
+     * @throws RepositoryException when the write fails
+     */
+    WriteResult revokePermission(String roleName, String grantId, String permissionName,
+                                 String expectedRevision) throws RepositoryException;
+
+    /**
+     * Replace the grants on every direct child of the given permission with one grant on it.
+     * <p>
+     * The call changes nothing when the target does not name every direct child, because collapsing
+     * then would grant more than the target grants now.
+     *
+     * @param roleName the role
+     * @param grantId the target identity, empty for the node the role is granted on
+     * @param permissionName the permission to collapse onto
+     * @param expectedRevision the revision the read returned for that target
+     * @return what the write did
+     * @throws RepositoryException when the write fails
+     */
+    WriteResult collapsePermission(String roleName, String grantId, String permissionName,
+                                   String expectedRevision) throws RepositoryException;
+
+    /**
+     * What collapsing onto the given permission would do, read before anything is written.
+     *
+     * @param roleName the role
+     * @param grantId the target identity
+     * @param permissionName the permission to collapse onto
+     * @return the plan, never null
+     * @throws RepositoryException when the read fails
+     */
+    CollapsePlan planCollapse(String roleName, String grantId, String permissionName)
+            throws RepositoryException;
+
+    /**
+     * Create a role.
+     *
+     * @param name the role name, which must not be carried by another role
+     * @param parentRoleName the role to nest it in, or null to put it directly under the roles folder
+     * @param roleGroup the {@code j:roleGroup} value, or null
+     * @return the JCR path of the role created
+     * @throws RepositoryException when the write fails, or the name is already carried by a role
+     */
+    String createRole(String name, String parentRoleName, String roleGroup) throws RepositoryException;
+
+    /**
+     * Copy a role under the same parent, with its metadata and every permission set it names.
+     * <p>
+     * The copy names what the source names, and nothing it only inherits, because the copy keeps the
+     * same parent role and therefore inherits the same set.
+     *
+     * @param roleName the role to copy
+     * @param newName the name of the copy
+     * @param withSubRoles whether to copy the roles nested inside it
+     * @return the JCR path of the copy
+     * @throws RepositoryException when the write fails, or the new name is already carried by a role
+     */
+    String duplicateRole(String roleName, String newName, boolean withSubRoles) throws RepositoryException;
+
+    /**
+     * Delete a role, and every role nested inside it.
+     *
+     * @param roleName the role to delete
+     * @return true when the role existed
+     * @throws RepositoryException when the write fails
+     */
+    boolean deleteRole(String roleName) throws RepositoryException;
+
+    /**
+     * Add a target to a role, so it grants permissions somewhere other than the node it is granted on.
+     *
+     * @param roleName the role
+     * @param path the {@code j:path} value, either {@code currentSite} or an absolute path
+     * @return the target identity created
+     * @throws RepositoryException when the write fails
+     */
+    String addTarget(String roleName, String path) throws RepositoryException;
+
+    /**
+     * Remove a target from a role.
+     * <p>
+     * A target only an ancestor role declares is not this role's to remove, so the call changes
+     * nothing and answers false.
+     *
+     * @param roleName the role
+     * @param grantId the target identity
+     * @return true when the role declared the target itself
+     * @throws RepositoryException when the write fails
+     */
+    boolean removeTarget(String roleName, String grantId) throws RepositoryException;
 }

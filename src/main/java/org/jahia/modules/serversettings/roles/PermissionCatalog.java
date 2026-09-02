@@ -96,6 +96,50 @@ public final class PermissionCatalog {
         return descendants;
     }
 
+    /**
+     * The permissions that aggregate the given one, nearest first.
+     * <p>
+     * A role granting any of these grants the given permission, so removing it means dealing with
+     * every one of them.
+     *
+     * @param permissionName the permission to walk up from
+     * @return the ancestor names, nearest first, empty when the permission is an area root or unknown
+     */
+    public List<String> getAncestorNames(String permissionName) {
+        List<String> ancestors = new ArrayList<>();
+        PermissionEntry entry = byName.get(permissionName);
+        while (entry != null && entry.getParentName() != null) {
+            entry = byName.get(entry.getParentName());
+            if (entry == null || ancestors.contains(entry.getName())) {
+                break;
+            }
+            ancestors.add(entry.getName());
+        }
+        return ancestors;
+    }
+
+    /**
+     * The permission that aggregates the given one, or null.
+     *
+     * @param permissionName the permission
+     * @return the parent name, or null when the permission is an area root or unknown
+     */
+    public String getParentName(String permissionName) {
+        PermissionEntry entry = byName.get(permissionName);
+        return entry == null ? null : entry.getParentName();
+    }
+
+    /**
+     * The permissions the given one aggregates directly, sorted.
+     *
+     * @param permissionName the permission
+     * @return the child names, empty when the permission is a leaf or unknown
+     */
+    public List<String> getChildNames(String permissionName) {
+        PermissionEntry entry = byName.get(permissionName);
+        return entry == null ? Collections.emptyList() : entry.getChildNames();
+    }
+
     private void collectDescendants(String permissionName, Set<String> collected) {
         PermissionEntry entry = byName.get(permissionName);
         if (entry == null) {
