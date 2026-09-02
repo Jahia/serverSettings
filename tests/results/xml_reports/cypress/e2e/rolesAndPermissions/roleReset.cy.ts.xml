@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Mocha Tests" time="7.068" tests="7" failures="0">
-  <testsuite name="Root Suite" timestamp="2026-09-02T17:48:29" tests="0" file="cypress/e2e/rolesAndPermissions/roleReset.cy.ts" time="0.000" failures="0">
+<testsuites name="Mocha Tests" time="7.308" tests="7" failures="0">
+  <testsuite name="Root Suite" timestamp="2026-09-02T19:09:52" tests="0" file="cypress/e2e/rolesAndPermissions/roleReset.cy.ts" time="0.000" failures="0">
   </testsuite>
-  <testsuite name="Roles and permissions - resetting a role to the declared baseline" timestamp="2026-09-02T17:48:29" tests="7" time="7.012" failures="0">
-    <testcase name="Roles and permissions - resetting a role to the declared baseline has no baseline for a role your team created" time="1.614" classname="has no baseline for a role your team created">
+  <testsuite name="Roles and permissions - resetting a role to the declared baseline" timestamp="2026-09-02T19:09:52" tests="7" time="7.250" failures="0">
+    <testcase name="Roles and permissions - resetting a role to the declared baseline has no baseline for a role your team created" time="1.559" classname="has no baseline for a role your team created">
     </testcase>
-    <testcase name="Roles and permissions - resetting a role to the declared baseline says a role already matching the baseline would write nothing" time="0.784" classname="says a role already matching the baseline would write nothing">
+    <testcase name="Roles and permissions - resetting a role to the declared baseline says a role already matching the baseline would write nothing" time="0.850" classname="says a role already matching the baseline would write nothing">
     </testcase>
-    <testcase name="Roles and permissions - resetting a role to the declared baseline counts the difference in permissions and not only in names" time="0.809" classname="counts the difference in permissions and not only in names">
+    <testcase name="Roles and permissions - resetting a role to the declared baseline counts the difference in permissions and not only in names" time="0.821" classname="counts the difference in permissions and not only in names">
     </testcase>
-    <testcase name="Roles and permissions - resetting a role to the declared baseline writes nothing when the difference is refused" time="0.703" classname="writes nothing when the difference is refused">
+    <testcase name="Roles and permissions - resetting a role to the declared baseline writes nothing when the difference is refused" time="0.751" classname="writes nothing when the difference is refused">
     </testcase>
-    <testcase name="Roles and permissions - resetting a role to the declared baseline applies the difference it showed, and the role then matches the baseline" time="0.792" classname="applies the difference it showed, and the role then matches the baseline">
+    <testcase name="Roles and permissions - resetting a role to the declared baseline applies the difference it showed, and the role then matches the baseline" time="0.897" classname="applies the difference it showed, and the role then matches the baseline">
     </testcase>
-    <testcase name="Roles and permissions - resetting a role to the declared baseline asks for the name to be typed when the reset widens the role" time="1.422" classname="asks for the name to be typed when the reset widens the role">
+    <testcase name="Roles and permissions - resetting a role to the declared baseline asks for the name to be typed when the reset widens the role" time="1.364" classname="asks for the name to be typed when the reset widens the role">
     </testcase>
-    <testcase name="Roles and permissions - resetting a role to the declared baseline offers a deleted role back, and restores the access it granted" time="0.798" classname="offers a deleted role back, and restores the access it granted">
+    <testcase name="Roles and permissions - resetting a role to the declared baseline offers a deleted role back, and restores the access it granted" time="0.914" classname="offers a deleted role back, and restores the access it granted">
     </testcase>
   </testsuite>
 </testsuites>

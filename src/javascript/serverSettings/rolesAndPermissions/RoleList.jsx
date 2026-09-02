@@ -277,7 +277,11 @@ export const RoleList = ({onOpenRole}) => {
         }
 
         return (
-            <div className={classes.missingRoles} data-testid="missing-declared-roles">
+            <Banner
+                variant="warning"
+                title={t('rolesAndPermissions.list.missingDeclaredTitle')}
+                data-testid="missing-declared-roles"
+            >
                 <Typography variant="body">
                     {t('rolesAndPermissions.list.missingDeclared', {count: missingRoles.length})}
                 </Typography>
@@ -293,7 +297,7 @@ export const RoleList = ({onOpenRole}) => {
                             onClick={() => restore(name)}/>
                     ))}
                 </div>
-            </div>
+            </Banner>
         );
     };
 

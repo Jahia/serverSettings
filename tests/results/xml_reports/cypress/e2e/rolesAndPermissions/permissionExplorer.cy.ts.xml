@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Mocha Tests" time="5.521" tests="7" failures="0">
-  <testsuite name="Root Suite" timestamp="2026-09-02T17:47:54" tests="0" file="cypress/e2e/rolesAndPermissions/permissionExplorer.cy.ts" time="0.000" failures="0">
+<testsuites name="Mocha Tests" time="6.448" tests="7" failures="0">
+  <testsuite name="Root Suite" timestamp="2026-09-02T19:09:14" tests="0" file="cypress/e2e/rolesAndPermissions/permissionExplorer.cy.ts" time="0.000" failures="0">
   </testsuite>
-  <testsuite name="Roles and permissions - the permission explorer" timestamp="2026-09-02T17:47:54" tests="7" time="5.441" failures="0">
-    <testcase name="Roles and permissions - the permission explorer lists the permissions of the instance, and states how many the filters keep" time="1.529" classname="lists the permissions of the instance, and states how many the filters keep">
+  <testsuite name="Roles and permissions - the permission explorer" timestamp="2026-09-02T19:09:14" tests="7" time="6.372" failures="0">
+    <testcase name="Roles and permissions - the permission explorer lists the permissions of the instance, and states how many the filters keep" time="1.283" classname="lists the permissions of the instance, and states how many the filters keep">
     </testcase>
-    <testcase name="Roles and permissions - the permission explorer narrows the list by a search on the permission name" time="0.811" classname="narrows the list by a search on the permission name">
+    <testcase name="Roles and permissions - the permission explorer narrows the list by a search on the permission name" time="0.804" classname="narrows the list by a search on the permission name">
     </testcase>
-    <testcase name="Roles and permissions - the permission explorer narrows the list by workspace, and the excluded permission disappears" time="0.809" classname="narrows the list by workspace, and the excluded permission disappears">
+    <testcase name="Roles and permissions - the permission explorer narrows the list by workspace, and the excluded permission disappears" time="0.851" classname="narrows the list by workspace, and the excluded permission disappears">
     </testcase>
-    <testcase name="Roles and permissions - the permission explorer states the repository path of a permission, and the modules that declare it" time="0.600" classname="states the repository path of a permission, and the modules that declare it">
+    <testcase name="Roles and permissions - the permission explorer states the repository path of a permission, and the modules that declare it" time="1.019" classname="states the repository path of a permission, and the modules that declare it">
     </testcase>
-    <testcase name="Roles and permissions - the permission explorer names the roles that grant a permission, and why each one grants it" time="0.670" classname="names the roles that grant a permission, and why each one grants it">
+    <testcase name="Roles and permissions - the permission explorer names the roles that grant a permission, and why each one grants it" time="0.696" classname="names the roles that grant a permission, and why each one grants it">
     </testcase>
-    <testcase name="Roles and permissions - the permission explorer says a permission is aggregated, and lists what it aggregates" time="0.508" classname="says a permission is aggregated, and lists what it aggregates">
+    <testcase name="Roles and permissions - the permission explorer says a permission is aggregated, and lists what it aggregates" time="1.006" classname="says a permission is aggregated, and lists what it aggregates">
     </testcase>
-    <testcase name="Roles and permissions - the permission explorer shows no detail until a permission is selected" time="0.440" classname="shows no detail until a permission is selected">
+    <testcase name="Roles and permissions - the permission explorer shows no detail until a permission is selected" time="0.642" classname="shows no detail until a permission is selected">
     </testcase>
   </testsuite>
 </testsuites>

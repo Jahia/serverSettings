@@ -10,9 +10,9 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--spacing-small, 16px);
-    padding: var(--spacing-small, 16px);
-    border-bottom: 1px solid var(--color-gray_light, #e5e5e5);
+    gap: var(--spacing-small);
+    padding: var(--spacing-small);
+    border-bottom: 1px solid var(--color-gray_light);
 }
 
 .search {
@@ -24,13 +24,13 @@
     border: none;
     padding: 0;
     cursor: pointer;
-    color: var(--color-accent, #00a0e3);
+    color: var(--color-accent);
     font: inherit;
 }
 
 .matchCount {
     margin-left: auto;
-    color: var(--color-gray_dark, #6b6b6b);
+    color: var(--color-gray_dark);
     font-size: 0.85em;
 }
 
@@ -52,29 +52,29 @@
 .permissionList {
     overflow-y: auto;
     max-height: 60vh;
-    border-right: 1px solid var(--color-gray_light, #e5e5e5);
+    border-right: 1px solid var(--color-gray_light);
 }
 
 .permissionRow {
     display: flex;
     align-items: center;
-    gap: var(--spacing-small, 16px);
+    gap: var(--spacing-small);
     width: 100%;
     padding: 6px 12px 6px 8px;
     background: none;
     border: none;
-    border-bottom: 1px solid var(--color-gray_light, #f0f0f0);
+    border-bottom: 1px solid var(--color-gray_light);
     text-align: left;
     cursor: pointer;
     font: inherit;
 }
 
 .permissionRow:hover {
-    background: var(--color-gray_light, #f5f5f5);
+    background: var(--color-gray_light);
 }
 
 .permissionRowSelected {
-    background: var(--color-accent_light, #e6f5fc);
+    background: var(--color-accent_light);
 }
 
 .permissionRowLabel {
@@ -84,20 +84,13 @@
 }
 
 .permissionRowName {
-    color: var(--color-gray_dark, #6b6b6b);
+    color: var(--color-gray_dark);
     overflow-wrap: anywhere;
 }
 
-.workspaceTag {
+.workspacePill {
     margin-left: auto;
     flex: 0 0 auto;
-    padding: 1px 6px;
-    border: 1px solid var(--color-gray, #c9c9c9);
-    border-radius: 3px;
-    color: var(--color-gray_dark, #6b6b6b);
-    font-size: 0.75em;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
 }
 
 /* ---------- the permission detail ---------- */
@@ -108,16 +101,16 @@
 }
 
 .detail {
-    padding: var(--spacing-medium, 24px);
+    padding: var(--spacing-medium);
 }
 
 .detailName {
-    color: var(--color-gray_dark, #6b6b6b);
+    color: var(--color-gray_dark);
     overflow-wrap: anywhere;
 }
 
 .detailDescription {
-    margin-top: var(--spacing-small, 16px);
+    margin-top: var(--spacing-small);
 }
 
 .detailEmpty {
@@ -125,26 +118,26 @@
     align-items: center;
     justify-content: center;
     min-height: 220px;
-    padding: var(--spacing-medium, 24px);
+    padding: var(--spacing-medium);
 }
 
 .field {
-    margin-top: var(--spacing-medium, 24px);
+    margin-top: var(--spacing-medium);
 }
 
 .fieldLabel {
-    color: var(--color-gray_dark, #6b6b6b);
+    color: var(--color-gray_dark);
     letter-spacing: 0.06em;
 }
 
 .fieldValue {
-    margin-top: var(--spacing-nano, 4px);
+    margin-top: var(--spacing-nano);
 }
 
 .chipRow {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing-nano, 4px);
+    gap: var(--spacing-nano);
 }
 
 .usageList {
@@ -153,16 +146,16 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-nano, 4px);
+    gap: var(--spacing-nano);
 }
 
 .usage {
     display: grid;
     grid-template-columns: minmax(120px, auto) minmax(120px, auto) 1fr;
-    gap: var(--spacing-small, 16px);
+    gap: var(--spacing-small);
     align-items: baseline;
     padding: 6px 0;
-    border-bottom: 1px solid var(--color-gray_light, #f0f0f0);
+    border-bottom: 1px solid var(--color-gray_light);
 }
 
 @media (max-width: 700px) {
@@ -174,7 +167,7 @@
 
 .usageTarget,
 .usageReason {
-    color: var(--color-gray_dark, #6b6b6b);
+    color: var(--color-gray_dark);
 }
 
 /* ---------- the role list ---------- */
@@ -194,20 +187,20 @@
  * every sub-role flush with its parent. Two classes outrank one wherever the reset sits.
  */
 .roleNameButton.subRoleName {
-    padding-left: var(--spacing-medium, 24px);
-    border-left: 2px solid var(--color-gray, #c9c9c9);
-    margin-left: var(--spacing-nano, 4px);
+    padding-left: var(--spacing-medium);
+    border-left: 2px solid var(--color-gray);
+    margin-left: var(--spacing-nano);
 }
 
 .roleTechnicalName {
-    color: var(--color-gray_dark, #6b6b6b);
+    color: var(--color-gray_dark);
     overflow-wrap: anywhere;
 }
 
 .warningRow {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing-nano, 4px);
+    gap: var(--spacing-nano);
     align-items: center;
 }
 
@@ -218,18 +211,18 @@
 /* ---------- the role detail ---------- */
 
 .form {
-    padding: var(--spacing-medium, 24px);
+    padding: var(--spacing-medium);
     max-width: 720px;
 }
 
 .formField {
-    margin-bottom: var(--spacing-medium, 24px);
+    margin-bottom: var(--spacing-medium);
 }
 
 .fieldHint {
     display: block;
-    margin-top: var(--spacing-nano, 4px);
-    color: var(--color-gray_dark, #6b6b6b);
+    margin-top: var(--spacing-nano);
+    color: var(--color-gray_dark);
 }
 
 .textInput {
@@ -239,21 +232,21 @@
 .switchRow {
     display: flex;
     align-items: center;
-    gap: var(--spacing-small, 16px);
+    gap: var(--spacing-small);
 }
 
 .formActions {
     display: flex;
-    gap: var(--spacing-small, 16px);
-    margin-top: var(--spacing-medium, 24px);
+    gap: var(--spacing-small);
+    margin-top: var(--spacing-medium);
 }
 
 .formError {
-    color: var(--color-danger, #c1272d);
+    color: var(--color-danger);
 }
 
 .detailHeaderName {
-    color: var(--color-gray_dark, #6b6b6b);
+    color: var(--color-gray_dark);
 }
 
 /* ---------- the permissions tab ---------- */
@@ -262,9 +255,9 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--spacing-small, 16px);
-    padding: var(--spacing-small, 16px);
-    border-bottom: 1px solid var(--color-gray_light, #e5e5e5);
+    gap: var(--spacing-small);
+    padding: var(--spacing-small);
+    border-bottom: 1px solid var(--color-gray_light);
 }
 
 .permissionsBody {
@@ -282,34 +275,34 @@
 .areaRail {
     overflow-y: auto;
     max-height: 60vh;
-    border-right: 1px solid var(--color-gray_light, #e5e5e5);
+    border-right: 1px solid var(--color-gray_light);
 }
 
 .areaRow {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    gap: var(--spacing-small, 16px);
+    gap: var(--spacing-small);
     width: 100%;
     padding: 8px 12px;
     background: none;
     border: none;
-    border-bottom: 1px solid var(--color-gray_light, #f0f0f0);
+    border-bottom: 1px solid var(--color-gray_light);
     text-align: left;
     cursor: pointer;
     font: inherit;
 }
 
 .areaRow:hover {
-    background: var(--color-gray_light, #f5f5f5);
+    background: var(--color-gray_light);
 }
 
 .areaRowSelected {
-    background: var(--color-accent_light, #e6f5fc);
+    background: var(--color-accent_light);
 }
 
 .areaCount {
-    color: var(--color-gray_dark, #6b6b6b);
+    color: var(--color-gray_dark);
     font-size: 0.85em;
     white-space: nowrap;
 }
@@ -322,9 +315,9 @@
 .permissionEditRow {
     display: flex;
     align-items: flex-start;
-    gap: var(--spacing-small, 16px);
+    gap: var(--spacing-small);
     padding: 6px 12px;
-    border-bottom: 1px solid var(--color-gray_light, #f0f0f0);
+    border-bottom: 1px solid var(--color-gray_light);
 }
 
 .permissionEditLabel {
@@ -335,23 +328,23 @@
 }
 
 .permissionReason {
-    color: var(--color-gray_dark, #6b6b6b);
+    color: var(--color-gray_dark);
 }
 
 .permissionUnknown {
-    color: var(--color-warning_dark, #8d5a10);
+    color: var(--color-warning_dark);
 }
 
 .rowActions {
     display: flex;
-    gap: var(--spacing-nano, 4px);
+    gap: var(--spacing-nano);
     align-items: center;
     flex: 0 0 auto;
 }
 
 .dialogList {
-    margin: var(--spacing-small, 16px) 0 0;
-    padding-left: var(--spacing-medium, 24px);
+    margin: var(--spacing-small) 0 0;
+    padding-left: var(--spacing-medium);
     max-height: 200px;
     overflow-y: auto;
 }
@@ -398,37 +391,25 @@
 /* The word to type, in its own case and in a monospaced face so a trailing space is visible. */
 .confirmWord {
     display: inline-block;
-    margin: var(--spacing-nano, 4px) 0;
+    margin: var(--spacing-nano) 0;
     padding: 2px 6px;
-    background: var(--color-gray_light, #f0f0f0);
-    border: 1px solid var(--color-gray, #c9c9c9);
+    background: var(--color-gray_light);
+    border: 1px solid var(--color-gray);
     border-radius: 3px;
     font-family: monospace;
 }
 
-/* The roles the sources declare and the repository lacks. Above the table, because a role that is
-   in no row cannot be offered back from a row. */
-.missingRoles {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-small, 8px);
-    margin-bottom: var(--spacing-medium, 24px);
-    padding: var(--spacing-medium, 24px);
-    background: var(--color-warning_light, #fff4e5);
-    border-left: 3px solid var(--color-warning, #e8a33d);
-    border-radius: 3px;
-}
 
 /* One side of a reset difference, and the target it applies to. */
 .diffTarget {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-small, 8px);
-    margin-top: var(--spacing-medium, 24px);
+    gap: var(--spacing-small);
+    margin-top: var(--spacing-medium);
 }
 
 .diffSide {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-nano, 4px);
+    gap: var(--spacing-nano);
 }

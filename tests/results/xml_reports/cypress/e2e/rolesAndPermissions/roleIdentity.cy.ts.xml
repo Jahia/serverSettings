@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Mocha Tests" time="5.618" tests="5" failures="0">
-  <testsuite name="Root Suite" timestamp="2026-09-02T17:48:11" tests="0" file="cypress/e2e/rolesAndPermissions/roleIdentity.cy.ts" time="0.000" failures="0">
+<testsuites name="Mocha Tests" time="5.707" tests="5" failures="0">
+  <testsuite name="Root Suite" timestamp="2026-09-02T19:09:33" tests="0" file="cypress/e2e/rolesAndPermissions/roleIdentity.cy.ts" time="0.000" failures="0">
   </testsuite>
-  <testsuite name="Roles and permissions - the identity tab" timestamp="2026-09-02T17:48:11" tests="5" time="5.563" failures="0">
-    <testcase name="Roles and permissions - the identity tab writes the title in the interface language, where a per-language read finds it" time="2.015" classname="writes the title in the interface language, where a per-language read finds it">
+  <testsuite name="Roles and permissions - the identity tab" timestamp="2026-09-02T19:09:33" tests="5" time="5.658" failures="0">
+    <testcase name="Roles and permissions - the identity tab writes the title in the interface language, where a per-language read finds it" time="2.088" classname="writes the title in the interface language, where a per-language read finds it">
     </testcase>
-    <testcase name="Roles and permissions - the identity tab writes the node types the role can be granted on" time="1.234" classname="writes the node types the role can be granted on">
+    <testcase name="Roles and permissions - the identity tab writes the node types the role can be granted on" time="1.231" classname="writes the node types the role can be granted on">
     </testcase>
-    <testcase name="Roles and permissions - the identity tab writes the visibility and the privileged access" time="0.931" classname="writes the visibility and the privileged access">
+    <testcase name="Roles and permissions - the identity tab writes the visibility and the privileged access" time="0.948" classname="writes the visibility and the privileged access">
     </testcase>
-    <testcase name="Roles and permissions - the identity tab states that a role is privileged through its parent, whatever its own switch says" time="0.601" classname="states that a role is privileged through its parent, whatever its own switch says">
+    <testcase name="Roles and permissions - the identity tab states that a role is privileged through its parent, whatever its own switch says" time="0.595" classname="states that a role is privileged through its parent, whatever its own switch says">
     </testcase>
-    <testcase name="Roles and permissions - the identity tab goes back to the list, and the list is the one the route rendered before" time="0.738" classname="goes back to the list, and the list is the one the route rendered before">
+    <testcase name="Roles and permissions - the identity tab goes back to the list, and the list is the one the route rendered before" time="0.736" classname="goes back to the list, and the list is the one the route rendered before">
     </testcase>
   </testsuite>
 </testsuites>

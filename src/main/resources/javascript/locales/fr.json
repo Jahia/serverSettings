@@ -67,7 +67,8 @@
       "ambiguousNames": "Une entrée de contrôle d'accès porte un nom de rôle, et Jahia le résout par une requête qui prend le premier résultat. Les permissions appliquées sont donc indéfinies pour ces noms : {{names}}",
       "missingDeclared": "{{count}} role declare par les sources installees est absent de ce referentiel. Le restaurer remet le role en place, et les entrees de controle d'acces qui le nommaient accordent de nouveau.",
       "restoreRole": "Restaurer {{role}}",
-      "missingDeclared_plural": "{{count}} roles declares par les sources installees sont absents de ce referentiel. En restaurer un remet le role en place, et les entrees de controle d'acces qui le nommaient accordent de nouveau."
+      "missingDeclared_plural": "{{count}} roles declares par les sources installees sont absents de ce referentiel. En restaurer un remet le role en place, et les entrees de controle d'acces qui le nommaient accordent de nouveau.",
+      "missingDeclaredTitle": "Des roles sont absents"
     },
     "warning": {
       "DUPLICATE_TARGET_PATH": "Deux cibles s'appliquent sur {{subject}}",

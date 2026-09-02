@@ -67,7 +67,8 @@
       "ambiguousNames": "An access control entry holds a role name, and Jahia resolves it with a query that takes the first result. So which permissions apply is undefined for these names: {{names}}",
       "missingDeclared": "{{count}} role the installed sources declare is not in this repository. Restoring it puts the role back, and the access control entries that named it start granting again.",
       "restoreRole": "Restore {{role}}",
-      "missingDeclared_plural": "{{count}} roles the installed sources declare are not in this repository. Restoring one puts the role back, and the access control entries that named it start granting again."
+      "missingDeclared_plural": "{{count}} roles the installed sources declare are not in this repository. Restoring one puts the role back, and the access control entries that named it start granting again.",
+      "missingDeclaredTitle": "Roles are missing"
     },
     "warning": {
       "DUPLICATE_TARGET_PATH": "Two targets apply on {{subject}}",

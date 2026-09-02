@@ -1,7 +1,7 @@
 import React, {useMemo, useState} from 'react';
 import {useQuery} from 'react-apollo';
 import {useTranslation} from 'react-i18next';
-import {Banner, EmptyData, Header, LayoutContent, Loader, Paper, Typography} from '@jahia/moonstone';
+import {Banner, EmptyData, Header, LayoutContent, Loader, Paper, Pill, Typography} from '@jahia/moonstone';
 import {GET_PERMISSION_CATALOG} from './RolesAndPermissions.gql-queries';
 import {applyFilters, emptyFilters, modulesOf} from './permissionFilters';
 import PermissionFilterBar from './PermissionFilterBar';
@@ -101,12 +101,10 @@ export const PermissionExplorer = () => {
                                     </span>
                                     {entry.workspace === 'NONE' ?
                                         null :
-                                        <span
-                                            className={classes.workspaceTag}
-                                            data-testid={`permission-workspace-${entry.name}`}
-                                        >
-                                            {t(`rolesAndPermissions.workspace.${entry.workspace}`)}
-                                        </span>}
+                                        <Pill
+                                            className={classes.workspacePill}
+                                            label={t(`rolesAndPermissions.workspace.${entry.workspace}`)}
+                                            data-testid={`permission-workspace-${entry.name}`}/>}
                                 </button>
                             ))}
                         </div>
