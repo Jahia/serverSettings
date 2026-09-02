@@ -64,7 +64,10 @@
       "matchCount": "{{count}} of {{total}} roles",
       "noMatch": "No role matches these filters.",
       "ambiguousTitle": "A role name is carried by more than one role node",
-      "ambiguousNames": "An access control entry holds a role name, and Jahia resolves it with a query that takes the first result. So which permissions apply is undefined for these names: {{names}}"
+      "ambiguousNames": "An access control entry holds a role name, and Jahia resolves it with a query that takes the first result. So which permissions apply is undefined for these names: {{names}}",
+      "missingDeclared": "{{count}} role the installed sources declare is not in this repository. Restoring it puts the role back, and the access control entries that named it start granting again.",
+      "restoreRole": "Restore {{role}}",
+      "missingDeclared_plural": "{{count}} roles the installed sources declare are not in this repository. Restoring one puts the role back, and the access control entries that named it start granting again."
     },
     "warning": {
       "DUPLICATE_TARGET_PATH": "Two targets apply on {{subject}}",
@@ -77,13 +80,16 @@
       "typeToConfirm": "Type this to confirm",
       "deleteTitle": "Delete the {{role}} role",
       "deleteMessage": "Deleting a role cannot be undone.",
-      "deleteHeld": "{{count}} access control entries grant this role, to {{principals}}. Those entries stay behind naming a role that no longer exists, and they then grant nothing.",
+      "deleteHeld": "{{count}} access control entry grants this role, to {{principals}}. That entry stays behind naming a role that no longer exists, and it then grants nothing.",
       "deleteUnused": "No access control entry grants this role, so nobody loses access.",
       "deleteSubRoles": "The roles nested inside it go with it: {{names}}.",
-      "deletePermissions": "It names {{count}} permissions of its own.",
+      "deletePermissions": "It names {{count}} permission of its own.",
       "removeTargetTitle": "Remove a target",
       "removeTargetMessage": "The role stops granting anything on {{path}}, and this cannot be undone.",
-      "removeTargetPermissions": "The {{count}} permissions this target names go with it: {{names}}."
+      "removeTargetPermissions": "The permission this target names goes with it: {{names}}.",
+      "deleteHeld_plural": "{{count}} access control entries grant this role, to {{principals}}. Those entries stay behind naming a role that no longer exists, and they then grant nothing.",
+      "deletePermissions_plural": "It names {{count}} permissions of its own.",
+      "removeTargetPermissions_plural": "The {{count}} permissions this target names go with it: {{names}}."
     },
     "detail": {
       "back": "All roles",
@@ -171,6 +177,34 @@
       "direct": "Granted directly",
       "inheritedFromRole": "Inherited from the {{role}} role",
       "impliedByPermission": "Granted through {{permission}}"
+    },
+    "reset": {
+      "action": "Reset to declared",
+      "title": "Reset the {{role}} role",
+      "baseline": "This restores what the installed sources declare for this role: {{sources}}. That is what a new instance running this Jahia version with these modules would hold, and not the state the role had before it was edited.",
+      "incomplete": "The baseline is incomplete: {{sources}} could not be read. The reset could remove a permission one of those sources in fact declares.",
+      "recreates": "The repository no longer has this role, so the reset creates it. The access control entries left behind by its deletion name it again, and the access they carried returns.",
+      "onRole": "On the role itself",
+      "onTarget": "On {{path}}",
+      "adds": "Adds {{count}} permission name",
+      "removes": "Removes {{count}} permission name",
+      "addsReach": "The role then grants {{count}} permission here.",
+      "removesReach": "The role stops granting {{count}} permission here.",
+      "keptTarget": "{{path}} is left alone. No source declares it, so the baseline carries nothing to restore there.",
+      "identity": "It also writes: {{changes}}.",
+      "roleGroupChange": "scope {{value}}",
+      "privilegedChange": "privileged access {{value}}",
+      "hiddenChange": "hidden {{value}}",
+      "typeToConfirm": "The role would grant more than it does today. Type this to confirm",
+      "confirm": "Reset the role",
+      "notDeclared": "No installed source declares this role, so there is no baseline to reset to. A role your team created has none, and neither does a role generated per language.",
+      "alreadyMatches": "This role already matches what the sources declare, so a reset would write nothing.",
+      "planFailed": "The baseline could not be read.",
+      "stale": "The role changed while this was open. Close the dialog and read the difference again.",
+      "adds_plural": "Adds {{count}} permission names",
+      "removes_plural": "Removes {{count}} permission names",
+      "addsReach_plural": "The role then grants {{count}} permissions here, because an added name grants its {{extra}} descendants too.",
+      "removesReach_plural": "The role stops granting {{count}} permissions here, because a removed name granted its {{extra}} descendants too."
     }
   },
   "webProjects": {
@@ -198,8 +232,7 @@
       "failed": "Failed",
       "canceled": "Canceled"
     },
-    "nothingToDisplay":"Nothing to display",
+    "nothingToDisplay": "Nothing to display",
     "error": "Something went wrong while fetching the data"
   }
 }
-

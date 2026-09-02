@@ -405,3 +405,30 @@
     border-radius: 3px;
     font-family: monospace;
 }
+
+/* The roles the sources declare and the repository lacks. Above the table, because a role that is
+   in no row cannot be offered back from a row. */
+.missingRoles {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-small, 8px);
+    margin-bottom: var(--spacing-medium, 24px);
+    padding: var(--spacing-medium, 24px);
+    background: var(--color-warning_light, #fff4e5);
+    border-left: 3px solid var(--color-warning, #e8a33d);
+    border-radius: 3px;
+}
+
+/* One side of a reset difference, and the target it applies to. */
+.diffTarget {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-small, 8px);
+    margin-top: var(--spacing-medium, 24px);
+}
+
+.diffSide {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-nano, 4px);
+}

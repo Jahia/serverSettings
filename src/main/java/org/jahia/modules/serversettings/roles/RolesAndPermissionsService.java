@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.jcr.RepositoryException;
+import org.jahia.modules.serversettings.roles.seed.ResetPlan;
+import org.jahia.modules.serversettings.roles.seed.RoleSeedCatalog;
 
 /**
  * Read and write the role and permission model that Jahia evaluates at runtime.
@@ -221,4 +223,38 @@ public interface RolesAndPermissionsService {
      * @throws RepositoryException when the query fails
      */
     RoleUsage getRoleUsage(String roleName) throws RepositoryException;
+
+    /**
+     * The role baseline the installed sources declare.
+     * <p>
+     * Read from the core seed file the running version ships and from every installed module bundle,
+     * so it states what this instance would hold for this core version and this exact module set,
+     * before anybody edited a role.
+     *
+     * @return the declared baseline of every role an installed source names
+     */
+    RoleSeedCatalog getRoleSeedCatalog();
+
+    /**
+     * Measures what resetting one role to the declared baseline would change.
+     * <p>
+     * Nothing is written. The plan states the permission names it would add and remove, and the
+     * permissions the role would then start and stop granting, because a granted permission grants
+     * its descendants and a diff of names alone would hide that.
+     *
+     * @param roleName the role to measure, which the repository need not still have
+     */
+    ResetPlan planReset(String roleName) throws RepositoryException;
+
+    /**
+     * Resets one role to the declared baseline.
+     * <p>
+     * The role is created when an installed source declares it and the repository no longer has it,
+     * which is what makes a deleted role recoverable. A target no source declares is left alone.
+     *
+     * @param roleName the role to reset
+     * @param revision the revision the caller measured the plan against, or null to skip the check
+     * @return what was written, and why when nothing was
+     */
+    WriteResult resetRoleToDeclared(String roleName, String revision) throws RepositoryException;
 }

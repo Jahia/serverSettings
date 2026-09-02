@@ -64,7 +64,10 @@
       "matchCount": "{{count}} rôles sur {{total}}",
       "noMatch": "Aucun rôle ne correspond à ces filtres.",
       "ambiguousTitle": "Un nom de rôle est porté par plusieurs nœuds de rôle",
-      "ambiguousNames": "Une entrée de contrôle d'accès porte un nom de rôle, et Jahia le résout par une requête qui prend le premier résultat. Les permissions appliquées sont donc indéfinies pour ces noms : {{names}}"
+      "ambiguousNames": "Une entrée de contrôle d'accès porte un nom de rôle, et Jahia le résout par une requête qui prend le premier résultat. Les permissions appliquées sont donc indéfinies pour ces noms : {{names}}",
+      "missingDeclared": "{{count}} role declare par les sources installees est absent de ce referentiel. Le restaurer remet le role en place, et les entrees de controle d'acces qui le nommaient accordent de nouveau.",
+      "restoreRole": "Restaurer {{role}}",
+      "missingDeclared_plural": "{{count}} roles declares par les sources installees sont absents de ce referentiel. En restaurer un remet le role en place, et les entrees de controle d'acces qui le nommaient accordent de nouveau."
     },
     "warning": {
       "DUPLICATE_TARGET_PATH": "Deux cibles s'appliquent sur {{subject}}",
@@ -77,13 +80,16 @@
       "typeToConfirm": "Tapez ceci pour confirmer",
       "deleteTitle": "Supprimer le rôle {{role}}",
       "deleteMessage": "La suppression d'un rôle est définitive.",
-      "deleteHeld": "{{count}} entrées de contrôle d'accès accordent ce rôle, à {{principals}}. Ces entrées restent en place en nommant un rôle qui n'existe plus, et elles n'accordent alors rien.",
+      "deleteHeld": "{{count}} entree de controle d'acces accorde ce role, a {{principals}}. Cette entree reste en nommant un role qui n'existe plus, et elle n'accorde alors rien.",
       "deleteUnused": "Aucune entrée de contrôle d'accès n'accorde ce rôle, donc personne ne perd d'accès.",
       "deleteSubRoles": "Les rôles imbriqués partent avec lui : {{names}}.",
-      "deletePermissions": "Il nomme {{count}} permissions en propre.",
+      "deletePermissions": "Il nomme {{count}} permission qui lui est propre.",
       "removeTargetTitle": "Retirer une cible",
       "removeTargetMessage": "Le rôle cesse d'accorder quoi que ce soit sur {{path}}, et c'est définitif.",
-      "removeTargetPermissions": "Les {{count}} permissions que cette cible nomme partent avec elle : {{names}}."
+      "removeTargetPermissions": "La permission que cette cible nomme part avec elle : {{names}}.",
+      "deleteHeld_plural": "{{count}} entrees de controle d'acces accordent ce role, a {{principals}}. Ces entrees restent en nommant un role qui n'existe plus, et elles n'accordent alors rien.",
+      "deletePermissions_plural": "Il nomme {{count}} permissions qui lui sont propres.",
+      "removeTargetPermissions_plural": "Les {{count}} permissions que cette cible nomme partent avec elle : {{names}}."
     },
     "detail": {
       "back": "Tous les rôles",
@@ -171,6 +177,34 @@
       "direct": "Accordée directement",
       "inheritedFromRole": "Héritée du rôle {{role}}",
       "impliedByPermission": "Accordée via {{permission}}"
+    },
+    "reset": {
+      "action": "Reinitialiser",
+      "title": "Reinitialiser le role {{role}}",
+      "baseline": "Cela restaure ce que les sources installees declarent pour ce role : {{sources}}. C'est ce qu'une nouvelle instance de cette version de Jahia avec ces modules contiendrait, et non l'etat du role avant sa modification.",
+      "incomplete": "La ligne de base est incomplete : {{sources}} n'a pas pu etre lu. La reinitialisation pourrait retirer une permission que cette source declare en realite.",
+      "recreates": "Le referentiel n'a plus ce role, donc la reinitialisation le cree. Les entrees de controle d'acces laissees par sa suppression le nomment de nouveau, et l'acces qu'elles portaient revient.",
+      "onRole": "Sur le role lui-meme",
+      "onTarget": "Sur {{path}}",
+      "adds": "Ajoute {{count}} nom de permission",
+      "removes": "Retire {{count}} nom de permission",
+      "addsReach": "Le role accorde alors {{count}} permission ici.",
+      "removesReach": "Le role cesse d'accorder {{count}} permission ici.",
+      "keptTarget": "{{path}} est laisse en place. Aucune source ne le declare, donc la ligne de base n'a rien a y restaurer.",
+      "identity": "Cela ecrit aussi : {{changes}}.",
+      "roleGroupChange": "portee {{value}}",
+      "privilegedChange": "acces privilegie {{value}}",
+      "hiddenChange": "masque {{value}}",
+      "typeToConfirm": "Le role accorderait plus qu'aujourd'hui. Tapez ceci pour confirmer",
+      "confirm": "Reinitialiser le role",
+      "notDeclared": "Aucune source installee ne declare ce role, il n'y a donc pas de ligne de base. Un role cree par votre equipe n'en a pas, ni un role genere par langue.",
+      "alreadyMatches": "Ce role correspond deja a ce que les sources declarent, une reinitialisation n'ecrirait rien.",
+      "planFailed": "La ligne de base n'a pas pu etre lue.",
+      "stale": "Le role a change pendant que ceci etait ouvert. Fermez la fenetre et relisez la difference.",
+      "adds_plural": "Ajoute {{count}} noms de permission",
+      "removes_plural": "Retire {{count}} noms de permission",
+      "addsReach_plural": "Le role accorde alors {{count}} permissions ici, car un nom ajoute accorde aussi ses {{extra}} descendants.",
+      "removesReach_plural": "Le role cesse d'accorder {{count}} permissions ici, car un nom retire accordait aussi ses {{extra}} descendants."
     }
   },
   "webProjects": {

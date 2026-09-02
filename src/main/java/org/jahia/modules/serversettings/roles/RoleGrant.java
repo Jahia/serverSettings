@@ -100,7 +100,11 @@ public final class RoleGrant {
      * @return the hex SHA-256 of the sorted names, one per line
      */
     public String getRevision() {
-        String canonical = String.join("\n", directPermissions);
+        return hexSha256(String.join("\n", directPermissions));
+    }
+
+    /** The hex SHA-256 of a canonical string, which is how every revision in this model is derived. */
+    static String hexSha256(String canonical) {
         try {
             byte[] digest = MessageDigest.getInstance("SHA-256")
                     .digest(canonical.getBytes(StandardCharsets.UTF_8));

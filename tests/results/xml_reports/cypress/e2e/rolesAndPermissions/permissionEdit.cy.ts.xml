@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Mocha Tests" time="8.786" tests="7" failures="0">
-  <testsuite name="Root Suite" timestamp="2026-09-02T15:40:44" tests="0" file="cypress/e2e/rolesAndPermissions/permissionEdit.cy.ts" time="0.000" failures="0">
+<testsuites name="Mocha Tests" time="8.548" tests="7" failures="0">
+  <testsuite name="Root Suite" timestamp="2026-09-02T17:47:43" tests="0" file="cypress/e2e/rolesAndPermissions/permissionEdit.cy.ts" time="0.000" failures="0">
   </testsuite>
-  <testsuite name="Roles and permissions - editing what a role grants" timestamp="2026-09-02T15:40:44" tests="7" time="8.731" failures="0">
-    <testcase name="Roles and permissions - editing what a role grants grants a permission with no question, and stores its name" time="2.245" classname="grants a permission with no question, and stores its name">
+  <testsuite name="Roles and permissions - editing what a role grants" timestamp="2026-09-02T17:47:43" tests="7" time="8.496" failures="0">
+    <testcase name="Roles and permissions - editing what a role grants grants a permission with no question, and stores its name" time="2.041" classname="grants a permission with no question, and stores its name">
     </testcase>
-    <testcase name="Roles and permissions - editing what a role grants removes a permission with no question when nothing else goes with it" time="1.189" classname="removes a permission with no question when nothing else goes with it">
+    <testcase name="Roles and permissions - editing what a role grants removes a permission with no question when nothing else goes with it" time="1.098" classname="removes a permission with no question when nothing else goes with it">
     </testcase>
-    <testcase name="Roles and permissions - editing what a role grants states the aggregation before removing a permission that carries others" time="1.199" classname="states the aggregation before removing a permission that carries others">
+    <testcase name="Roles and permissions - editing what a role grants states the aggregation before removing a permission that carries others" time="1.196" classname="states the aggregation before removing a permission that carries others">
     </testcase>
-    <testcase name="Roles and permissions - editing what a role grants expands every level between a granted ancestor and the permission removed" time="1.182" classname="expands every level between a granted ancestor and the permission removed">
+    <testcase name="Roles and permissions - editing what a role grants expands every level between a granted ancestor and the permission removed" time="1.195" classname="expands every level between a granted ancestor and the permission removed">
     </testcase>
-    <testcase name="Roles and permissions - editing what a role grants refuses to remove a permission a parent role grants, and names that role" time="1.003" classname="refuses to remove a permission a parent role grants, and names that role">
+    <testcase name="Roles and permissions - editing what a role grants refuses to remove a permission a parent role grants, and names that role" time="0.959" classname="refuses to remove a permission a parent role grants, and names that role">
     </testcase>
-    <testcase name="Roles and permissions - editing what a role grants groups the children of a permission back onto it, and states what that starts granting" time="1.087" classname="groups the children of a permission back onto it, and states what that starts granting">
+    <testcase name="Roles and permissions - editing what a role grants groups the children of a permission back onto it, and states what that starts granting" time="1.053" classname="groups the children of a permission back onto it, and states what that starts granting">
     </testcase>
-    <testcase name="Roles and permissions - editing what a role grants counts what the role grants per area, against what the area holds" time="0.626" classname="counts what the role grants per area, against what the area holds">
+    <testcase name="Roles and permissions - editing what a role grants counts what the role grants per area, against what the area holds" time="0.642" classname="counts what the role grants per area, against what the area holds">
     </testcase>
   </testsuite>
 </testsuites>

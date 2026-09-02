@@ -1,9 +1,10 @@
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import PropTypes from 'prop-types';
-import {useMutation} from 'react-apollo';
+import {useLazyQuery, useMutation} from 'react-apollo';
 import {useTranslation} from 'react-i18next';
 import {Button, Chip, Dropdown, Input, Switch, Textarea, Typography} from '@jahia/moonstone';
-import {SAVE_ROLE_GROUP, SAVE_ROLE_METADATA, SAVE_ROLE_TEXT} from './RolesAndPermissions.gql-queries';
+import {RESET_ROLE, ROLE_RESET_PLAN, SAVE_ROLE_GROUP, SAVE_ROLE_METADATA, SAVE_ROLE_TEXT} from './RolesAndPermissions.gql-queries';
+import RoleResetDialog from './RoleResetDialog';
 import classes from './styles.css';
 
 const Field = ({label, hint, children, testId}) => (
@@ -35,6 +36,55 @@ export const RoleIdentityTab = ({role, roleGroups, language, onSaved}) => {
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
     const [error, setError] = useState(null);
+
+    const [resetPlan, setResetPlan] = useState(null);
+    const [resetError, setResetError] = useState(null);
+    const [resetting, setResetting] = useState(false);
+
+    // The plan is read when the action is asked for, and not with the role. Reading it walks every
+    // installed bundle, which is not work to do on a screen that may never reset anything.
+    const [readResetPlan] = useLazyQuery(ROLE_RESET_PLAN, {
+        fetchPolicy: 'network-only',
+        onCompleted: data => {
+            const answer = data?.admin?.rolesAndPermissions?.role;
+            if (!answer?.resetPlan?.applicable) {
+                setResetError(t('rolesAndPermissions.reset.notDeclared'));
+                return;
+            }
+
+            if (answer.resetPlan.noop) {
+                setResetError(t('rolesAndPermissions.reset.alreadyMatches'));
+                return;
+            }
+
+            setResetPlan({...answer.resetPlan, revision: answer.revision});
+        },
+        onError: () => setResetError(t('rolesAndPermissions.reset.planFailed'))
+    });
+
+    const [resetRole] = useMutation(RESET_ROLE);
+
+    const applyReset = useCallback(async () => {
+        setResetting(true);
+        setResetError(null);
+        try {
+            const answer = await resetRole({variables: {role: role.name, revision: resetPlan.revision}});
+            const outcome = answer?.data?.admin?.rolesAndPermissions?.resetRoleToDeclared?.outcome;
+            if (outcome === 'REFUSED_STALE_REVISION') {
+                // Somebody wrote to the role between the preview and the apply, so the difference on
+                // screen is not the difference that would be written.
+                setResetError(t('rolesAndPermissions.reset.stale'));
+                return;
+            }
+
+            setResetPlan(null);
+            onSaved();
+        } catch (e) {
+            setResetError(e.message);
+        } finally {
+            setResetting(false);
+        }
+    }, [resetRole, resetPlan, role, onSaved, t]);
 
     const [saveMetadata] = useMutation(SAVE_ROLE_METADATA);
     const [saveRoleGroup] = useMutation(SAVE_ROLE_GROUP);
@@ -208,12 +258,39 @@ export const RoleIdentityTab = ({role, roleGroups, language, onSaved}) => {
                     label={t('rolesAndPermissions.detail.save')}
                     data-testid="role-identity-save"
                     onClick={save}/>
+                <Button
+                    size="big"
+                    variant="outlined"
+                    label={t('rolesAndPermissions.reset.action')}
+                    data-testid="role-reset"
+                    onClick={() => {
+                        setResetError(null);
+                        readResetPlan({variables: {role: role.name}});
+                    }}/>
                 {saved ?
                     <Typography variant="body" data-testid="role-identity-saved">
                         {t('rolesAndPermissions.detail.saved')}
                     </Typography> :
                     null}
+                {resetError && !resetPlan ?
+                    <Typography variant="body" className={classes.formError} data-testid="role-reset-message">
+                        {resetError}
+                    </Typography> :
+                    null}
             </div>
+
+            {resetPlan ?
+                <RoleResetDialog
+                    roleName={role.name}
+                    plan={resetPlan}
+                    error={resetError}
+                    isApplying={resetting}
+                    onConfirm={applyReset}
+                    onCancel={() => {
+                        setResetPlan(null);
+                        setResetError(null);
+                    }}/> :
+                null}
         </div>
     );
 };

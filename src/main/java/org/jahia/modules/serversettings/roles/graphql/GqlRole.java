@@ -15,6 +15,9 @@ import javax.jcr.RepositoryException;
 import org.jahia.modules.serversettings.roles.RoleModel;
 import org.jahia.modules.serversettings.roles.RoleView;
 import org.jahia.modules.serversettings.roles.RolesAndPermissionsService;
+import org.jahia.modules.serversettings.roles.seed.RoleSeedCatalog;
+import org.jahia.modules.serversettings.roles.seed.ResetPlan;
+import java.util.function.Supplier;
 
 @GraphQLName("Role")
 @GraphQLDescription("One role, with every set of permissions it grants")
@@ -23,11 +26,13 @@ public class GqlRole {
     private final RoleModel model;
     private final RoleView role;
     private final RolesAndPermissionsService service;
+    private final Supplier<RoleSeedCatalog> seeds;
 
-    GqlRole(RoleModel model, RoleView role, RolesAndPermissionsService service) {
+    GqlRole(RoleModel model, RoleView role, RolesAndPermissionsService service, Supplier<RoleSeedCatalog> seeds) {
         this.model = model;
         this.role = role;
         this.service = service;
+        this.seeds = seeds;
     }
 
     @GraphQLField
@@ -181,6 +186,26 @@ public class GqlRole {
             + "repository no longer has, and those entries then grant nothing")
     public GqlRoleUsage getUsage() throws RepositoryException {
         return new GqlRoleUsage(service.getRoleUsage(role.getName()));
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
+    @GraphQLDescription("A value that changes whenever anything a reset writes changes. Send it back "
+            + "with the reset, which is then refused if the role moved in between")
+    public String getRevision() {
+        return role.getRevision();
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
+    @GraphQLDescription("What resetting this role to what the installed sources declare would change. "
+            + "Nothing is written: the plan is measured so the difference can be shown and refused")
+    public GqlResetPlan getResetPlan() {
+        // Measured from the catalogs the query already holds. Reading the seeds is a walk of every
+        // installed bundle, so a query that selects this field on every role reads them once.
+        RoleSeedCatalog catalog = seeds.get();
+        return new GqlResetPlan(ResetPlan.measure(role.getName(), role, catalog.get(role.getName()),
+                model.getCatalog(), catalog.getUnreadableSources()));
     }
 
     @GraphQLField

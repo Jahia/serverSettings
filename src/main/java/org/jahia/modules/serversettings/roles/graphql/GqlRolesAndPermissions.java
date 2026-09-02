@@ -18,6 +18,8 @@ import org.jahia.modules.serversettings.roles.PermissionUsage;
 import org.jahia.modules.serversettings.roles.RoleModel;
 import org.jahia.modules.serversettings.roles.RoleView;
 import org.jahia.modules.serversettings.roles.RolesAndPermissionsService;
+import org.jahia.modules.serversettings.roles.seed.RoleSeed;
+import org.jahia.modules.serversettings.roles.seed.RoleSeedCatalog;
 
 /**
  * The read entry point of the roles and permissions administration.
@@ -37,6 +39,7 @@ public class GqlRolesAndPermissions {
     private PermissionCatalog catalog;
     private RoleModel roleModel;
     private SortedMap<String, List<PermissionUsage>> usagesByPermission;
+    private RoleSeedCatalog seedCatalog;
 
     @GraphQLField
     @GraphQLNonNull
@@ -66,7 +69,7 @@ public class GqlRolesAndPermissions {
         return model.getRoles().stream()
                 .filter(role -> roleGroup == null || roleGroup.equals(role.getRoleGroup()))
                 .filter(role -> hidden || !role.isHidden())
-                .map(role -> new GqlRole(model, role, rolesAndPermissionsService))
+                .map(role -> new GqlRole(model, role, rolesAndPermissionsService, this::seedCatalog))
                 .collect(Collectors.toList());
     }
 
@@ -86,7 +89,29 @@ public class GqlRolesAndPermissions {
             throws RepositoryException {
         RoleModel model = roleModel();
         RoleView role = model.get(name);
-        return role == null ? null : new GqlRole(model, role, rolesAndPermissionsService);
+        return role == null ? null : new GqlRole(model, role, rolesAndPermissionsService, this::seedCatalog);
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
+    @GraphQLDescription("The roles an installed source declares that the repository no longer has. "
+            + "A deleted role appears here, and resetting it puts the role back along with the access "
+            + "it granted, because an access control entry stores the role name")
+    public List<String> getMissingDeclaredRoles() throws RepositoryException {
+        RoleModel model = roleModel();
+        return seedCatalog().getSeeds().stream()
+                .map(RoleSeed::getName)
+                .filter(name -> model.get(name) == null)
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
+    private RoleSeedCatalog seedCatalog() {
+        if (seedCatalog == null) {
+            // One walk of every installed bundle per query, however many roles select a reset plan.
+            seedCatalog = rolesAndPermissionsService.getRoleSeedCatalog();
+        }
+        return seedCatalog;
     }
 
     private PermissionCatalog catalog() throws RepositoryException {

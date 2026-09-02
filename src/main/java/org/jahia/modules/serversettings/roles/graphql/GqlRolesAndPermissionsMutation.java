@@ -166,4 +166,18 @@ public class GqlRolesAndPermissionsMutation {
             throws RepositoryException {
         return rolesAndPermissionsService.removeTarget(role, target);
     }
+
+    @GraphQLField
+    @GraphQLNonNull
+    @GraphQLDescription("Reset a role to what the installed sources declare. The role is created when "
+            + "a source declares it and the repository no longer has it, which is what recovers a "
+            + "deleted role. A target no source declares is left alone. Read resetPlan first: the "
+            + "baseline is what a fresh instance would hold and not the state the role had before")
+    public GqlWriteResult resetRoleToDeclared(
+            @GraphQLName("role") @GraphQLNonNull @GraphQLDescription("The role") String role,
+            @GraphQLName("revision") @GraphQLDescription("The role revision the plan was measured "
+                    + "against. The write is refused when the role moved in between") String revision)
+            throws RepositoryException {
+        return new GqlWriteResult(rolesAndPermissionsService.resetRoleToDeclared(role, revision));
+    }
 }

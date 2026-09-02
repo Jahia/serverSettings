@@ -32,6 +32,11 @@ import org.jahia.services.templates.JahiaTemplateManagerService;
 import org.jahia.utils.LanguageCodeConverters;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.jahia.modules.serversettings.roles.seed.TargetKind;
+import org.jahia.modules.serversettings.roles.seed.SeedTarget;
+import org.jahia.modules.serversettings.roles.seed.RoleSeedCatalog;
+import org.jahia.modules.serversettings.roles.seed.RoleSeed;
+import org.jahia.modules.serversettings.roles.seed.ResetPlan;
 
 @Component(service = RolesAndPermissionsService.class, immediate = true)
 public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsService {
@@ -393,6 +398,109 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
         JCRNodeWrapper created = roleNode.addNode(grantId, EXTERNAL_PERMISSIONS_TYPE);
         created.setProperty(EXTERNAL_PATH_PROPERTY, inherited.getPath());
         return created;
+    }
+
+    @Override
+    public RoleSeedCatalog getRoleSeedCatalog() {
+        // Read on every call. A module can be installed or upgraded while the screen is open, and a
+        // baseline cached across that would describe a module set the instance no longer has.
+        return RoleSeedCatalog.read(templateManagerService.getTemplatePackageRegistry().getRegisteredModules().values());
+    }
+
+    @Override
+    public ResetPlan planReset(String roleName) throws RepositoryException {
+        PermissionCatalog catalog = getPermissionCatalog();
+        RoleSeedCatalog seeds = getRoleSeedCatalog();
+        return ResetPlan.measure(roleName, getRoleModel(catalog).get(roleName), seeds.get(roleName), catalog,
+                seeds.getUnreadableSources());
+    }
+
+    @Override
+    public WriteResult resetRoleToDeclared(String roleName, String expectedRevision) throws RepositoryException {
+        PermissionCatalog catalog = getPermissionCatalog();
+        RoleSeedCatalog seeds = getRoleSeedCatalog();
+        RoleSeed seed = seeds.get(roleName);
+        RoleModel model = getRoleModel(catalog);
+        RoleView role = model.get(roleName);
+
+        if (seed == null) {
+            // No installed source declares this role, so there is no baseline to restore. Answering
+            // rather than throwing lets the interface state why the action does not apply.
+            return new WriteResult(WriteOutcome.NOT_APPLICABLE,
+                    role == null ? null : role.getRevision(),
+                    role == null ? Collections.emptyList() : model.getDirectPermissionNames(roleName));
+        }
+
+        String currentRevision = role == null ? null : role.getRevision();
+        if (expectedRevision != null && !expectedRevision.equals(currentRevision)) {
+            return new WriteResult(WriteOutcome.REFUSED_STALE_REVISION, currentRevision,
+                    role == null ? Collections.emptyList() : model.getDirectPermissionNames(roleName));
+        }
+
+        JCRSessionWrapper session = currentSession();
+        JCRNodeWrapper roleNode = role == null ? recreateFromSeed(session, model, seed) : session.getNode(role.getPath());
+
+        setPermissionNames(session, roleNode, seed.getPermissionNames());
+        applySeedProperties(roleNode, seed);
+
+        for (SeedTarget target : seed.getTargets()) {
+            JCRNodeWrapper targetNode = roleNode.hasNode(target.getNodeName()) ?
+                    roleNode.getNode(target.getNodeName()) :
+                    roleNode.addNode(target.getNodeName(), EXTERNAL_PERMISSIONS_TYPE);
+            targetNode.setProperty(EXTERNAL_PATH_PROPERTY, target.getPath());
+            setPermissionNames(session, targetNode, target.getPermissionNames());
+        }
+        // A target no source declares is left in place. A target is a scope somebody chose to reach,
+        // the sources never spoke about this one, and a baseline built from them carries nothing to
+        // restore here. The plan reports it so it can be removed by the action that already exists.
+
+        session.save();
+
+        RoleModel after = getRoleModel(catalog);
+        RoleView written = after.get(roleName);
+        return new WriteResult(WriteOutcome.APPLIED,
+                written == null ? null : written.getRevision(),
+                after.getDirectPermissionNames(roleName));
+    }
+
+    /**
+     * Creates a role the sources declare and the repository no longer has.
+     * <p>
+     * This is what recovers a deleted role. An access control entry stores the role NAME, so an entry
+     * left behind by the deletion starts granting again as soon as a role of that name is back at that
+     * path, and the access those entries carried returns with it.
+     */
+    private JCRNodeWrapper recreateFromSeed(JCRSessionWrapper session, RoleModel model, RoleSeed seed)
+            throws RepositoryException {
+        JCRNodeWrapper parent;
+        RoleView declaredParent = seed.getParentRoleName() == null ? null : model.get(seed.getParentRoleName());
+        if (declaredParent != null) {
+            parent = session.getNode(declaredParent.getPath());
+        } else {
+            // The sources nest it inside a role that is itself gone, so it lands at the top level
+            // rather than failing. Resetting the parent first puts the nesting back.
+            parent = session.getNode(ROLES_ROOT);
+        }
+        return parent.addNode(seed.getName(), Constants.JAHIANT_ROLE);
+    }
+
+    private void applySeedProperties(JCRNodeWrapper roleNode, RoleSeed seed) throws RepositoryException {
+        if (seed.getRoleGroup() != null) {
+            roleNode.setProperty(ROLE_GROUP_PROPERTY, seed.getRoleGroup());
+        }
+        if (seed.getPrivilegedAccess() != null) {
+            roleNode.setProperty(PRIVILEGED_ACCESS_PROPERTY, seed.getPrivilegedAccess());
+        }
+        if (seed.getHidden() != null) {
+            roleNode.setProperty(HIDDEN_PROPERTY, seed.getHidden());
+        }
+        if (seed.getNodeTypes().isEmpty()) {
+            if (roleNode.hasProperty(NODE_TYPES_PROPERTY)) {
+                roleNode.getProperty(NODE_TYPES_PROPERTY).remove();
+            }
+        } else {
+            roleNode.setProperty(NODE_TYPES_PROPERTY, seed.getNodeTypes().toArray(new String[0]));
+        }
     }
 
     private void setPermissionNames(JCRSessionWrapper session, JCRNodeWrapper node,

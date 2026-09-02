@@ -38,6 +38,7 @@ export const GET_ROLES = gql`
             rolesAndPermissions {
                 roleGroups
                 ambiguousRoleNames
+                missingDeclaredRoles
                 roles(includeHidden: true) {
                     name
                     path
@@ -327,6 +328,56 @@ export const SAVE_ROLE_TEXT = gql`
         admin {
             rolesAndPermissions {
                 setRoleText(role: $role, language: $language, title: $title, description: $description)
+            }
+        }
+    }
+`;
+
+// The reset plan, measured on the server without writing anything. The role revision comes with it so
+// the write can be refused if the role moves between the preview and the apply.
+export const ROLE_RESET_PLAN = gql`
+    query RoleResetPlan($role: String!) {
+        admin {
+            rolesAndPermissions {
+                role(name: $role) {
+                    name
+                    revision
+                    resetPlan {
+                        applicable
+                        noop
+                        roleExists
+                        widening
+                        sourceLabels
+                        unreadableSources
+                        gainedPermissions
+                        lostPermissions
+                        roleGroupChange
+                        privilegedAccessChange
+                        hiddenChange
+                        targets {
+                            id
+                            path
+                            kind
+                            addedNames
+                            removedNames
+                            gainedPermissions
+                            lostPermissions
+                        }
+                    }
+                }
+            }
+        }
+    }
+`;
+
+export const RESET_ROLE = gql`
+    mutation ResetRole($role: String!, $revision: String) {
+        admin {
+            rolesAndPermissions {
+                resetRoleToDeclared(role: $role, revision: $revision) {
+                    outcome
+                    revision
+                }
             }
         }
     }

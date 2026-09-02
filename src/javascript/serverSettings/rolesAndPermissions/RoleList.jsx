@@ -4,7 +4,7 @@ import {useMutation, useQuery} from 'react-apollo';
 import {useTranslation} from 'react-i18next';
 import {Add, Banner, Button, Chip, Copy, DataTable, Delete, EmptyData, Header, LayoutContent, Loader, Paper, SearchInput, Typography} from '@jahia/moonstone';
 import {stringColumn} from '@jahia/moonstone/DataTable';
-import {CREATE_ROLE, DELETE_ROLE, DUPLICATE_ROLE, GET_ROLES} from './RolesAndPermissions.gql-queries';
+import {CREATE_ROLE, DELETE_ROLE, DUPLICATE_ROLE, GET_ROLES, RESET_ROLE} from './RolesAndPermissions.gql-queries';
 import ConfirmDestructiveDialog from './ConfirmDestructiveDialog';
 import RoleNameDialog from './RoleNameDialog';
 import RoleWarnings from './RoleWarnings';
@@ -120,6 +120,21 @@ export const RoleList = ({onOpenRole}) => {
     const answer = data?.admin?.rolesAndPermissions;
     const roles = useMemo(() => answer?.roles || [], [answer]);
     const roleGroups = useMemo(() => answer?.roleGroups || [], [answer]);
+    // A deleted role is in no row, so the only place it can be offered back is here.
+    const missingRoles = useMemo(() => answer?.missingDeclaredRoles || [], [answer]);
+    const [restoring, setRestoring] = useState(null);
+    const [resetRole] = useMutation(RESET_ROLE);
+
+    const restore = useCallback(async name => {
+        setRestoring(name);
+        try {
+            // No revision: there is no role to have read one from, and nothing to be stale against.
+            await resetRole({variables: {role: name, revision: null}});
+            await refetch();
+        } finally {
+            setRestoring(null);
+        }
+    }, [resetRole, refetch]);
     const rows = useMemo(() => filterRoles(roles, search, scope), [roles, search, scope]);
 
     const columns = useMemo(() => [
@@ -256,6 +271,32 @@ export const RoleList = ({onOpenRole}) => {
         }
     ], [t, onOpenRole]);
 
+    const missingBanner = () => {
+        if (missingRoles.length === 0) {
+            return null;
+        }
+
+        return (
+            <div className={classes.missingRoles} data-testid="missing-declared-roles">
+                <Typography variant="body">
+                    {t('rolesAndPermissions.list.missingDeclared', {count: missingRoles.length})}
+                </Typography>
+                <div className={classes.chipRow}>
+                    {missingRoles.map(name => (
+                        <Button
+                            key={name}
+                            size="default"
+                            variant="outlined"
+                            isDisabled={restoring === name}
+                            label={t('rolesAndPermissions.list.restoreRole', {role: name})}
+                            data-testid={`restore-role-${name}`}
+                            onClick={() => restore(name)}/>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
     const content = () => {
         if (error) {
             return (
@@ -278,12 +319,15 @@ export const RoleList = ({onOpenRole}) => {
         }
 
         return (
-            <DataTable
-                enablePagination={false}
-                data={rows}
-                columns={columns}
-                primaryKey="path"
-                data-testid="role-table"/>
+            <>
+                {missingBanner()}
+                <DataTable
+                    enablePagination={false}
+                    data={rows}
+                    columns={columns}
+                    primaryKey="path"
+                    data-testid="role-table"/>
+            </>
         );
     };
 

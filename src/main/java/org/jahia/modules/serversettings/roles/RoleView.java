@@ -120,6 +120,26 @@ public final class RoleView {
      *
      * @param grantId {@link RoleGrant#CURRENT_NODE_ID}, or a {@code jnt:externalPermissions} node name
      */
+    /**
+     * A value that changes whenever anything the reset writes changes.
+     * <p>
+     * A reset rewrites the whole role rather than one target, so the per-target revision cannot guard
+     * it. This covers every target and the properties a reset touches, and it is derived from the
+     * content, so it needs no property on the node.
+     *
+     * @return the hex SHA-256 of the role's targets and their permission sets
+     */
+    public String getRevision() {
+        StringBuilder canonical = new StringBuilder();
+        canonical.append(roleGroup).append('\n')
+                .append(hidden).append('\n')
+                .append(privilegedAccess).append('\n')
+                .append(String.join(",", nodeTypes)).append('\n');
+        new TreeMap<>(grantsById).forEach((id, grant) ->
+                canonical.append(id).append('=').append(grant.getRevision()).append('\n'));
+        return RoleGrant.hexSha256(canonical.toString());
+    }
+
     public RoleGrant getGrant(String grantId) {
         return grantsById.get(grantId);
     }

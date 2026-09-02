@@ -46,6 +46,11 @@ public final class RoleModel {
     }
 
     /** Every role, in path order so a parent precedes the roles nested inside it. */
+    /** The catalog this model resolved its permissions against. */
+    public PermissionCatalog getCatalog() {
+        return catalog;
+    }
+
     public Collection<RoleView> getRoles() {
         return Collections.unmodifiableCollection(byPath.values());
     }
