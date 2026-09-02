@@ -146,6 +146,22 @@ describe('Roles and permissions - creating, copying and deleting a role', () => 
         // The list indents a nested role and names the role it sits in.
         page.getRoleName(nested).should('contain', `inside editor`)
 
+        // The indent is asserted as rendered, not as markup. It regressed once already: the cell
+        // became a button, the button reset `padding` to 0, and at equal specificity the reset won on
+        // source order. Every sub-role sat flush with its parent while the class was still applied,
+        // so a test that only read the class name stayed green.
+        page.getRoleName(nested).then(($nested) => {
+            const indent = parseFloat($nested.css('padding-left'))
+            expect(indent, 'a nested role is indented').to.be.greaterThan(0)
+
+            page.getRoleName('editor').then(($parent) => {
+                expect(
+                    indent,
+                    'and it is indented further than the role it sits inside',
+                ).to.be.greaterThan(parseFloat($parent.css('padding-left')))
+            })
+        })
+
         cy.apolloClient()
             .apollo({ query: READ, variables: { role: nested } })
             .then((result) => {

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Mocha Tests" time="0.763" tests="3" failures="0">
-  <testsuite name="Root Suite" timestamp="2026-09-02T15:13:42" tests="0" file="cypress/e2e/rolesAndPermissions/rolesAndPermissionsApi.cy.ts" time="0.000" failures="0">
+<testsuites name="Mocha Tests" time="0.699" tests="3" failures="0">
+  <testsuite name="Root Suite" timestamp="2026-09-02T15:41:32" tests="0" file="cypress/e2e/rolesAndPermissions/rolesAndPermissionsApi.cy.ts" time="0.000" failures="0">
   </testsuite>
-  <testsuite name="Roles and permissions - the GraphQL permission gate" timestamp="2026-09-02T15:13:42" tests="3" time="0.707" failures="0">
-    <testcase name="Roles and permissions - the GraphQL permission gate answers a server administrator (positive control)" time="0.452" classname="answers a server administrator (positive control)">
+  <testsuite name="Roles and permissions - the GraphQL permission gate" timestamp="2026-09-02T15:41:32" tests="3" time="0.639" failures="0">
+    <testcase name="Roles and permissions - the GraphQL permission gate answers a server administrator (positive control)" time="0.419" classname="answers a server administrator (positive control)">
     </testcase>
-    <testcase name="Roles and permissions - the GraphQL permission gate answers root (positive control)" time="0.021" classname="answers root (positive control)">
+    <testcase name="Roles and permissions - the GraphQL permission gate answers root (positive control)" time="0.017" classname="answers root (positive control)">
     </testcase>
-    <testcase name="Roles and permissions - the GraphQL permission gate refuses a caller that clears the admin root but does not administer roles" time="0.016" classname="refuses a caller that clears the admin root but does not administer roles">
+    <testcase name="Roles and permissions - the GraphQL permission gate refuses a caller that clears the admin root but does not administer roles" time="0.014" classname="refuses a caller that clears the admin root but does not administer roles">
     </testcase>
   </testsuite>
 </testsuites>

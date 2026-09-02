@@ -5,9 +5,9 @@
     "passes": 3,
     "pending": 0,
     "failures": 0,
-    "start": "2026-09-02T15:13:42.207Z",
-    "end": "2026-09-02T15:13:42.970Z",
-    "duration": 763,
+    "start": "2026-09-02T15:41:32.480Z",
+    "end": "2026-09-02T15:41:33.179Z",
+    "duration": 699,
     "testsRegistered": 3,
     "passPercent": 100,
     "pendingPercent": 0,
@@ -18,7 +18,7 @@
   },
   "results": [
     {
-      "uuid": "ba937ba3-5e7b-4b4c-8443-3988174bf0c7",
+      "uuid": "fadab626-2301-4fa6-ae6a-58c7919d205b",
       "title": "",
       "fullFile": "cypress/e2e/rolesAndPermissions/rolesAndPermissionsApi.cy.ts",
       "file": "cypress/e2e/rolesAndPermissions/rolesAndPermissionsApi.cy.ts",
@@ -27,7 +27,7 @@
       "tests": [],
       "suites": [
         {
-          "uuid": "6e29f473-04fa-4c4d-a548-137ac8ce4404",
+          "uuid": "600d22eb-6f18-4b33-ab96-2bf18c9bd39c",
           "title": "Roles and permissions - the GraphQL permission gate",
           "fullFile": "",
           "file": "",
@@ -38,7 +38,7 @@
               "title": "answers a server administrator (positive control)",
               "fullTitle": "Roles and permissions - the GraphQL permission gate answers a server administrator (positive control)",
               "timedOut": null,
-              "duration": 452,
+              "duration": 419,
               "state": "passed",
               "speed": "fast",
               "pass": true,
@@ -47,8 +47,8 @@
               "context": null,
               "code": "callAs(serverAdmin, PASSWORD).then(function (_a) {\n    var roleGroups = _a.roleGroups, errorPath = _a.errorPath;\n    expect(errorPath, 'a server administrator must not be refused').to.be.undefined;\n    // Every Jahia instance seeds these two role groups in root-roles.xml, so the assertion names\n    // values rather than only a count. A count alone would pass on an unrelated list.\n    expect(roleGroups, 'the seeded role groups must be listed').to.include.members([\n        'edit-role',\n        'server-role',\n    ]);\n});",
               "err": {},
-              "uuid": "d9f1e850-2a2d-4cb9-85a1-5012c2df6d31",
-              "parentUUID": "6e29f473-04fa-4c4d-a548-137ac8ce4404",
+              "uuid": "b1ba0a77-fd18-4598-bbf9-f084a038e680",
+              "parentUUID": "600d22eb-6f18-4b33-ab96-2bf18c9bd39c",
               "isHook": false,
               "skipped": false
             },
@@ -56,7 +56,7 @@
               "title": "answers root (positive control)",
               "fullTitle": "Roles and permissions - the GraphQL permission gate answers root (positive control)",
               "timedOut": null,
-              "duration": 21,
+              "duration": 17,
               "state": "passed",
               "speed": "fast",
               "pass": true,
@@ -65,8 +65,8 @@
               "context": null,
               "code": "callAs('root', Cypress.env('SUPER_USER_PASSWORD')).then(function (_a) {\n    var roleGroups = _a.roleGroups, errorPath = _a.errorPath;\n    expect(errorPath, 'root must not be refused').to.be.undefined;\n    expect(roleGroups, 'the seeded role groups must be listed').to.include.members(['edit-role']);\n});",
               "err": {},
-              "uuid": "43b83f5b-e3ee-4568-98a0-d000b7094fc7",
-              "parentUUID": "6e29f473-04fa-4c4d-a548-137ac8ce4404",
+              "uuid": "30045355-a07d-47d4-9a7f-2e4f6791cd85",
+              "parentUUID": "600d22eb-6f18-4b33-ab96-2bf18c9bd39c",
               "isHook": false,
               "skipped": false
             },
@@ -74,7 +74,7 @@
               "title": "refuses a caller that clears the admin root but does not administer roles",
               "fullTitle": "Roles and permissions - the GraphQL permission gate refuses a caller that clears the admin root but does not administer roles",
               "timedOut": null,
-              "duration": 16,
+              "duration": 14,
               "state": "passed",
               "speed": "fast",
               "pass": true,
@@ -83,22 +83,22 @@
               "context": null,
               "code": "callAs(outsider, PASSWORD).then(function (_a) {\n    var roleGroups = _a.roleGroups, errorPath = _a.errorPath;\n    // The path is the assertion. `admin.rolesAndPermissions` says this module's gate turned the\n    // caller away; a bare `admin` would say the outer root did, and would tell us nothing here.\n    expect(errorPath, \"the refusal must come from this module's own gate\").to.eq('admin.rolesAndPermissions');\n    expect(roleGroups, 'no role group may be served to a caller that does not administer roles').to.be\n        .undefined;\n});",
               "err": {},
-              "uuid": "49306b7f-d706-447e-b06c-1be05061a217",
-              "parentUUID": "6e29f473-04fa-4c4d-a548-137ac8ce4404",
+              "uuid": "8281e810-ed06-4859-a829-2a2489010a53",
+              "parentUUID": "600d22eb-6f18-4b33-ab96-2bf18c9bd39c",
               "isHook": false,
               "skipped": false
             }
           ],
           "suites": [],
           "passes": [
-            "d9f1e850-2a2d-4cb9-85a1-5012c2df6d31",
-            "43b83f5b-e3ee-4568-98a0-d000b7094fc7",
-            "49306b7f-d706-447e-b06c-1be05061a217"
+            "b1ba0a77-fd18-4598-bbf9-f084a038e680",
+            "30045355-a07d-47d4-9a7f-2e4f6791cd85",
+            "8281e810-ed06-4859-a829-2a2489010a53"
           ],
           "failures": [],
           "pending": [],
           "skipped": [],
-          "duration": 489,
+          "duration": 450,
           "root": false,
           "rootEmpty": false,
           "_timeout": 2000

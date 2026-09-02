@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Mocha Tests" time="0.323" tests="8" failures="0">
-  <testsuite name="Root Suite" timestamp="2026-09-02T15:12:50" tests="0" file="cypress/e2e/rolesAndPermissions/permissionCatalog.cy.ts" time="0.000" failures="0">
+<testsuites name="Mocha Tests" time="0.339" tests="8" failures="0">
+  <testsuite name="Root Suite" timestamp="2026-09-02T15:40:41" tests="0" file="cypress/e2e/rolesAndPermissions/permissionCatalog.cy.ts" time="0.000" failures="0">
   </testsuite>
-  <testsuite name="Roles and permissions - the permission catalog" timestamp="2026-09-02T15:12:50" tests="8" time="0.236" failures="0">
-    <testcase name="Roles and permissions - the permission catalog reports no ambiguous name, which is what licenses the merge by logical path" time="0.131" classname="reports no ambiguous name, which is what licenses the merge by logical path">
+  <testsuite name="Roles and permissions - the permission catalog" timestamp="2026-09-02T15:40:41" tests="8" time="0.257" failures="0">
+    <testcase name="Roles and permissions - the permission catalog reports no ambiguous name, which is what licenses the merge by logical path" time="0.151" classname="reports no ambiguous name, which is what licenses the merge by logical path">
     </testcase>
-    <testcase name="Roles and permissions - the permission catalog holds every permission of the instance" time="0.004" classname="holds every permission of the instance">
+    <testcase name="Roles and permissions - the permission catalog holds every permission of the instance" time="0.005" classname="holds every permission of the instance">
     </testcase>
-    <testcase name="Roles and permissions - the permission catalog lists the areas core seeds, in the order core declares them" time="0.006" classname="lists the areas core seeds, in the order core declares them">
+    <testcase name="Roles and permissions - the permission catalog lists the areas core seeds, in the order core declares them" time="0.004" classname="lists the areas core seeds, in the order core declares them">
     </testcase>
-    <testcase name="Roles and permissions - the permission catalog keeps the logical parent of a permission, and never re-parents one" time="0.008" classname="keeps the logical parent of a permission, and never re-parents one">
+    <testcase name="Roles and permissions - the permission catalog keeps the logical parent of a permission, and never re-parents one" time="0.007" classname="keeps the logical parent of a permission, and never re-parents one">
     </testcase>
     <testcase name="Roles and permissions - the permission catalog reads the workspace facet from the name suffix" time="0.004" classname="reads the workspace facet from the name suffix">
     </testcase>
-    <testcase name="Roles and permissions - the permission catalog records the module that declares a permission, and records none for a core-only one" time="0.004" classname="records the module that declares a permission, and records none for a core-only one">
+    <testcase name="Roles and permissions - the permission catalog records the module that declares a permission, and records none for a core-only one" time="0.003" classname="records the module that declares a permission, and records none for a core-only one">
     </testcase>
     <testcase name="Roles and permissions - the permission catalog gives every permission a readable label" time="0.115" classname="gives every permission a readable label">
     </testcase>

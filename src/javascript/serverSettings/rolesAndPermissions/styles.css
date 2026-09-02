@@ -186,9 +186,17 @@
     min-width: 0;
 }
 
-/* A sub-role is indented, so the chain that decides what it adds to reads at a glance. */
-.subRoleName {
+/*
+ * A sub-role is indented, so the chain that decides what it adds to reads at a glance.
+ *
+ * The selector names both classes on purpose. The cell is a button, and `.roleNameButton` resets
+ * `padding` to 0 further down this file, which at equal specificity wins on source order and left
+ * every sub-role flush with its parent. Two classes outrank one wherever the reset sits.
+ */
+.roleNameButton.subRoleName {
     padding-left: var(--spacing-medium, 24px);
+    border-left: 2px solid var(--color-gray, #c9c9c9);
+    margin-left: var(--spacing-nano, 4px);
 }
 
 .roleTechnicalName {

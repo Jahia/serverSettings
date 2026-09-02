@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Mocha Tests" time="5.505" tests="7" failures="0">
-  <testsuite name="Root Suite" timestamp="2026-09-02T15:13:32" tests="0" file="cypress/e2e/rolesAndPermissions/roleList.cy.ts" time="0.000" failures="0">
+<testsuites name="Mocha Tests" time="4.664" tests="7" failures="0">
+  <testsuite name="Root Suite" timestamp="2026-09-02T15:41:23" tests="0" file="cypress/e2e/rolesAndPermissions/roleList.cy.ts" time="0.000" failures="0">
   </testsuite>
-  <testsuite name="Roles and permissions - the role list" timestamp="2026-09-02T15:13:32" tests="7" time="5.424" failures="0">
-    <testcase name="Roles and permissions - the role list lists the roles of the instance, including the ones hidden from the picker" time="1.572" classname="lists the roles of the instance, including the ones hidden from the picker">
+  <testsuite name="Roles and permissions - the role list" timestamp="2026-09-02T15:41:23" tests="7" time="4.584" failures="0">
+    <testcase name="Roles and permissions - the role list lists the roles of the instance, including the ones hidden from the picker" time="1.440" classname="lists the roles of the instance, including the ones hidden from the picker">
     </testcase>
-    <testcase name="Roles and permissions - the role list states the scope of a role, and where the role can be granted" time="0.541" classname="states the scope of a role, and where the role can be granted">
+    <testcase name="Roles and permissions - the role list states the scope of a role, and where the role can be granted" time="0.467" classname="states the scope of a role, and where the role can be granted">
     </testcase>
-    <testcase name="Roles and permissions - the role list states what a role names, how far that reaches, and how much comes from the parent role" time="0.621" classname="states what a role names, how far that reaches, and how much comes from the parent role">
+    <testcase name="Roles and permissions - the role list states what a role names, how far that reaches, and how much comes from the parent role" time="0.483" classname="states what a role names, how far that reaches, and how much comes from the parent role">
     </testcase>
-    <testcase name="Roles and permissions - the role list reports a role as privileged when only an ancestor role sets the property" time="0.485" classname="reports a role as privileged when only an ancestor role sets the property">
+    <testcase name="Roles and permissions - the role list reports a role as privileged when only an ancestor role sets the property" time="0.364" classname="reports a role as privileged when only an ancestor role sets the property">
     </testcase>
-    <testcase name="Roles and permissions - the role list warns about a granted permission no module declares" time="0.609" classname="warns about a granted permission no module declares">
+    <testcase name="Roles and permissions - the role list warns about a granted permission no module declares" time="0.376" classname="warns about a granted permission no module declares">
     </testcase>
-    <testcase name="Roles and permissions - the role list narrows the list by scope, and the excluded role disappears" time="0.595" classname="narrows the list by scope, and the excluded role disappears">
+    <testcase name="Roles and permissions - the role list narrows the list by scope, and the excluded role disappears" time="0.639" classname="narrows the list by scope, and the excluded role disappears">
     </testcase>
-    <testcase name="Roles and permissions - the role list narrows the list by a search on the role name" time="0.910" classname="narrows the list by a search on the role name">
+    <testcase name="Roles and permissions - the role list narrows the list by a search on the role name" time="0.729" classname="narrows the list by a search on the role name">
     </testcase>
   </testsuite>
 </testsuites>
