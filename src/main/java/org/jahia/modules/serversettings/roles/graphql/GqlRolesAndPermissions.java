@@ -66,7 +66,7 @@ public class GqlRolesAndPermissions {
         return model.getRoles().stream()
                 .filter(role -> roleGroup == null || roleGroup.equals(role.getRoleGroup()))
                 .filter(role -> hidden || !role.isHidden())
-                .map(role -> new GqlRole(model, role))
+                .map(role -> new GqlRole(model, role, rolesAndPermissionsService))
                 .collect(Collectors.toList());
     }
 
@@ -86,7 +86,7 @@ public class GqlRolesAndPermissions {
             throws RepositoryException {
         RoleModel model = roleModel();
         RoleView role = model.get(name);
-        return role == null ? null : new GqlRole(model, role);
+        return role == null ? null : new GqlRole(model, role, rolesAndPermissionsService);
     }
 
     private PermissionCatalog catalog() throws RepositoryException {

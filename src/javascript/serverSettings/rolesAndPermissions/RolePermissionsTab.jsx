@@ -2,14 +2,17 @@ import React, {useMemo, useState} from 'react';
 import PropTypes from 'prop-types';
 import {useApolloClient, useMutation} from 'react-apollo';
 import {useTranslation} from 'react-i18next';
-import {Button, Checkbox, Chip, EmptyData, SearchInput, Typography} from '@jahia/moonstone';
+import {Add, Button, Checkbox, Chip, Delete, EmptyData, Input, SearchInput, Typography} from '@jahia/moonstone';
 import {
+    ADD_TARGET,
     COLLAPSE_PERMISSION,
     GET_COLLAPSE_PLAN,
     GET_REVOKE_PLAN,
     GRANT_PERMISSIONS,
+    REMOVE_TARGET,
     REVOKE_PERMISSION
 } from './RolesAndPermissions.gql-queries';
+import ConfirmDestructiveDialog from './ConfirmDestructiveDialog';
 import PermissionChangeDialog from './PermissionChangeDialog';
 import classes from './styles.css';
 
@@ -39,10 +42,14 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
     const [search, setSearch] = useState('');
     const [change, setChange] = useState(null);
     const [notice, setNotice] = useState(null);
+    const [newTargetPath, setNewTargetPath] = useState('');
+    const [pendingTargetRemoval, setPendingTargetRemoval] = useState(null);
 
     const [grant] = useMutation(GRANT_PERMISSIONS);
     const [revoke] = useMutation(REVOKE_PERMISSION);
     const [collapse] = useMutation(COLLAPSE_PERMISSION);
+    const [addTarget] = useMutation(ADD_TARGET);
+    const [removeTarget] = useMutation(REMOVE_TARGET);
 
     const target = role.grants.find(candidate => candidate.id === targetId) || role.grants[0];
 
@@ -167,6 +174,26 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
         applyResult(answer, kind);
     };
 
+    const onAddTarget = async () => {
+        const path = newTargetPath.trim();
+        if (path === '') {
+            return;
+        }
+
+        await addTarget({variables: {role: role.name, path}});
+        setNewTargetPath('');
+        onChanged();
+    };
+
+    // Removing a target drops the whole permission set it holds, and nothing brings it back. So the
+    // confirmation lists what goes rather than asking whether the administrator is sure.
+    const onRemoveTarget = async () => {
+        await removeTarget({variables: {role: role.name, target: pendingTargetRemoval.id}});
+        setPendingTargetRemoval(null);
+        setTargetId('');
+        onChanged();
+    };
+
     const targetLabel = candidate => {
         if (candidate.kind === 'CURRENT_NODE') {
             return t('rolesAndPermissions.target.currentNode');
@@ -207,12 +234,39 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
                         data-testid={`role-target-${candidate.id || 'currentNode'}`}
                         onClick={() => setTargetId(candidate.id)}/>
                 ))}
-                {target.isInheritedOnly ?
-                    <Typography variant="caption" data-testid="role-target-inherited-only">
-                        {t('rolesAndPermissions.detail.targetInheritedOnly')}
-                    </Typography> :
+                <Input
+                    className={classes.targetInput}
+                    value={newTargetPath}
+                    placeholder={t('rolesAndPermissions.detail.newTargetPlaceholder')}
+                    data-testid="role-new-target-path"
+                    onChange={event => setNewTargetPath(event.target.value)}/>
+                <Button
+                    size="default"
+                    variant="outlined"
+                    icon={<Add/>}
+                    isDisabled={newTargetPath.trim() === ''}
+                    label={t('rolesAndPermissions.detail.addTarget')}
+                    data-testid="role-add-target"
+                    onClick={onAddTarget}/>
+
+                {target.kind !== 'CURRENT_NODE' && !target.isInheritedOnly ?
+                    <Button
+                        size="default"
+                        variant="ghost"
+                        icon={<Delete/>}
+                        label={t('rolesAndPermissions.detail.removeTarget')}
+                        data-testid={`role-remove-target-${target.id}`}
+                        onClick={() => setPendingTargetRemoval(target)}/> :
                     null}
             </div>
+
+            {target.isInheritedOnly ?
+                <div className={classes.targetBar} data-testid="role-target-inherited-only">
+                    <Typography variant="caption">
+                        {t('rolesAndPermissions.detail.targetInheritedOnly')}
+                    </Typography>
+                </div> :
+                null}
 
             {notice ?
                 <div className={classes.targetBar} data-testid="role-permissions-notice">
@@ -327,6 +381,26 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
                 change={change}
                 onCancel={() => setChange(null)}
                 onConfirm={confirmChange}/>
+
+            {pendingTargetRemoval ?
+                <ConfirmDestructiveDialog
+                    title={t('rolesAndPermissions.confirm.removeTargetTitle')}
+                    confirmLabel={t('rolesAndPermissions.confirm.removeTargetConfirm')}
+                    message={t('rolesAndPermissions.confirm.removeTargetMessage', {
+                        path: pendingTargetRemoval.path
+                    })}
+                    consequences={[
+                        t('rolesAndPermissions.confirm.removeTargetPermissions', {
+                            count: pendingTargetRemoval.directPermissions.length,
+                            names: pendingTargetRemoval.directPermissions.join(', ')
+                        })
+                    ]}
+                    confirmWord={pendingTargetRemoval.directPermissions.length > 0 ?
+                        pendingTargetRemoval.path :
+                        null}
+                    onCancel={() => setPendingTargetRemoval(null)}
+                    onConfirm={onRemoveTarget}/> :
+                null}
         </div>
     );
 };

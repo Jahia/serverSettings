@@ -1,0 +1,183 @@
+{
+  "stats": {
+    "suites": 1,
+    "tests": 5,
+    "passes": 5,
+    "pending": 0,
+    "failures": 0,
+    "start": "2026-09-02T15:12:40.598Z",
+    "end": "2026-09-02T15:12:48.900Z",
+    "duration": 8302,
+    "testsRegistered": 5,
+    "passPercent": 100,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false
+  },
+  "results": [
+    {
+      "uuid": "03415562-30e0-4592-b6df-4c733ab25fc4",
+      "title": "",
+      "fullFile": "cypress/e2e/rolesAndPermissions/destructiveActions.cy.ts",
+      "file": "cypress/e2e/rolesAndPermissions/destructiveActions.cy.ts",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [],
+      "suites": [
+        {
+          "uuid": "4b966406-c2b2-409f-971c-3c7604bfdee2",
+          "title": "Roles and permissions - nothing irreversible happens on one click",
+          "fullFile": "",
+          "file": "",
+          "beforeHooks": [],
+          "afterHooks": [],
+          "tests": [
+            {
+              "title": "does not delete a seeded role on one click, and says who would lose access",
+              "fullTitle": "Roles and permissions - nothing irreversible happens on one click does not delete a seeded role on one click, and says who would lose access",
+              "timedOut": null,
+              "duration": 1963,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "var page = RoleListPage_1.RoleListPage.visit();\ncy.get('[data-testid=\"role-delete-reader\"]').click();\n// The role is still there while the dialog is open, which is the whole point.\ndialog.root().should('be.visible');\npage.getRoleName('reader').should('be.visible');\ndialog.message().should('contain', 'cannot be undone');\n// The dangerous fact, named: the entries stay behind and stop granting anything.\ndialog\n    .consequences()\n    .should('contain', 'access control entries grant this role')\n    .and('contain', 'u:guest')\n    .and('contain', 'grant nothing');\n// Confirming is blocked until the name is typed, so a stray click cannot reach it.\ndialog.confirm().should('be.disabled');\ndialog.expected().should('have.text', 'reader');\ndialog.cancel().click();\ndialog.root().should('not.exist');\n// The repository is untouched, and the entries that grant the role are still there.\nreadRole('reader').then(function (role) {\n    expect(role, 'the role is still in the repository').to.not.be.null;\n    expect(role.usage.entryCount, 'and it is still granted').to.be.greaterThan(0);\n});",
+              "err": {},
+              "uuid": "282fc8a3-922a-4af6-aad5-a4dc3e4f72ce",
+              "parentUUID": "4b966406-c2b2-409f-971c-3c7604bfdee2",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "refuses to delete until the typed name matches exactly",
+              "fullTitle": "Roles and permissions - nothing irreversible happens on one click refuses to delete until the typed name matches exactly",
+              "timedOut": null,
+              "duration": 1195,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "RoleListPage_1.RoleListPage.visit();\ncy.get('[data-testid=\"role-delete-reader\"]').click();\n// A role name is case-sensitive, so an upper-case spelling must not unlock the action.\ndialog.word().type('READER');\ndialog.confirm().should('be.disabled');\ndialog.word().clear();\ndialog.word().type('reader');\ndialog.confirm().should('not.be.disabled');\ndialog.cancel().click();\nreadRole('reader').should('not.be.null');",
+              "err": {},
+              "uuid": "52414e4a-fdce-4f75-b40f-d2db8f4a9a25",
+              "parentUUID": "4b966406-c2b2-409f-971c-3c7604bfdee2",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "asks once, and no typing, for a role nobody holds",
+              "fullTitle": "Roles and permissions - nothing irreversible happens on one click asks once, and no typing, for a role nobody holds",
+              "timedOut": null,
+              "duration": 1913,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "var page = RoleListPage_1.RoleListPage.visit();\ncy.get(\"[data-testid=\\\"role-delete-\".concat(unused, \"\\\"]\")).click();\n// Nothing is lost here, so the friction stops at one confirmation.\ndialog.consequences().should('contain', 'nobody loses access');\ncy.get('[data-testid=\"confirm-destructive-expected\"]').should('not.exist');\ndialog.confirm().should('not.be.disabled');\ndialog.cancel().click();\npage.getRoleName(unused).should('be.visible');",
+              "err": {},
+              "uuid": "3b3abe34-fc7f-4a4b-a8e0-1e02fa008a39",
+              "parentUUID": "4b966406-c2b2-409f-971c-3c7604bfdee2",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "does not remove a target on one click, and lists the permissions that would go",
+              "fullTitle": "Roles and permissions - nothing irreversible happens on one click does not remove a target on one click, and lists the permissions that would go",
+              "timedOut": null,
+              "duration": 1271,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "var page = RoleDetailPage_1.RoleDetailPage.visit(withTarget).openPermissionsTab();\npage.selectTarget('currentSite-access');\ncy.get('[data-testid=\"role-remove-target-currentSite-access\"]').click();\ndialog.root().should('be.visible');\ndialog.message().should('contain', 'currentSite');\ndialog.consequences().should('contain', 'jContentAccess');\n// The target names a permission, so the path has to be typed.\ndialog.confirm().should('be.disabled');\ndialog.cancel().click();\nreadRole(withTarget).then(function (role) {\n    var target = role.grants.find(function (grant) { return grant.id === 'currentSite-access'; });\n    expect(target, 'the target is still there').to.not.be.undefined;\n    expect(target.directPermissions, 'with its permission').to.deep.eq(['jContentAccess']);\n});",
+              "err": {},
+              "uuid": "4cc29f75-e7bf-46da-a86a-98ed097e958c",
+              "parentUUID": "4b966406-c2b2-409f-971c-3c7604bfdee2",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "removes the target once the path is typed, and only then",
+              "fullTitle": "Roles and permissions - nothing irreversible happens on one click removes the target once the path is typed, and only then",
+              "timedOut": null,
+              "duration": 1835,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "var page = RoleDetailPage_1.RoleDetailPage.visit(withTarget).openPermissionsTab();\npage.selectTarget('currentSite-access');\ncy.get('[data-testid=\"role-remove-target-currentSite-access\"]').click();\ndialog.word().type('currentSite');\ndialog.confirm().click();\ndialog.root().should('not.exist');\nreadRole(withTarget).then(function (role) {\n    expect(role.grants.find(function (grant) { return grant.id === 'currentSite-access'; }), 'the target is gone').to.be.undefined;\n});",
+              "err": {},
+              "uuid": "8e2dda83-a660-4679-b659-11c0d53d128b",
+              "parentUUID": "4b966406-c2b2-409f-971c-3c7604bfdee2",
+              "isHook": false,
+              "skipped": false
+            }
+          ],
+          "suites": [],
+          "passes": [
+            "282fc8a3-922a-4af6-aad5-a4dc3e4f72ce",
+            "52414e4a-fdce-4f75-b40f-d2db8f4a9a25",
+            "3b3abe34-fc7f-4a4b-a8e0-1e02fa008a39",
+            "4cc29f75-e7bf-46da-a86a-98ed097e958c",
+            "8e2dda83-a660-4679-b659-11c0d53d128b"
+          ],
+          "failures": [],
+          "pending": [],
+          "skipped": [],
+          "duration": 8177,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 2000
+        }
+      ],
+      "passes": [],
+      "failures": [],
+      "pending": [],
+      "skipped": [],
+      "duration": 0,
+      "root": true,
+      "rootEmpty": true,
+      "_timeout": 2000
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "7.2.0"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "cypress",
+        "saveHtml": false,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false,
+        "code": true
+      },
+      "version": "7.1.3"
+    },
+    "marge": {
+      "options": {
+        "id": "default",
+        "reportDir": "./results/reports/",
+        "reportFilename": "cypress",
+        "overwrite": false,
+        "html": false,
+        "json": true
+      },
+      "version": "6.2.0"
+    }
+  }
+}

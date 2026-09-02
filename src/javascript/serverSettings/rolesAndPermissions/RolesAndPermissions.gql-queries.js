@@ -57,6 +57,11 @@ export const GET_ROLES = gql`
                         code
                         subject
                     }
+                    usage {
+                        entryCount
+                        principals
+                        isTruncated
+                    }
                     grants {
                         id
                         kind

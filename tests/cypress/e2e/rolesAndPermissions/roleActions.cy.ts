@@ -172,6 +172,12 @@ describe('Roles and permissions - creating, copying and deleting a role', () => 
     it('deletes a role, and the list stops showing it', () => {
         const page = RoleListPage.visit()
         cy.get(`[data-testid="role-delete-${copy}"]`).click()
+
+        // Deleting asks first, always. This role names permissions but nobody holds it, so one
+        // confirmation is enough and no name has to be typed. destructiveActions.cy.ts covers the
+        // refusals and the name gate.
+        cy.get('[data-testid="confirm-destructive-confirm"]').click()
+
         cy.get(`[data-testid="role-name-${copy}"]`).should('not.exist')
 
         // The role is gone from the repository too, and not only from the table.

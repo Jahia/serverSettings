@@ -1,0 +1,183 @@
+{
+  "stats": {
+    "suites": 1,
+    "tests": 5,
+    "passes": 5,
+    "pending": 0,
+    "failures": 0,
+    "start": "2026-09-02T15:13:24.114Z",
+    "end": "2026-09-02T15:13:30.057Z",
+    "duration": 5943,
+    "testsRegistered": 5,
+    "passPercent": 100,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false
+  },
+  "results": [
+    {
+      "uuid": "fa3d25ea-6c23-4d3f-96a6-6bffad528358",
+      "title": "",
+      "fullFile": "cypress/e2e/rolesAndPermissions/roleIdentity.cy.ts",
+      "file": "cypress/e2e/rolesAndPermissions/roleIdentity.cy.ts",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [],
+      "suites": [
+        {
+          "uuid": "a9b1b639-13ec-484e-969a-ebc197617b67",
+          "title": "Roles and permissions - the identity tab",
+          "fullFile": "",
+          "file": "",
+          "beforeHooks": [],
+          "afterHooks": [],
+          "tests": [
+            {
+              "title": "writes the title in the interface language, where a per-language read finds it",
+              "fullTitle": "Roles and permissions - the identity tab writes the title in the interface language, where a per-language read finds it",
+              "timedOut": null,
+              "duration": 2119,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "var page = RoleDetailPage_1.RoleDetailPage.visit(role).openIdentityTab();\npage.getTitleInput().clear();\npage.getTitleInput().type('Content reviewer');\npage.saveIdentity();\n// The read asks for the title per language. A write that landed on the role node rather than\n// on the translation child would answer null here, which is the defect this test exists for.\nread().then(function (saved) {\n    expect(saved.en, 'the English title must be readable').to.eq('Content reviewer');\n    expect(saved.translatedLanguages, 'and the language must be listed').to.include('en');\n    expect(saved.fr, 'another language keeps its own value, which is none here').to.be.null;\n});",
+              "err": {},
+              "uuid": "67fc162a-a998-421d-8e81-bb05b77f32fe",
+              "parentUUID": "a9b1b639-13ec-484e-969a-ebc197617b67",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "writes the node types the role can be granted on",
+              "fullTitle": "Roles and permissions - the identity tab writes the node types the role can be granted on",
+              "timedOut": null,
+              "duration": 1217,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "var page = RoleDetailPage_1.RoleDetailPage.visit(role).openIdentityTab();\npage.getNodeTypesInput().clear();\npage.getNodeTypesInput().type('rep:root, jnt:virtualsite');\npage.saveIdentity();\nread().then(function (saved) {\n    expect(saved.nodeTypes, 'both node types are stored, and the spaces are trimmed').to.deep.eq([\n        'rep:root',\n        'jnt:virtualsite',\n    ]);\n});",
+              "err": {},
+              "uuid": "e46cbced-4aaf-4df9-b905-54082cb15041",
+              "parentUUID": "a9b1b639-13ec-484e-969a-ebc197617b67",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "writes the visibility and the privileged access",
+              "fullTitle": "Roles and permissions - the identity tab writes the visibility and the privileged access",
+              "timedOut": null,
+              "duration": 953,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "var page = RoleDetailPage_1.RoleDetailPage.visit(role).openIdentityTab();\ncy.get('[data-testid=\"role-hidden-switch\"]').click();\ncy.get('[data-testid=\"role-privileged-switch\"]').click();\npage.saveIdentity();\nread().then(function (saved) {\n    expect(saved.isHidden, 'the role is hidden from the access control picker').to.be.true;\n    expect(saved.hasPrivilegedAccess, 'and granting it makes the principal privileged').to.be.true;\n});",
+              "err": {},
+              "uuid": "dadf04bc-d008-48d1-b05d-e03c8a90ad41",
+              "parentUUID": "a9b1b639-13ec-484e-969a-ebc197617b67",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "states that a role is privileged through its parent, whatever its own switch says",
+              "fullTitle": "Roles and permissions - the identity tab states that a role is privileged through its parent, whatever its own switch says",
+              "timedOut": null,
+              "duration": 715,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "var child = \"rpIdentityChild\".concat(uniq);\ncy.apolloClient().apollo({\n    mutation: (0, graphql_tag_1.default)(templateObject_4 || (templateObject_4 = __makeTemplateObject([\"\\n                mutation CreateChild($name: String!) {\\n                    admin {\\n                        rolesAndPermissions {\\n                            createRole(name: $name, parentRole: \\\"editor\\\", roleGroup: \\\"edit-role\\\")\\n                        }\\n                    }\\n                }\\n            \"], [\"\\n                mutation CreateChild($name: String!) {\\n                    admin {\\n                        rolesAndPermissions {\\n                            createRole(name: $name, parentRole: \\\"editor\\\", roleGroup: \\\"edit-role\\\")\\n                        }\\n                    }\\n                }\\n            \"]))),\n    variables: { name: child },\n});\nRoleDetailPage_1.RoleDetailPage.visit(child).openIdentityTab();\n// editor sets j:privilegedAccess and this role does not. AclListener reads the whole chain, so\n// the switch being off would mislead an administrator on its own.\ncy.get('[data-testid=\"role-privileged-switch\"]').should('not.be.checked');\ncy.get('[data-testid=\"role-privileged-field\"]').should('contain', 'privileged through editor');\ncy.apolloClient().apollo({ mutation: DELETE, variables: { role: child } });",
+              "err": {},
+              "uuid": "5634d9df-576d-4a0c-8255-61a2a0e05e9c",
+              "parentUUID": "a9b1b639-13ec-484e-969a-ebc197617b67",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "goes back to the list, and the list is the one the route rendered before",
+              "fullTitle": "Roles and permissions - the identity tab goes back to the list, and the list is the one the route rendered before",
+              "timedOut": null,
+              "duration": 830,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "var page = RoleDetailPage_1.RoleDetailPage.visit(role).openIdentityTab();\npage.back();\ncy.get(\"[data-testid=\\\"role-name-\".concat(role, \"\\\"]\")).should('be.visible');",
+              "err": {},
+              "uuid": "9b5686c7-056a-400c-9a25-58c814cba37f",
+              "parentUUID": "a9b1b639-13ec-484e-969a-ebc197617b67",
+              "isHook": false,
+              "skipped": false
+            }
+          ],
+          "suites": [],
+          "passes": [
+            "67fc162a-a998-421d-8e81-bb05b77f32fe",
+            "e46cbced-4aaf-4df9-b905-54082cb15041",
+            "dadf04bc-d008-48d1-b05d-e03c8a90ad41",
+            "5634d9df-576d-4a0c-8255-61a2a0e05e9c",
+            "9b5686c7-056a-400c-9a25-58c814cba37f"
+          ],
+          "failures": [],
+          "pending": [],
+          "skipped": [],
+          "duration": 5834,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 2000
+        }
+      ],
+      "passes": [],
+      "failures": [],
+      "pending": [],
+      "skipped": [],
+      "duration": 0,
+      "root": true,
+      "rootEmpty": true,
+      "_timeout": 2000
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "7.2.0"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "cypress",
+        "saveHtml": false,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false,
+        "code": true
+      },
+      "version": "7.1.3"
+    },
+    "marge": {
+      "options": {
+        "id": "default",
+        "reportDir": "./results/reports/",
+        "reportFilename": "cypress",
+        "overwrite": false,
+        "html": false,
+        "json": true
+      },
+      "version": "6.2.0"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="5.256" tests="7" failures="0">
+  <testsuite name="Root Suite" timestamp="2026-09-02T15:13:06" tests="0" file="cypress/e2e/rolesAndPermissions/permissionExplorer.cy.ts" time="0.000" failures="0">
+  </testsuite>
+  <testsuite name="Roles and permissions - the permission explorer" timestamp="2026-09-02T15:13:06" tests="7" time="5.166" failures="0">
+    <testcase name="Roles and permissions - the permission explorer lists the permissions of the instance, and states how many the filters keep" time="1.469" classname="lists the permissions of the instance, and states how many the filters keep">
+    </testcase>
+    <testcase name="Roles and permissions - the permission explorer narrows the list by a search on the permission name" time="0.802" classname="narrows the list by a search on the permission name">
+    </testcase>
+    <testcase name="Roles and permissions - the permission explorer narrows the list by workspace, and the excluded permission disappears" time="0.799" classname="narrows the list by workspace, and the excluded permission disappears">
+    </testcase>
+    <testcase name="Roles and permissions - the permission explorer states the repository path of a permission, and the modules that declare it" time="0.478" classname="states the repository path of a permission, and the modules that declare it">
+    </testcase>
+    <testcase name="Roles and permissions - the permission explorer names the roles that grant a permission, and why each one grants it" time="0.485" classname="names the roles that grant a permission, and why each one grants it">
+    </testcase>
+    <testcase name="Roles and permissions - the permission explorer says a permission is aggregated, and lists what it aggregates" time="0.672" classname="says a permission is aggregated, and lists what it aggregates">
+    </testcase>
+    <testcase name="Roles and permissions - the permission explorer shows no detail until a permission is selected" time="0.400" classname="shows no detail until a permission is selected">
+    </testcase>
+  </testsuite>
+</testsuites>

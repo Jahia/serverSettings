@@ -208,4 +208,17 @@ public interface RolesAndPermissionsService {
      */
     void setRoleText(String roleName, String language, String title, String description)
             throws RepositoryException;
+
+    /**
+     * Who currently holds the given role.
+     * <p>
+     * Read this before offering to delete a role. An access control entry holds a role NAME, and
+     * deleting the role node leaves those entries naming a role the repository no longer has. They
+     * then grant nothing, and nobody is told.
+     *
+     * @param roleName the role
+     * @return the usage, never null
+     * @throws RepositoryException when the query fails
+     */
+    RoleUsage getRoleUsage(String roleName) throws RepositoryException;
 }

@@ -5,11 +5,20 @@ import {useTranslation} from 'react-i18next';
 import {Add, Banner, Button, Chip, Copy, DataTable, Delete, EmptyData, Header, LayoutContent, Loader, Paper, SearchInput, Typography} from '@jahia/moonstone';
 import {stringColumn} from '@jahia/moonstone/DataTable';
 import {CREATE_ROLE, DELETE_ROLE, DUPLICATE_ROLE, GET_ROLES} from './RolesAndPermissions.gql-queries';
+import ConfirmDestructiveDialog from './ConfirmDestructiveDialog';
 import RoleNameDialog from './RoleNameDialog';
 import RoleWarnings from './RoleWarnings';
 import classes from './styles.css';
 
 const ANY_SCOPE = '';
+
+/**
+ * True when deleting the role takes something away, so the name has to be typed.
+ *
+ * A role nobody holds and that nothing is nested inside can be deleted with one confirmation. A role
+ * somebody holds, or one with roles nested inside it, cannot be brought back.
+ */
+const isCostlyDelete = role => role.usage.entryCount > 0 || role.subRoleNames.length > 0;
 
 /** The roles the search and the scope chip keep. */
 const filterRoles = (roles, search, scope) => {
@@ -30,12 +39,41 @@ const filterRoles = (roles, search, scope) => {
 
 export const RoleList = ({onOpenRole}) => {
     const {t, i18n} = useTranslation('serverSettings');
+
+    /** What deleting the role takes away, stated one fact per line. */
+    const deleteConsequences = role => {
+        const lines = [];
+        if (role.usage.entryCount > 0) {
+            lines.push(t('rolesAndPermissions.confirm.deleteHeld', {
+                count: role.usage.entryCount,
+                principals: role.usage.principals.join(', ') + (role.usage.isTruncated ? '…' : '')
+            }));
+        } else {
+            lines.push(t('rolesAndPermissions.confirm.deleteUnused'));
+        }
+
+        if (role.subRoleNames.length > 0) {
+            lines.push(t('rolesAndPermissions.confirm.deleteSubRoles', {
+                names: role.subRoleNames.join(', ')
+            }));
+        }
+
+        if (role.directPermissionNames.length > 0) {
+            lines.push(t('rolesAndPermissions.confirm.deletePermissions', {
+                count: role.directPermissionNames.length
+            }));
+        }
+
+        return lines;
+    };
+
     const language = i18n.language || 'en';
 
     const [search, setSearch] = useState('');
     const [scope, setScope] = useState(ANY_SCOPE);
     const [dialog, setDialog] = useState(null);
     const [dialogError, setDialogError] = useState(null);
+    const [pendingDelete, setPendingDelete] = useState(null);
 
     const {data, loading, error, refetch} = useQuery(GET_ROLES, {
         variables: {language},
@@ -64,10 +102,20 @@ export const RoleList = ({onOpenRole}) => {
         }
     };
 
-    const removeRole = useCallback(async roleName => {
-        await deleteRole({variables: {role: roleName}});
-        refetch();
-    }, [deleteRole, refetch]);
+    // Deleting a role cannot be undone, and it can take access away from people without telling
+    // them: an access control entry holds a role NAME, and the entry stays behind naming a role the
+    // repository no longer has. So the confirmation states that, and asks for the name to be typed
+    // whenever something is actually lost.
+    const removeRole = useCallback(async () => {
+        setDialogError(null);
+        try {
+            await deleteRole({variables: {role: pendingDelete.name}});
+            setPendingDelete(null);
+            refetch();
+        } catch (mutationError) {
+            setDialogError(mutationError.message);
+        }
+    }, [deleteRole, refetch, pendingDelete]);
 
     const answer = data?.admin?.rolesAndPermissions;
     const roles = useMemo(() => answer?.roles || [], [answer]);
@@ -199,11 +247,14 @@ export const RoleList = ({onOpenRole}) => {
                         variant="ghost"
                         icon={<Delete/>}
                         data-testid={`role-delete-${role.name}`}
-                        onClick={() => removeRole(role.name)}/>
+                        onClick={() => {
+                            setDialogError(null);
+                            setPendingDelete(role);
+                        }}/>
                 </span>
             )
         }
-    ], [t, onOpenRole, removeRole]);
+    ], [t, onOpenRole]);
 
     const content = () => {
         if (error) {
@@ -302,6 +353,20 @@ export const RoleList = ({onOpenRole}) => {
                     </div>
 
                     {content()}
+
+                    {pendingDelete ?
+                        <ConfirmDestructiveDialog
+                            title={t('rolesAndPermissions.confirm.deleteTitle', {role: pendingDelete.name})}
+                            message={t('rolesAndPermissions.confirm.deleteMessage', {
+                                role: pendingDelete.name
+                            })}
+                            confirmLabel={t('rolesAndPermissions.confirm.deleteConfirm')}
+                            consequences={deleteConsequences(pendingDelete)}
+                            confirmWord={isCostlyDelete(pendingDelete) ? pendingDelete.name : null}
+                            error={dialogError}
+                            onCancel={() => setPendingDelete(null)}
+                            onConfirm={removeRole}/> :
+                        null}
 
                     {dialog ?
                         <RoleNameDialog

@@ -1,0 +1,221 @@
+{
+  "stats": {
+    "suites": 1,
+    "tests": 7,
+    "passes": 7,
+    "pending": 0,
+    "failures": 0,
+    "start": "2026-09-02T15:13:06.736Z",
+    "end": "2026-09-02T15:13:11.992Z",
+    "duration": 5256,
+    "testsRegistered": 7,
+    "passPercent": 100,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false
+  },
+  "results": [
+    {
+      "uuid": "8a09c126-8910-41a7-a96e-f1815511059f",
+      "title": "",
+      "fullFile": "cypress/e2e/rolesAndPermissions/permissionExplorer.cy.ts",
+      "file": "cypress/e2e/rolesAndPermissions/permissionExplorer.cy.ts",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [],
+      "suites": [
+        {
+          "uuid": "64bb9824-c927-4cef-aa13-4a47cf276ad5",
+          "title": "Roles and permissions - the permission explorer",
+          "fullFile": "",
+          "file": "",
+          "beforeHooks": [],
+          "afterHooks": [],
+          "tests": [
+            {
+              "title": "lists the permissions of the instance, and states how many the filters keep",
+              "fullTitle": "Roles and permissions - the permission explorer lists the permissions of the instance, and states how many the filters keep",
+              "timedOut": null,
+              "duration": 1469,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "var page = PermissionExplorerPage_1.PermissionExplorerPage.visit();\n// jContent and one of the permissions it aggregates are both present, so the list carries the\n// whole tree and not only its roots.\npage.getRow('jContent').should('be.visible');\npage.getRow('jContentActions').should('be.visible');\n// The count names both numbers, so an administrator can tell a filtered list from a full one.\npage.getMatchCount().should('contain', 'permissions');",
+              "err": {},
+              "uuid": "bd725656-e31f-4d0f-bf7d-6d721bbde56f",
+              "parentUUID": "64bb9824-c927-4cef-aa13-4a47cf276ad5",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "narrows the list by a search on the permission name",
+              "fullTitle": "Roles and permissions - the permission explorer narrows the list by a search on the permission name",
+              "timedOut": null,
+              "duration": 802,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "var page = PermissionExplorerPage_1.PermissionExplorerPage.visit();\npage.search('adminRoles');\npage.getVisibleNames().then(function (names) {\n    expect(names, 'the searched permission must be kept').to.include('adminRoles');\n    // Every remaining row must match the search, which is what makes this a filter and not a\n    // highlight.\n    names.forEach(function (name) {\n        expect(name.toLowerCase(), \"\".concat(name, \" must match the search\")).to.contain('adminroles');\n    });\n});",
+              "err": {},
+              "uuid": "c1e033ac-d536-48a4-ba77-9564e4ffaba6",
+              "parentUUID": "64bb9824-c927-4cef-aa13-4a47cf276ad5",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "narrows the list by workspace, and the excluded permission disappears",
+              "fullTitle": "Roles and permissions - the permission explorer narrows the list by workspace, and the excluded permission disappears",
+              "timedOut": null,
+              "duration": 799,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "var page = PermissionExplorerPage_1.PermissionExplorerPage.visit();\n// jcr:read_live and jcr:read_default are two permissions, and only the name suffix separates\n// them. Filtering on the live workspace must keep the first and drop the second.\npage.getRow('jcr:read_live').should('be.visible');\npage.getRow('jcr:read_default').should('be.visible');\npage.filterBy('workspace', 'LIVE');\npage.getRow('jcr:read_live').should('be.visible');\ncy.get('[data-testid=\"permission-row-jcr:read_default\"]').should('not.exist');\npage.resetFilters();\npage.getRow('jcr:read_default').should('be.visible');",
+              "err": {},
+              "uuid": "f8042c1f-6e1c-4ed5-9155-7a2e3731f33b",
+              "parentUUID": "64bb9824-c927-4cef-aa13-4a47cf276ad5",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "states the repository path of a permission, and the modules that declare it",
+              "fullTitle": "Roles and permissions - the permission explorer states the repository path of a permission, and the modules that declare it",
+              "timedOut": null,
+              "duration": 478,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "var page = PermissionExplorerPage_1.PermissionExplorerPage.visit();\nvar detail = page.select('editAction');\n// The path is the one the repository gives the permission, with the module and version prefix\n// removed. Nothing re-parents it.\ndetail.getPath().should('have.text', '/permissions/jContent/jContentActions/editAction');\n// The jcontent module declares this permission under the jContent tree core seeds.\ndetail.getModules().should('contain', 'jcontent');",
+              "err": {},
+              "uuid": "8ac196da-e880-4d4c-ad6e-e8c68373f0d0",
+              "parentUUID": "64bb9824-c927-4cef-aa13-4a47cf276ad5",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "names the roles that grant a permission, and why each one grants it",
+              "fullTitle": "Roles and permissions - the permission explorer names the roles that grant a permission, and why each one grants it",
+              "timedOut": null,
+              "duration": 485,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "var page = PermissionExplorerPage_1.PermissionExplorerPage.visit();\nvar detail = page.select('adminRoles');\ndetail.getGrantedBy().should('be.visible');\n// server-administrator grants adminRoles on the node the role is granted on, and it grants it\n// through the admin permission it names. The row has to say so, because the role name alone\n// does not tell an administrator where to go to change it.\ndetail\n    .getUsage('server-administrator', 'currentNode')\n    .should('contain', 'server-administrator')\n    .and('contain', 'On the granted node')\n    .and('contain', 'Granted through admin');",
+              "err": {},
+              "uuid": "9addbef1-6db8-4e74-9d63-63fa86ff0435",
+              "parentUUID": "64bb9824-c927-4cef-aa13-4a47cf276ad5",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "says a permission is aggregated, and lists what it aggregates",
+              "fullTitle": "Roles and permissions - the permission explorer says a permission is aggregated, and lists what it aggregates",
+              "timedOut": null,
+              "duration": 672,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "var page = PermissionExplorerPage_1.PermissionExplorerPage.visit();\nvar detail = page.select('jContentActions');\n// editAction is a child of jContentActions in the repository, so granting the parent grants it.\n// The detail lists the children, which is what makes the consequence of a grant readable.\ndetail.getChildren().should('contain', 'editAction');",
+              "err": {},
+              "uuid": "d7eeed38-ae79-4a47-ae09-56894a636e01",
+              "parentUUID": "64bb9824-c927-4cef-aa13-4a47cf276ad5",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "shows no detail until a permission is selected",
+              "fullTitle": "Roles and permissions - the permission explorer shows no detail until a permission is selected",
+              "timedOut": null,
+              "duration": 400,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "var page = PermissionExplorerPage_1.PermissionExplorerPage.visit();\npage.getEmptyDetail().should('be.visible');\ncy.get('[data-testid=\"permission-detail\"]').should('not.exist');",
+              "err": {},
+              "uuid": "465b5c65-1929-483f-a128-395face4004f",
+              "parentUUID": "64bb9824-c927-4cef-aa13-4a47cf276ad5",
+              "isHook": false,
+              "skipped": false
+            }
+          ],
+          "suites": [],
+          "passes": [
+            "bd725656-e31f-4d0f-bf7d-6d721bbde56f",
+            "c1e033ac-d536-48a4-ba77-9564e4ffaba6",
+            "f8042c1f-6e1c-4ed5-9155-7a2e3731f33b",
+            "8ac196da-e880-4d4c-ad6e-e8c68373f0d0",
+            "9addbef1-6db8-4e74-9d63-63fa86ff0435",
+            "d7eeed38-ae79-4a47-ae09-56894a636e01",
+            "465b5c65-1929-483f-a128-395face4004f"
+          ],
+          "failures": [],
+          "pending": [],
+          "skipped": [],
+          "duration": 5105,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 2000
+        }
+      ],
+      "passes": [],
+      "failures": [],
+      "pending": [],
+      "skipped": [],
+      "duration": 0,
+      "root": true,
+      "rootEmpty": true,
+      "_timeout": 2000
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "7.2.0"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "cypress",
+        "saveHtml": false,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false,
+        "code": true
+      },
+      "version": "7.1.3"
+    },
+    "marge": {
+      "options": {
+        "id": "default",
+        "reportDir": "./results/reports/",
+        "reportFilename": "cypress",
+        "overwrite": false,
+        "html": false,
+        "json": true
+      },
+      "version": "6.2.0"
+    }
+  }
+}

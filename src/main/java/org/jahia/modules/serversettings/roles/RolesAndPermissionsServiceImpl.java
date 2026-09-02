@@ -24,6 +24,7 @@ import javax.jcr.query.Query;
 
 import org.apache.jackrabbit.util.ISO9075;
 import org.jahia.api.Constants;
+import org.jahia.services.content.JCRContentUtils;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionFactory;
 import org.jahia.services.content.JCRSessionWrapper;
@@ -47,6 +48,12 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
     private static final String EXTERNAL_PERMISSIONS_TYPE = "jnt:externalPermissions";
 
     private static final String ROLES_ROOT = "/roles";
+
+    private static final String ACE_TYPE = "jnt:ace";
+    private static final String EXTERNAL_ACE_TYPE = "jnt:externalAce";
+    private static final String ACE_ROLES_PROPERTY = "j:roles";
+    private static final String ACE_TYPE_PROPERTY = "j:aceType";
+    private static final String ACE_PRINCIPAL_PROPERTY = "j:principal";
 
     // Every role lives under /roles, so the query needs no parameter and carries no caller input.
     private static final String ROLES_QUERY =
@@ -567,6 +574,38 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
             return;
         }
         node.setProperty(propertyName, value);
+    }
+
+    @Override
+    public RoleUsage getRoleUsage(String roleName) throws RepositoryException {
+        // An access control entry names the role, so the role name reaches a JCR-SQL2 string literal
+        // and is encoded for that context. j:roles is multi-valued, and = matches when any value does.
+        String statement = "select * from [" + ACE_TYPE + "] as ace where ace.[" + ACE_ROLES_PROPERTY
+                + "] = '" + JCRContentUtils.sqlEncode(roleName) + "'";
+
+        SortedSet<String> principals = new TreeSet<>();
+        int entryCount = 0;
+        NodeIterator entries = query(statement);
+        while (entries.hasNext()) {
+            JCRNodeWrapper entry = (JCRNodeWrapper) entries.nextNode();
+
+            // An external entry is derived from a source entry by AclListener, so counting it would
+            // count one grant twice.
+            if (EXTERNAL_ACE_TYPE.equals(entry.getPrimaryNodeTypeName())) {
+                continue;
+            }
+            if (entry.hasProperty(ACE_TYPE_PROPERTY)
+                    && !"GRANT".equals(entry.getProperty(ACE_TYPE_PROPERTY).getString())) {
+                continue;
+            }
+
+            entryCount++;
+            if (entry.hasProperty(ACE_PRINCIPAL_PROPERTY) && principals.size() < RoleUsage.PRINCIPAL_LIMIT) {
+                principals.add(entry.getProperty(ACE_PRINCIPAL_PROPERTY).getString());
+            }
+        }
+
+        return new RoleUsage(entryCount, principals, principals.size() >= RoleUsage.PRINCIPAL_LIMIT);
     }
 
     /**

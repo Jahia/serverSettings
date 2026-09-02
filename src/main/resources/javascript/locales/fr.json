@@ -71,6 +71,20 @@
       "SHADOWED_TARGET_PATH": "La cible {{subject}} est aussi déclarée par un rôle parent, sur un autre chemin",
       "UNKNOWN_PERMISSION": "{{subject}} est accordée et aucun module ne la déclare"
     },
+    "confirm": {
+      "deleteConfirm": "Supprimer le role",
+      "removeTargetConfirm": "Retirer la cible",
+      "typeToConfirm": "Tapez ceci pour confirmer",
+      "deleteTitle": "Supprimer le rôle {{role}}",
+      "deleteMessage": "La suppression d'un rôle est définitive.",
+      "deleteHeld": "{{count}} entrées de contrôle d'accès accordent ce rôle, à {{principals}}. Ces entrées restent en place en nommant un rôle qui n'existe plus, et elles n'accordent alors rien.",
+      "deleteUnused": "Aucune entrée de contrôle d'accès n'accorde ce rôle, donc personne ne perd d'accès.",
+      "deleteSubRoles": "Les rôles imbriqués partent avec lui : {{names}}.",
+      "deletePermissions": "Il nomme {{count}} permissions en propre.",
+      "removeTargetTitle": "Retirer une cible",
+      "removeTargetMessage": "Le rôle cesse d'accorder quoi que ce soit sur {{path}}, et c'est définitif.",
+      "removeTargetPermissions": "Les {{count}} permissions que cette cible nomme partent avec elle : {{names}}."
+    },
     "detail": {
       "back": "Tous les rôles",
       "identityTab": "Identité et portée",
@@ -93,6 +107,9 @@
       "save": "Enregistrer",
       "saved": "Enregistré",
       "appliesOn": "S'applique sur",
+      "addTarget": "Ajouter",
+      "removeTarget": "Retirer cette cible",
+      "newTargetPlaceholder": "currentSite, ou un chemin absolu",
       "targetInheritedOnly": "Seul un rôle parent déclare cette cible, donc ce rôle n'y ajoute rien pour l'instant.",
       "areaCount": "{{granted}} sur {{total}}",
       "searchPlaceholder": "Chercher une permission dans tous les domaines",

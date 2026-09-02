@@ -10,8 +10,11 @@ import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
+import javax.jcr.RepositoryException;
+
 import org.jahia.modules.serversettings.roles.RoleModel;
 import org.jahia.modules.serversettings.roles.RoleView;
+import org.jahia.modules.serversettings.roles.RolesAndPermissionsService;
 
 @GraphQLName("Role")
 @GraphQLDescription("One role, with every set of permissions it grants")
@@ -19,10 +22,12 @@ public class GqlRole {
 
     private final RoleModel model;
     private final RoleView role;
+    private final RolesAndPermissionsService service;
 
-    GqlRole(RoleModel model, RoleView role) {
+    GqlRole(RoleModel model, RoleView role, RolesAndPermissionsService service) {
         this.model = model;
         this.role = role;
+        this.service = service;
     }
 
     @GraphQLField
@@ -167,6 +172,15 @@ public class GqlRole {
         return model.getWarnings(role.getName()).stream()
                 .map(GqlRoleWarning::new)
                 .collect(Collectors.toList());
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
+    @GraphQLDescription("Who currently holds this role. Read it before offering to delete the role: "
+            + "deleting one somebody holds leaves the access control entries naming a role the "
+            + "repository no longer has, and those entries then grant nothing")
+    public GqlRoleUsage getUsage() throws RepositoryException {
+        return new GqlRoleUsage(service.getRoleUsage(role.getName()));
     }
 
     @GraphQLField

@@ -71,6 +71,20 @@
       "SHADOWED_TARGET_PATH": "The target {{subject}} is also declared by a parent role, on another path",
       "UNKNOWN_PERMISSION": "{{subject}} is granted and no module declares it"
     },
+    "confirm": {
+      "deleteConfirm": "Delete the role",
+      "removeTargetConfirm": "Remove the target",
+      "typeToConfirm": "Type this to confirm",
+      "deleteTitle": "Delete the {{role}} role",
+      "deleteMessage": "Deleting a role cannot be undone.",
+      "deleteHeld": "{{count}} access control entries grant this role, to {{principals}}. Those entries stay behind naming a role that no longer exists, and they then grant nothing.",
+      "deleteUnused": "No access control entry grants this role, so nobody loses access.",
+      "deleteSubRoles": "The roles nested inside it go with it: {{names}}.",
+      "deletePermissions": "It names {{count}} permissions of its own.",
+      "removeTargetTitle": "Remove a target",
+      "removeTargetMessage": "The role stops granting anything on {{path}}, and this cannot be undone.",
+      "removeTargetPermissions": "The {{count}} permissions this target names go with it: {{names}}."
+    },
     "detail": {
       "back": "All roles",
       "identityTab": "Identity and scope",
@@ -93,6 +107,9 @@
       "save": "Save",
       "saved": "Saved",
       "appliesOn": "Applies on",
+      "addTarget": "Add",
+      "removeTarget": "Remove this target",
+      "newTargetPlaceholder": "currentSite, or an absolute path",
       "targetInheritedOnly": "Only a parent role declares this target, so this role adds nothing here yet.",
       "areaCount": "{{granted}} of {{total}}",
       "searchPlaceholder": "Search a permission in every area",
