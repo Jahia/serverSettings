@@ -30,9 +30,36 @@
   "rolesAndPermissions": {
     "label": "Roles and permissions (new)",
     "title": "Roles and permissions",
-    "scope": "Scopes",
-    "noScope": "No role declares a scope.",
     "loadError": "The roles could not be loaded.",
+    "list": {
+      "columns": {
+        "role": "Role",
+        "scope": "Scope",
+        "grantableOn": "Grantable on",
+        "names": "Names",
+        "reaches": "Reaches",
+        "targets": "Targets",
+        "flags": "Flags"
+      },
+      "searchPlaceholder": "Search a role by name or title",
+      "anyScope": "All scopes",
+      "noScope": "No scope",
+      "anyNodeType": "Any node type",
+      "subRoleOf": "{{name}}, inside {{parent}}",
+      "fromParent": "{{count}} from the parent role",
+      "privileged": "Privileged access",
+      "privilegedByParent": "Privileged through {{parent}}",
+      "hidden": "Hidden from the picker",
+      "matchCount": "{{count}} of {{total}} roles",
+      "noMatch": "No role matches these filters.",
+      "ambiguousTitle": "A role name is carried by more than one role node",
+      "ambiguousNames": "An access control entry holds a role name, and Jahia resolves it with a query that takes the first result. So which permissions apply is undefined for these names: {{names}}"
+    },
+    "warning": {
+      "DUPLICATE_TARGET_PATH": "Two targets apply on {{subject}}",
+      "SHADOWED_TARGET_PATH": "The target {{subject}} is also declared by a parent role, on another path",
+      "UNKNOWN_PERMISSION": "{{subject}} is granted and no module declares it"
+    },
     "explorer": {
       "label": "Permissions",
       "title": "Permissions",

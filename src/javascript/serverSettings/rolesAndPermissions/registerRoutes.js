@@ -1,6 +1,6 @@
 import React from 'react';
 import {registry} from '@jahia/ui-extender';
-import RolesAndPermissions from './index';
+import RoleList from './RoleList';
 import PermissionExplorer from './PermissionExplorer';
 
 // Two entries next to the rolesmanager one, which stays installed. rolesmanager registers
@@ -15,7 +15,7 @@ export const registerRoutes = function () {
         icon: null,
         label: 'serverSettings:rolesAndPermissions.label',
         isSelectable: true,
-        render: () => <RolesAndPermissions/>
+        render: () => <RoleList/>
     });
 
     registry.add('adminRoute', 'permissionsExplorer', {

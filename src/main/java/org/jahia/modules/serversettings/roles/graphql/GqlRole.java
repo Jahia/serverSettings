@@ -129,6 +129,48 @@ public class GqlRole {
 
     @GraphQLField
     @GraphQLNonNull
+    @GraphQLDescription("The permission names this role's own targets hold. This is what an administrator "
+            + "wrote on the role, and the only set an edit on this role changes")
+    public List<String> getDirectPermissionNames() {
+        return new ArrayList<>(model.getDirectPermissionNames(role.getName()));
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
+    @GraphQLDescription("Every permission this role grants, across every target. Larger than what the "
+            + "role names, because a granted permission grants what it aggregates and a sub-role adds "
+            + "what its parent grants")
+    public List<String> getEffectivePermissionNames() {
+        return new ArrayList<>(model.getEffectivePermissionNames(role.getName()));
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
+    @GraphQLDescription("The permissions this role grants only because a parent role grants them")
+    public List<String> getInheritedPermissionNames() {
+        return new ArrayList<>(model.getInheritedPermissionNames(role.getName()));
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
+    @GraphQLDescription("The permissions a target of this role names and no installed module declares. "
+            + "Each one grants nothing, and stays in j:permissionNames until an administrator removes it")
+    public List<String> getUnknownPermissionNames() {
+        return new ArrayList<>(model.getUnknownPermissionNames(role.getName()));
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
+    @GraphQLDescription("What an administrator should know about this role, beyond what it grants. "
+            + "Empty on a role the repository resolves unambiguously")
+    public List<GqlRoleWarning> getWarnings() {
+        return model.getWarnings(role.getName()).stream()
+                .map(GqlRoleWarning::new)
+                .collect(Collectors.toList());
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
     @GraphQLDescription("Every target this role grants on, the node it is granted on first, then the "
             + "external targets sorted. A target only an ancestor role declares is included")
     public List<GqlRoleGrant> getGrants() {

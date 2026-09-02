@@ -30,9 +30,36 @@
   "rolesAndPermissions": {
     "label": "Rôles et permissions (nouveau)",
     "title": "Rôles et permissions",
-    "scope": "Portées",
-    "noScope": "Aucun rôle ne déclare de portée.",
     "loadError": "Les rôles n'ont pas pu être chargés.",
+    "list": {
+      "columns": {
+        "role": "Rôle",
+        "scope": "Portée",
+        "grantableOn": "Accordable sur",
+        "names": "Nomme",
+        "reaches": "Atteint",
+        "targets": "Cibles",
+        "flags": "Marqueurs"
+      },
+      "searchPlaceholder": "Chercher un rôle par nom ou titre",
+      "anyScope": "Toutes les portées",
+      "noScope": "Aucune portée",
+      "anyNodeType": "Tout type de nœud",
+      "subRoleOf": "{{name}}, dans {{parent}}",
+      "fromParent": "{{count}} du rôle parent",
+      "privileged": "Accès privilégié",
+      "privilegedByParent": "Privilégié via {{parent}}",
+      "hidden": "Masqué du sélecteur",
+      "matchCount": "{{count}} rôles sur {{total}}",
+      "noMatch": "Aucun rôle ne correspond à ces filtres.",
+      "ambiguousTitle": "Un nom de rôle est porté par plusieurs nœuds de rôle",
+      "ambiguousNames": "Une entrée de contrôle d'accès porte un nom de rôle, et Jahia le résout par une requête qui prend le premier résultat. Les permissions appliquées sont donc indéfinies pour ces noms : {{names}}"
+    },
+    "warning": {
+      "DUPLICATE_TARGET_PATH": "Deux cibles s'appliquent sur {{subject}}",
+      "SHADOWED_TARGET_PATH": "La cible {{subject}} est aussi déclarée par un rôle parent, sur un autre chemin",
+      "UNKNOWN_PERMISSION": "{{subject}} est accordée et aucun module ne la déclare"
+    },
     "explorer": {
       "label": "Permissions",
       "title": "Permissions",

@@ -7,9 +7,13 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.function.Predicate;
 
 /**
  * Every role of the instance, and what each one effectively grants.
@@ -200,6 +204,118 @@ public final class RoleModel {
         List<EffectivePermission> result = Collections.unmodifiableList(effective);
         effectiveCache.put(cacheKey, result);
         return result;
+    }
+
+    /**
+     * The permission names the role's own targets hold, across every target.
+     * <p>
+     * This is what an administrator wrote on the role, and it is the only set an edit on this role
+     * changes.
+     *
+     * @param roleName the role
+     * @return the names, sorted
+     */
+    public SortedSet<String> getDirectPermissionNames(String roleName) {
+        return collectNames(roleName, EffectivePermission::isDirect);
+    }
+
+    /**
+     * Every permission the role grants, across every target.
+     * <p>
+     * This is the reach of the role, and it is larger than what it names, because a granted permission
+     * grants what it aggregates and a sub-role adds what its parent grants.
+     *
+     * @param roleName the role
+     * @return the names, sorted
+     */
+    public SortedSet<String> getEffectivePermissionNames(String roleName) {
+        return collectNames(roleName, effective -> true);
+    }
+
+    /**
+     * The permissions the role grants only because a parent role grants them.
+     *
+     * @param roleName the role
+     * @return the names, sorted
+     */
+    public SortedSet<String> getInheritedPermissionNames(String roleName) {
+        return collectNames(roleName,
+                effective -> effective.getLockKind() == EffectivePermission.LockKind.INHERITED_FROM_ROLE);
+    }
+
+    /**
+     * The permissions a target of the role names, and no installed module declares.
+     * <p>
+     * Such a name grants nothing. It stays in {@code j:permissionNames} until an administrator removes
+     * it, so the interface shows it rather than dropping it.
+     *
+     * @param roleName the role
+     * @return the names, sorted
+     */
+    public SortedSet<String> getUnknownPermissionNames(String roleName) {
+        return collectNames(roleName, effective -> !effective.isKnown());
+    }
+
+    /**
+     * What an administrator should know about the role, beyond what it grants.
+     *
+     * @param roleName the role
+     * @return the warnings, empty on a role the repository resolves unambiguously
+     */
+    public List<RoleWarning> getWarnings(String roleName) {
+        RoleView role = get(roleName);
+        if (role == null) {
+            return Collections.emptyList();
+        }
+
+        List<RoleWarning> warnings = new ArrayList<>();
+
+        // Two targets of this role on one path both create an access control entry on that node, and
+        // what applies there is the union of the two.
+        Map<String, String> nameByPath = new LinkedHashMap<>();
+        for (RoleGrant grant : role.getGrants()) {
+            if (grant.getPath() == null) {
+                continue;
+            }
+            String previous = nameByPath.putIfAbsent(grant.getPath(), grant.getNodeName());
+            if (previous != null) {
+                warnings.add(new RoleWarning(RoleWarning.Code.DUPLICATE_TARGET_PATH, grant.getPath()));
+            }
+        }
+
+        // A target this role and an ancestor both declare, on two different paths. Inheritance matches
+        // the name, so both sets of permissions apply, and only this role's path is used.
+        for (RoleGrant grant : role.getGrants()) {
+            if (grant.getNodeName() == null) {
+                continue;
+            }
+            for (RoleView ancestor : chainOf(roleName)) {
+                if (ancestor == role) {
+                    continue;
+                }
+                RoleGrant shadowed = ancestor.getGrant(grant.getId());
+                if (shadowed != null && !Objects.equals(shadowed.getPath(), grant.getPath())) {
+                    warnings.add(new RoleWarning(RoleWarning.Code.SHADOWED_TARGET_PATH, grant.getNodeName()));
+                    break;
+                }
+            }
+        }
+
+        getUnknownPermissionNames(roleName).forEach(
+                name -> warnings.add(new RoleWarning(RoleWarning.Code.UNKNOWN_PERMISSION, name)));
+
+        return warnings;
+    }
+
+    private SortedSet<String> collectNames(String roleName, Predicate<EffectivePermission> keep) {
+        SortedSet<String> names = new TreeSet<>();
+        for (String grantId : getGrantIds(roleName)) {
+            getEffectivePermissions(roleName, grantId).stream()
+                    .filter(keep)
+                    .map(EffectivePermission::getName)
+                    .forEach(names::add);
+        }
+        return names;
     }
 
     /**

@@ -1,15 +1,5 @@
 import gql from 'graphql-tag';
 
-export const GET_ROLE_GROUPS = gql`
-    query GetRoleGroups {
-        admin {
-            rolesAndPermissions {
-                roleGroups
-            }
-        }
-    }
-`;
-
 // The whole catalog in one read. Every entry names its parent and its children, so the client builds
 // the tree once and needs no second request per level. `grantedBy` is left out on purpose: selecting
 // it is what makes the server read the roles, and the table does not need it.
@@ -32,6 +22,46 @@ export const GET_PERMISSION_CATALOG = gql`
                         providedByModules
                         isAbstract
                         label(language: $language)
+                    }
+                }
+            }
+        }
+    }
+`;
+
+// The role list. The three permission counts are what the current screen cannot state: what the role
+// names, how far that reaches once aggregation applies, and how much of the reach comes from a parent
+// role.
+export const GET_ROLES = gql`
+    query GetRoles($language: String!) {
+        admin {
+            rolesAndPermissions {
+                roleGroups
+                ambiguousRoleNames
+                roles(includeHidden: true) {
+                    name
+                    path
+                    parentRoleName
+                    subRoleNames
+                    roleGroup
+                    nodeTypes
+                    isHidden
+                    hasPrivilegedAccess
+                    hasEffectivePrivilegedAccess
+                    title(language: $language)
+                    directPermissionNames
+                    effectivePermissionNames
+                    inheritedPermissionNames
+                    unknownPermissionNames
+                    warnings {
+                        code
+                        subject
+                    }
+                    grants {
+                        id
+                        kind
+                        path
+                        isInheritedOnly
                     }
                 }
             }
