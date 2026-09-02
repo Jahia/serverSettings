@@ -146,4 +146,22 @@ describe('Roles and permissions - the permission catalog', () => {
             )
         })
     })
+
+    it('keeps a Jahia product prefix whole in the fallback label', () => {
+        // No bundle declares label.permission.jContentActions, so this label is the fallback. A name that
+        // opens with one lowercase letter and then an uppercase one carries a product prefix, as jContent
+        // and jExperience do, and splitting it produced "J content actions".
+        expect(byName.get('jContentActions').label).to.eq('jContent actions')
+
+        // The invariant behind that case, over every name that carries such a prefix: its label never
+        // opens with a lone letter and a space, which is the shape splitting the prefix produces. The
+        // check is restricted to those names on purpose. A bundle label may legitimately open with "A "
+        // on some other permission, and a test that failed on it would be failing for a wrong reason.
+        const split = catalog.entries.filter(
+            (entry) => /^[a-z][A-Z]/.test(entry.name) && /^[A-Za-z]\s/.test(entry.label),
+        )
+        expect(split.map((entry) => `${entry.name} -> ${entry.label}`), 'no label may split a prefix').to.deep.eq(
+            [],
+        )
+    })
 })

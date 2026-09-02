@@ -1,6 +1,7 @@
 package org.jahia.modules.serversettings.roles;
 
 import java.util.Locale;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
@@ -24,6 +25,10 @@ public class PermissionLabelResolver {
     private static final Pattern UNDERSCORE_OR_DASH = Pattern.compile("[_-]");
     private static final Pattern UPPERCASE_LETTER = Pattern.compile("([A-Z])");
     private static final Pattern DASH = Pattern.compile("-");
+
+    // One lowercase letter, then an uppercase one, then the rest of that word. This is the
+    // Jahia product prefix, as in jContent and jExperience.
+    private static final Pattern PRODUCT_PREFIX = Pattern.compile("[a-z][A-Z][a-z0-9]*");
 
     private static final String KEY_PREFIX = "label.permission.";
     private static final String DESCRIPTION_SUFFIX = ".description";
@@ -87,9 +92,26 @@ public class PermissionLabelResolver {
         return DASH.matcher(localName).replaceAll("_");
     }
 
-    /** {@code newContentFolderAction} reads as "New content folder action". */
+    /**
+     * The name read as words: {@code newContentFolderAction} reads as "New content folder action".
+     * <p>
+     * A name opening with one lowercase letter and then an uppercase one carries a Jahia product
+     * prefix, as {@code jContent} and {@code jExperience} do. That prefix is a product name, so it
+     * keeps its own case and stays whole: {@code jContentActions} reads as "jContent actions".
+     */
     private static String humanise(String localName) {
-        String spaced = UPPERCASE_LETTER.matcher(localName).replaceAll(" $0");
-        return StringUtils.capitalize(UNDERSCORE_OR_DASH.matcher(spaced).replaceAll(" ").toLowerCase());
+        Matcher productPrefix = PRODUCT_PREFIX.matcher(localName);
+        if (productPrefix.lookingAt()) {
+            String prefix = productPrefix.group();
+            String rest = splitWords(localName.substring(prefix.length()));
+            return rest.isEmpty() ? prefix : prefix + " " + rest.toLowerCase();
+        }
+        return StringUtils.capitalize(splitWords(localName).toLowerCase());
+    }
+
+    /** One space before each uppercase letter, and one for each underscore or dash. */
+    private static String splitWords(String name) {
+        String spaced = UPPERCASE_LETTER.matcher(name).replaceAll(" $0");
+        return UNDERSCORE_OR_DASH.matcher(spaced).replaceAll(" ").trim();
     }
 }
