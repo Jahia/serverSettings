@@ -35,9 +35,9 @@ public class GqlRolesAndPermissions {
     // Field injection is how the provider supplies an OSGi service to a GraphQL type. The schema
     // instantiates this class through its no-argument constructor and OSGIServiceInjectorDataFetcher
     // then sets the field, so a constructor parameter would never be filled.
-    @Inject
+    @Inject  // NOSONAR - see above
     @GraphQLOsgiService
-    private RolesAndPermissionsService rolesAndPermissionsService;  // NOSONAR - see above
+    private RolesAndPermissionsService rolesAndPermissionsService;
 
     private PermissionCatalog catalog;
     private RoleModel roleModel;
