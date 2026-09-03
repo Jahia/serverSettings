@@ -830,13 +830,16 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
     }
 
     /**
-     * Characters a JCR node name cannot carry.
+     * Characters a role name cannot carry.
      * <p>
      * A colon opens a namespace prefix, a slash separates path segments, a star and a pipe are query
      * syntax, and brackets index a same-name sibling. A role name reaches the repository as a node
      * name, so a name carrying one of these does not become the role the caller asked for.
+     * <p>
+     * A comma is here for a different reason. The repository accepts it, but every screen that lists
+     * role names joins them with a comma, so a name carrying one cannot be told from two names.
      */
-    private static final Pattern ILLEGAL_NAME_CHARACTERS = Pattern.compile("[/:\\[\\]|*]");
+    private static final Pattern ILLEGAL_NAME_CHARACTERS = Pattern.compile("[/:\\[\\]|*,]");
 
     /**
      * Refuses a role name the repository or this model could not carry.

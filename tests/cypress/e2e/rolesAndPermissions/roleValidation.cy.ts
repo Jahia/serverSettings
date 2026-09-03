@@ -52,7 +52,11 @@ describe('Roles and permissions - what the server refuses', () => {
         // A role name reaches the repository as a node name. A colon opens a namespace prefix, a
         // slash separates path segments, and a star is query syntax, so none of them can become the
         // role the caller asked for.
-        const refused = ['a/b', 'foo:bar', 'has*star', 'index[1]', 'a|b']
+        //
+        // The comma is refused for a different reason, and it was refused by the message only: every
+        // screen that lists role names joins them with a comma, so a name carrying one cannot be told
+        // from two names. The repository accepted it and the role was created.
+        const refused = ['a/b', 'foo:bar', 'has*star', 'index[1]', 'a|b', 'one,two']
 
         refused.forEach((name) => {
             create(name).then((result) => {
