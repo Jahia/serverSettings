@@ -35,7 +35,6 @@
       "columns": {
         "role": "Rôle",
         "scope": "Portée",
-        "flags": "Marqueurs",
         "actions": "Actions",
         "description": "Description"
       },
@@ -131,7 +130,14 @@
       "close": "Fermer",
       "readFailed": "Les rôles n’ont pas pu être lus : {{error}}",
       "planUnavailable": "L'effet de ce changement n'a pas pu être lu, donc rien n'a été appliqué.",
-      "moreActions": "Autres actions sur ce rôle"
+      "moreActions": "Autres actions sur ce rôle",
+      "facts": "Ce qu’est ce rôle",
+      "anyNodeType": "Tout type de contenu",
+      "notPrivileged": "Non",
+      "visibleInPicker": "Visible dans le sélecteur",
+      "descriptionPlain": "Description",
+      "privilegedYes": "Oui",
+      "privilegedViaParent": "Oui, via le rôle {{parent}}"
     },
     "dialog": {
       "revokeTitle": "Retirer une permission",

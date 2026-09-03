@@ -25,6 +25,7 @@ import {
 } from './RolesAndPermissions.gql-queries';
 import RoleEditDialog from './RoleEditDialog';
 import RolePermissionsTab from './RolePermissionsTab';
+import RoleFacts from './RoleFacts';
 import RoleNameDialog from './RoleNameDialog';
 import RoleResetDialog from './RoleResetDialog';
 import ConfirmDestructiveDialog from './ConfirmDestructiveDialog';
@@ -240,6 +241,12 @@ export const RoleDetail = ({roleName, onClose, onOpenRole}) => {
             header={header}
             content={
                 <Paper>
+                    {/*
+                      * The role's own facts, above the subject of the page. Reading what a role
+                      * applies on used to mean opening the form that edits it.
+                      */}
+                    <RoleFacts role={role}/>
+
                     <RolePermissionsTab role={role} catalog={catalog} onChanged={reload}/>
 
                     <Menu

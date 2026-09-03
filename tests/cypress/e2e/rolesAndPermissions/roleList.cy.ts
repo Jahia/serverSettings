@@ -71,7 +71,6 @@ describe('Roles and permissions - the role list', () => {
         // `translator` sets j:hidden, so the access control picker does not offer it. This screen
         // administers roles, so it must still list it.
         page.getRoleName('translator').should('be.visible')
-        cy.get('[data-testid="role-hidden-translator"]').should('be.visible')
     })
 
     it('states the scope of a role', () => {
@@ -81,24 +80,15 @@ describe('Roles and permissions - the role list', () => {
         page.getScope('site-administrator').should('have.text', 'site-role')
     })
 
-    it('reports a role as privileged when only an ancestor role sets the property', () => {
-        const page = RoleListPage.visit()
-
-        // The fixture sets no j:privilegedAccess. Its parent, editor, does, and AclListener reads the
-        // whole chain, so granting the fixture makes the principal privileged.
-        page.getPrivilegedFlag(fixture).should('contain', 'Privileged via editor')
-
-        // editor sets the property itself, so its flag names no parent.
-        page.getPrivilegedFlag('editor').should('have.text', 'Privileged access')
-    })
-
     it('warns about a granted permission no module declares', () => {
         const page = RoleListPage.visit()
 
+        // The warning sits with the name rather than in a column of its own, because it is what an
+        // administrator scans for and it is absent on a healthy instance.
         page.getWarning(fixture, 'UNKNOWN_PERMISSION').should('contain', unknownPermission)
 
         // A healthy seeded role carries no warning at all, so the badge is a signal and not decoration.
-        page.getFlags('reviewer').find('[data-testid^="role-warning-"]').should('not.exist')
+        cy.get('[data-testid="role-warnings-reviewer"]').should('not.exist')
     })
 
     it('narrows the list by scope, and the excluded role disappears', () => {

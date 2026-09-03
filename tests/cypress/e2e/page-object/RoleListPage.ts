@@ -30,14 +30,6 @@ export class RoleListPage extends BasePage {
         return cy.get(`[data-testid="role-scope-${role}"]`)
     }
 
-    getFlags(role: string) {
-        return cy.get(`[data-testid="role-flags-${role}"]`)
-    }
-
-    getPrivilegedFlag(role: string) {
-        return cy.get(`[data-testid="role-privileged-${role}"]`)
-    }
-
     getWarning(role: string, code: string) {
         return cy.get(`[data-testid="role-warning-${role}-${code}"]`)
     }

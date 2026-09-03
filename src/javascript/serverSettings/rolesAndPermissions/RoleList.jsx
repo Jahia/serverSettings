@@ -123,21 +123,31 @@ export const RoleList = ({onOpenRole}) => {
             // A sub-role is indented, so the chain that decides what it adds to is visible without a
             // second widget. The repository nests roles one level deep in practice.
             render: ({data: role}) => (
-                <button
-                    type="button"
-                    className={role.parentRoleName ?
-                        `${classes.roleNameButton} ${classes.subRoleName}` :
-                        `${classes.roleNameButton} ${classes.roleName}`}
-                    data-testid={`role-name-${role.name}`}
-                    onClick={() => onOpenRole(role.name)}
-                >
-                    <Typography variant="body">{role.title || role.name}</Typography>
-                    <Typography variant="caption" className={classes.roleTechnicalName}>
-                        {role.parentRoleName ?
-                            t('rolesAndPermissions.list.subRoleOf', {name: role.name, parent: role.parentRoleName}) :
-                            role.name}
-                    </Typography>
-                </button>
+                <span className={classes.roleNameCell}>
+                    <button
+                        type="button"
+                        className={role.parentRoleName ?
+                            `${classes.roleNameButton} ${classes.subRoleName}` :
+                            `${classes.roleNameButton} ${classes.roleName}`}
+                        data-testid={`role-name-${role.name}`}
+                        onClick={() => onOpenRole(role.name)}
+                    >
+                        <Typography variant="body">{role.title || role.name}</Typography>
+                        <Typography variant="caption" className={classes.roleTechnicalName}>
+                            {role.parentRoleName ?
+                                t('rolesAndPermissions.list.subRoleOf', {name: role.name, parent: role.parentRoleName}) :
+                                role.name}
+                        </Typography>
+                    </button>
+
+                    {/*
+                      * The warning sits with the name and not in a column of its own. It is what an
+                      * administrator scans a hundred roles for, and it is absent on a healthy
+                      * instance, so a dedicated column stayed wide for a chip that never appeared.
+                      * It is outside the button, so it is not part of the click target.
+                      */}
+                    <RoleWarnings roleName={role.name} warnings={role.warnings}/>
+                </span>
             )
         },
         {
@@ -169,27 +179,6 @@ export const RoleList = ({onOpenRole}) => {
                     {role.description}
                 </Typography> :
                 null)
-        },
-        {
-            key: 'flags',
-            label: t('rolesAndPermissions.list.columns.flags'),
-            // No fixed width. The chips of a role with several flags outgrew one, and the overflow
-            // covered the action button of the row below.
-            render: ({data: role}) => (
-                <span className={classes.warningRow} data-testid={`role-flags-${role.name}`}>
-                    {role.hasEffectivePrivilegedAccess ?
-                        <Chip
-                            label={role.hasPrivilegedAccess ?
-                                t('rolesAndPermissions.list.privileged') :
-                                t('rolesAndPermissions.list.privilegedVia', {parent: role.parentRoleName})}
-                            data-testid={`role-privileged-${role.name}`}/> :
-                        null}
-                    {role.isHidden ?
-                        <Chip label={t('rolesAndPermissions.list.hidden')} data-testid={`role-hidden-${role.name}`}/> :
-                        null}
-                    <RoleWarnings roleName={role.name} warnings={role.warnings}/>
-                </span>
-            )
         },
         {
             key: 'path',

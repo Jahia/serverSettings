@@ -35,7 +35,6 @@
       "columns": {
         "role": "Role",
         "scope": "Scope",
-        "flags": "Flags",
         "actions": "Actions",
         "description": "Description"
       },
@@ -131,7 +130,14 @@
       "close": "Close",
       "readFailed": "The roles could not be read: {{error}}",
       "planUnavailable": "The effect of this change could not be read, so nothing was applied.",
-      "moreActions": "More actions on this role"
+      "moreActions": "More actions on this role",
+      "facts": "What this role is",
+      "anyNodeType": "Any node type",
+      "notPrivileged": "No",
+      "visibleInPicker": "Visible in the picker",
+      "descriptionPlain": "Description",
+      "privilegedYes": "Yes",
+      "privilegedViaParent": "Yes, through the {{parent}} role"
     },
     "dialog": {
       "revokeTitle": "Remove a permission",

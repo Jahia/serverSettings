@@ -368,3 +368,40 @@
     max-height: 60vh;
     overflow-y: auto;
 }
+
+/*
+ * The role's own facts, above the subject of the page. A row that wraps, so a narrow window stacks
+ * the facts rather than compressing each one to nothing.
+ */
+.factsBar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-medium);
+    padding: var(--spacing-small) var(--spacing-medium);
+    border-bottom: 1px solid var(--color-gray_light);
+}
+
+.fact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-nano);
+    min-width: 0;
+}
+
+.factLabel {
+    color: var(--color-gray_dark);
+}
+
+.factValue {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-nano);
+}
+
+/* The name and the warning that belongs to it, kept together in one cell. */
+.roleNameCell {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-nano);
+    min-width: 0;
+}

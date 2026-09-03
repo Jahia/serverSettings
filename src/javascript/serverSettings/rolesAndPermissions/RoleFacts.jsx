@@ -1,0 +1,127 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+import {useTranslation} from 'react-i18next';
+import {Chip, Typography} from '@jahia/moonstone';
+import classes from './styles.css';
+
+// One fact per entry, stated in words. A value that is a set is a row of chips, and a value that is a
+// choice between two states names the state it is in rather than showing a switch, because nothing
+// here is editable.
+const Fact = ({label, children, testId}) => (
+    <div className={classes.fact} data-testid={testId}>
+        <Typography variant="caption" className={classes.factLabel}>{label}</Typography>
+        <div className={classes.factValue}>{children}</div>
+    </div>
+);
+
+Fact.propTypes = {
+    label: PropTypes.string.isRequired,
+    children: PropTypes.node.isRequired,
+    testId: PropTypes.string.isRequired
+};
+
+/**
+ * Everything the role IS, on the page that is about it.
+ *
+ * These facts used to be readable only by opening the dialog that edits them, so reading what a role
+ * applies on meant entering an editing form and leaving it again. The page is about one role, so the
+ * role's own properties belong on it, and stating them read-only keeps the editing in one place.
+ *
+ * An empty value is stated rather than left blank wherever the emptiness means something: no node
+ * type means any node type, and no privileged access is a fact about the role. A set that is empty
+ * carries nothing, so a role that is nested inside nothing shows no row for it.
+ */
+export const RoleFacts = ({role}) => {
+    const {t} = useTranslation('serverSettings');
+
+    return (
+        <div className={classes.factsBar} data-testid="role-facts">
+            {role.description ?
+                <Fact
+                    testId="role-facts-description"
+                    label={t('rolesAndPermissions.detail.descriptionPlain')}
+                >
+                    <Typography variant="body">{role.description}</Typography>
+                </Fact> :
+                null}
+
+            <Fact testId="role-facts-scope" label={t('rolesAndPermissions.detail.scope')}>
+                {role.roleGroup ?
+                    <Chip label={role.roleGroup}/> :
+                    <Typography variant="body">{t('rolesAndPermissions.list.noScope')}</Typography>}
+            </Fact>
+
+            {/*
+              * No node type means the role can be granted on anything, so the empty case is a fact
+              * and not a blank. It was readable only from the edit form until now.
+              */}
+            <Fact testId="role-facts-nodetypes" label={t('rolesAndPermissions.detail.nodeTypes')}>
+                {role.nodeTypes.length > 0 ?
+                    <div className={classes.chipRow}>
+                        {role.nodeTypes.map(nodeType => <Chip key={nodeType} label={nodeType}/>)}
+                    </div> :
+                    <Typography variant="body">{t('rolesAndPermissions.detail.anyNodeType')}</Typography>}
+            </Fact>
+
+            {/*
+              * AclListener reads j:privilegedAccess on the whole role chain, so a sub-role of a
+              * privileged role is privileged whatever its own property says. The line states which
+              * of the two it is, because only one of them can be changed here.
+              */}
+            <Fact testId="role-facts-privileged" label={t('rolesAndPermissions.detail.privileged')}>
+                <Typography variant="body">
+                    {/*
+                      * The value answers the label, so it does not repeat it. A role privileged only
+                      * through its parent names that parent, because that is the one case where
+                      * nothing on this role can change the answer.
+                      */}
+                    {role.hasEffectivePrivilegedAccess ?
+                        t(role.hasPrivilegedAccess ?
+                            'rolesAndPermissions.detail.privilegedYes' :
+                            'rolesAndPermissions.detail.privilegedViaParent', {parent: role.parentRoleName}) :
+                        t('rolesAndPermissions.detail.notPrivileged')}
+                </Typography>
+            </Fact>
+
+            <Fact testId="role-facts-visibility" label={t('rolesAndPermissions.detail.visibility')}>
+                <Typography variant="body">
+                    {role.isHidden ?
+                        t('rolesAndPermissions.list.hidden') :
+                        t('rolesAndPermissions.detail.visibleInPicker')}
+                </Typography>
+            </Fact>
+
+            {role.subRoleNames.length > 0 ?
+                <Fact testId="role-facts-subroles" label={t('rolesAndPermissions.detail.subRoles')}>
+                    <div className={classes.chipRow}>
+                        {role.subRoleNames.map(subRole => <Chip key={subRole} label={subRole}/>)}
+                    </div>
+                </Fact> :
+                null}
+
+            {role.dependencies.length > 0 ?
+                <Fact testId="role-facts-dependencies" label={t('rolesAndPermissions.detail.dependencies')}>
+                    <div className={classes.chipRow}>
+                        {role.dependencies.map(dependency => <Chip key={dependency} label={dependency}/>)}
+                    </div>
+                </Fact> :
+                null}
+        </div>
+    );
+};
+
+RoleFacts.propTypes = {
+    role: PropTypes.shape({
+        description: PropTypes.string,
+        roleGroup: PropTypes.string,
+        nodeTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
+        isHidden: PropTypes.bool.isRequired,
+        hasPrivilegedAccess: PropTypes.bool.isRequired,
+        hasEffectivePrivilegedAccess: PropTypes.bool.isRequired,
+        parentRoleName: PropTypes.string,
+        subRoleNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+        dependencies: PropTypes.arrayOf(PropTypes.string).isRequired
+    }).isRequired
+};
+
+export default RoleFacts;
