@@ -36,7 +36,8 @@
         "role": "Role",
         "scope": "Scope",
         "flags": "Flags",
-        "actions": "Actions"
+        "actions": "Actions",
+        "description": "Description"
       },
       "create": "Create a role",
       "createTitle": "Create a role",
@@ -67,7 +68,8 @@
       "missingDeclaredTitle": "Roles are missing",
       "matchCount_plural": "{{count}} of {{total}} roles",
       "duplicate": "Clone the role",
-      "delete": "Delete the role"
+      "delete": "Delete the role",
+      "noDescription": "No description"
     },
     "warning": {
       "DUPLICATE_TARGET_PATH": "Two targets apply on {{subject}}",

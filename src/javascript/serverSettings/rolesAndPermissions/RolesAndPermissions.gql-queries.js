@@ -50,6 +50,7 @@ export const GET_ROLES = gql`
                     hasPrivilegedAccess
                     hasEffectivePrivilegedAccess
                     title(language: $language)
+                    description(language: $language)
                     directPermissionNames
                     effectivePermissionNames
                     inheritedPermissionNames

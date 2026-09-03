@@ -149,6 +149,29 @@ export const RoleList = ({onOpenRole}) => {
                 <Typography variant="caption">{t('rolesAndPermissions.list.noScope')}</Typography>)
         },
         {
+            key: 'description',
+            label: t('rolesAndPermissions.list.columns.description'),
+            // The description the sources declare, and the one an administrator edits in the role
+            // settings. It says what the role is FOR, which is what somebody scanning the list is
+            // deciding on, and it is the role's own text rather than anything derived from what it
+            // grants. A role with none says so, because an empty cell reads as a screen that failed.
+            render: ({data: role}) => (role.description ?
+                <Typography
+                    variant="body"
+                    className={classes.roleDescription}
+                    data-testid={`role-description-${role.name}`}
+                >
+                    {role.description}
+                </Typography> :
+                <Typography
+                    variant="caption"
+                    className={classes.roleTechnicalName}
+                    data-testid={`role-description-${role.name}`}
+                >
+                    {t('rolesAndPermissions.list.noDescription')}
+                </Typography>)
+        },
+        {
             key: 'flags',
             label: t('rolesAndPermissions.list.columns.flags'),
             // No fixed width. The chips of a role with several flags outgrew one, and the overflow

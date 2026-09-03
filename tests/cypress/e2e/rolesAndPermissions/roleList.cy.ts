@@ -137,4 +137,17 @@ describe('Roles and permissions - the role list', () => {
         cy.get('[data-testid="role-duplicate-editor"]').should('have.attr', 'aria-label').and('not.be.empty')
         cy.get('[data-testid="role-delete-editor"]').should('have.attr', 'aria-label').and('not.be.empty')
     })
+
+    it('shows the description of a role, and says when there is none', () => {
+        const page = RoleListPage.visit()
+
+        // The description is the role's own text: what the sources declare, and what an administrator
+        // edits in the role settings. It says what the role is FOR, which is what somebody scanning
+        // the list is deciding on.
+        page.getDescription('editor').should('contain', 'Can edit content using jContent')
+
+        // Core declares a description for some seeded roles and not for others. A role with none says
+        // so, because an empty cell reads as a screen that failed to load.
+        page.getDescription('reader').should('contain', 'No description')
+    })
 })

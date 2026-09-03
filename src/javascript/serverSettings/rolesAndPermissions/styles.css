@@ -142,6 +142,17 @@
     overflow-wrap: anywhere;
 }
 
+/*
+ * The role description. It is free text an administrator writes, so it has no length limit, and a
+ * long one would make its row several times taller than every other. Two lines, then an ellipsis.
+ */
+.roleDescription {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
 /* A flags cell holds several chips, and they wrap inside the cell rather than overflowing it. */
 .warningRow {
     display: flex;

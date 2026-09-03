@@ -21,6 +21,11 @@ export class RoleListPage extends BasePage {
         return cy.get(`[data-testid="role-name-${role}"]`)
     }
 
+    /** The role's own description, in the interface language. */
+    getDescription(role: string) {
+        return cy.get(`[data-testid="role-description-${role}"]`)
+    }
+
     getScope(role: string) {
         return cy.get(`[data-testid="role-scope-${role}"]`)
     }
