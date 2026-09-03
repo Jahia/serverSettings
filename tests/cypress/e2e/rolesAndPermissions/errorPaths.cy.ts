@@ -59,9 +59,13 @@ const RESET = gql`
 
 const REFUSAL = 'The repository refused this write'
 
-// A seeded role, because the banner that offers a deleted role back lists only roles a source
-// declares. The after() hook puts it back whatever the test did.
-const SEEDED_ROLE = 'reviewer'
+// The banner that offers a deleted role back lists only roles a source declares, so this test needs a
+// seeded one. `jahiapp-user` is the one that is safe to delete: its live state already matches the
+// declared baseline, so deleting it and resetting it is an exact round trip. `reviewer` is not, and
+// restoring it by reset would strip the permissions a module declares on top of the core seed, for
+// every spec that runs after this one. The test asserts the round-trip property before it deletes
+// anything, so it fails loudly rather than quietly damaging the instance if that ever changes.
+const SEEDED_ROLE = 'jahiapp-user'
 
 describe('Roles and permissions - what a refused write says', () => {
     const uniq = Date.now().toString(36)
@@ -202,6 +206,33 @@ describe('Roles and permissions - what a refused write says', () => {
     })
 
     it('states a refused restore in the banner that offered it', () => {
+        // The precondition, asserted rather than assumed: this role's live state matches the declared
+        // baseline, so the delete below is undone exactly by the reset in after().
+        cy.apolloClient()
+            .apollo({
+                query: gql`
+                    query Plan($role: String!) {
+                        admin {
+                            rolesAndPermissions {
+                                role(name: $role) {
+                                    resetPlan {
+                                        noop
+                                    }
+                                }
+                            }
+                        }
+                    }
+                `,
+                variables: { role: SEEDED_ROLE },
+                fetchPolicy: 'no-cache',
+            })
+            .then((result) => {
+                expect(
+                    result.data.admin.rolesAndPermissions.role.resetPlan.noop,
+                    `${SEEDED_ROLE} must match its declared baseline for this test to be reversible`,
+                ).to.be.true
+            })
+
         cy.apolloClient().apollo({ mutation: DELETE, variables: { role: SEEDED_ROLE } })
 
         const page = RoleListPage.visit()
