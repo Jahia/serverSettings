@@ -225,10 +225,9 @@ describe('Roles and permissions - resetting a role to the declared baseline', ()
         dialog.root().should('not.exist')
 
         read(SEEDED_ROLE).then(({ role }) => {
-            expect(
-                role.directPermissionNames,
-                'the role still names what it named before the preview',
-            ).to.include(DRIFT_PERMISSION)
+            expect(role.directPermissionNames, 'the role still names what it named before the preview').to.include(
+                DRIFT_PERMISSION,
+            )
         })
     })
 
@@ -289,9 +288,7 @@ describe('Roles and permissions - resetting a role to the declared baseline', ()
         dialog.root().should('not.exist')
 
         read(SEEDED_ROLE).then(({ role }) => {
-            expect(role.directPermissionNames, 'the declared permission is back').to.include(
-                'canSeeAdvancedOptionsTab',
-            )
+            expect(role.directPermissionNames, 'the declared permission is back').to.include('canSeeAdvancedOptionsTab')
         })
     })
 
@@ -307,9 +304,7 @@ describe('Roles and permissions - resetting a role to the declared baseline', ()
 
         read(SEEDED_ROLE).then(({ role }) => {
             expect(role.title, 'the edit landed').to.eq('Edited by an administrator')
-            expect(role.resetPlan.textLanguagesChanged, 'and the plan names the language').to.deep.eq([
-                'en',
-            ])
+            expect(role.resetPlan.textLanguagesChanged, 'and the plan names the language').to.deep.eq(['en'])
         })
 
         cy.apolloClient().apollo({ mutation: RESET, variables: { role: SEEDED_ROLE } })
@@ -332,9 +327,7 @@ describe('Roles and permissions - resetting a role to the declared baseline', ()
 
         read(silent).then(({ role }) => {
             expect(role.hasPrivilegedAccess, 'the property was set by hand').to.be.true
-            expect(role.resetPlan.privilegedAccessChange, 'and the plan says the reset clears it').to.eq(
-                'false',
-            )
+            expect(role.resetPlan.privilegedAccessChange, 'and the plan says the reset clears it').to.eq('false')
         })
 
         cy.apolloClient().apollo({ mutation: RESET, variables: { role: silent } })
@@ -362,9 +355,7 @@ describe('Roles and permissions - resetting a role to the declared baseline', ()
 
         read(SEEDED_ROLE).then(({ missingDeclaredRoles, role }) => {
             expect(missingDeclaredRoles, 'nothing is missing any more').to.not.include(SEEDED_ROLE)
-            expect(role.parentRoleName, 'and it is nested where the sources declare it').to.eq(
-                SEEDED_PARENT,
-            )
+            expect(role.parentRoleName, 'and it is nested where the sources declare it').to.eq(SEEDED_PARENT)
             expect(role.resetPlan.noop, 'and it matches the baseline exactly').to.be.true
             // Without the text the role came back with no label at all, so the list showed its
             // technical name where every other seeded role shows a title.

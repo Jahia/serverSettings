@@ -189,9 +189,7 @@ describe('Roles and permissions - editing what a role grants', () => {
         })
 
         effectiveNames(role).then((names) => {
-            expect(names, 'the permission removed is no longer granted').to.not.include(
-                'viewComponentRightsTab',
-            )
+            expect(names, 'the permission removed is no longer granted').to.not.include('viewComponentRightsTab')
             expect(names, 'its siblings are still granted').to.include('viewEditRolesTab')
             // Removing a permission under a granted ancestor stops the role granting that ancestor.
             // That is a real consequence, and the dialog listed it.

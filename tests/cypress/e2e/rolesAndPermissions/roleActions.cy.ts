@@ -182,10 +182,7 @@ describe('Roles and permissions - creating, copying and deleting a role', () => 
         cy.apolloClient()
             .apollo({ query: READ, variables: { role: `${seededCopy}-subs` } })
             .then((result) => {
-                expect(
-                    result.data.admin.rolesAndPermissions.role,
-                    'and nothing was created',
-                ).to.be.null
+                expect(result.data.admin.rolesAndPermissions.role, 'and nothing was created').to.be.null
             })
     })
 
@@ -213,10 +210,9 @@ describe('Roles and permissions - creating, copying and deleting a role', () => 
             expect(indent, 'a nested role is indented').to.be.greaterThan(0)
 
             page.getRoleName('editor').then(($parent) => {
-                expect(
-                    indent,
-                    'and it is indented further than the role it sits inside',
-                ).to.be.greaterThan(parseFloat($parent.css('padding-left')))
+                expect(indent, 'and it is indented further than the role it sits inside').to.be.greaterThan(
+                    parseFloat($parent.css('padding-left')),
+                )
             })
         })
 
@@ -232,11 +228,8 @@ describe('Roles and permissions - creating, copying and deleting a role', () => 
                 // A nested role ADDS to its parent, so it already grants what editor grants, and every
                 // one of those is locked by editor rather than named here. That is the difference from
                 // a copy, which would name the same permissions and be independent.
-                const inherited = own.effectivePermissions.find(
-                    (effective) => effective.name === 'api-access',
-                )
-                expect(inherited, 'editor grants api-access, so the nested role grants it too').to.not.be
-                    .undefined
+                const inherited = own.effectivePermissions.find((effective) => effective.name === 'api-access')
+                expect(inherited, 'editor grants api-access, so the nested role grants it too').to.not.be.undefined
                 expect(inherited.isDirect, 'without naming it').to.be.false
                 expect(inherited.lockKind).to.eq('INHERITED_FROM_ROLE')
                 expect(inherited.lockedBy).to.eq('editor')

@@ -183,9 +183,7 @@ describe('Roles and permissions - what a role effectively grants', () => {
                 expect(site.path).to.eq('currentSite')
 
                 // root-roles.xml gives this target exactly one permission name.
-                expect(site.directPermissions, 'the target names jContent and nothing else').to.deep.eq([
-                    'jContent',
-                ])
+                expect(site.directPermissions, 'the target names jContent and nothing else').to.deep.eq(['jContent'])
 
                 const jContent = effectiveOf(site, 'jContent')
                 expect(jContent.isDirect, 'jContent is the name the target holds').to.be.true
@@ -204,9 +202,7 @@ describe('Roles and permissions - what a role effectively grants', () => {
                 const deep = effectiveOf(site, 'viewComponentRightsTab')
                 expect(deep.isDirect).to.be.false
                 expect(deep.lockKind).to.eq('IMPLIED_BY_PERMISSION')
-                expect(deep.lockedBy, 'the lock names the granted ancestor, not the nearest one').to.eq(
-                    'jContent',
-                )
+                expect(deep.lockedBy, 'the lock names the granted ancestor, not the nearest one').to.eq('jContent')
             })
         })
     })
@@ -289,10 +285,8 @@ describe('Roles and permissions - what a role effectively grants', () => {
             readRole(fixture).then((role) => {
                 expect(role.parentRoleName).to.eq('editor')
                 expect(role.hasPrivilegedAccess, 'the fixture sets no property of its own').to.be.false
-                expect(
-                    role.hasEffectivePrivilegedAccess,
-                    'editor sets it, and AclListener reads the whole chain',
-                ).to.be.true
+                expect(role.hasEffectivePrivilegedAccess, 'editor sets it, and AclListener reads the whole chain').to.be
+                    .true
             })
         })
 
@@ -326,10 +320,9 @@ describe('Roles and permissions - what a role effectively grants', () => {
                     expect(byServerAdmin[0].targetKind).to.eq('CURRENT_NODE')
                     expect(byServerAdmin[0].effective.isDirect).to.be.false
                     expect(byServerAdmin[0].effective.lockKind).to.eq('IMPLIED_BY_PERMISSION')
-                    expect(
-                        byServerAdmin[0].effective.lockedBy,
-                        'the admin permission aggregates adminRoles',
-                    ).to.eq('admin')
+                    expect(byServerAdmin[0].effective.lockedBy, 'the admin permission aggregates adminRoles').to.eq(
+                        'admin',
+                    )
                 })
         })
     })

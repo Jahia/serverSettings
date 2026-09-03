@@ -93,8 +93,8 @@ describe('Roles and permissions - the GraphQL permission gate', () => {
                 const errors = (result as { errors?: Array<{ path?: ReadonlyArray<string | number> }> }).errors
                 const first = errors?.[0]
                 return {
-                    roleGroups: (result.data as { admin?: { rolesAndPermissions?: { roleGroups?: string[] } } })
-                        ?.admin?.rolesAndPermissions?.roleGroups,
+                    roleGroups: (result.data as { admin?: { rolesAndPermissions?: { roleGroups?: string[] } } })?.admin
+                        ?.rolesAndPermissions?.roleGroups,
                     errorPath: first?.path?.join('.'),
                 }
             })
@@ -118,10 +118,7 @@ describe('Roles and permissions - the GraphQL permission gate', () => {
             expect(errorPath, 'a server administrator must not be refused').to.be.undefined
             // Every Jahia instance seeds these two role groups in root-roles.xml, so the assertion names
             // values rather than only a count. A count alone would pass on an unrelated list.
-            expect(roleGroups, 'the seeded role groups must be listed').to.include.members([
-                'edit-role',
-                'server-role',
-            ])
+            expect(roleGroups, 'the seeded role groups must be listed').to.include.members(['edit-role', 'server-role'])
         })
     })
 
@@ -190,11 +187,8 @@ describe('Roles and permissions - the GraphQL permission gate', () => {
         callAs(outsider, PASSWORD).then(({ roleGroups, errorPath }) => {
             // The path is the assertion. `admin.rolesAndPermissions` says this module's gate turned the
             // caller away; a bare `admin` would say the outer root did, and would tell us nothing here.
-            expect(errorPath, "the refusal must come from this module's own gate").to.eq(
-                'admin.rolesAndPermissions',
-            )
-            expect(roleGroups, 'no role group may be served to a caller that does not administer roles').to.be
-                .undefined
+            expect(errorPath, "the refusal must come from this module's own gate").to.eq('admin.rolesAndPermissions')
+            expect(roleGroups, 'no role group may be served to a caller that does not administer roles').to.be.undefined
         })
     })
 })

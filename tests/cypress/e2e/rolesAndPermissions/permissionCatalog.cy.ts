@@ -136,7 +136,10 @@ describe('Roles and permissions - the permission catalog', () => {
 
     it('gives every permission a readable label', () => {
         const unlabelled = catalog.entries.filter((entry) => !entry.label || entry.label.trim() === '')
-        expect(unlabelled.map((entry) => entry.name), 'no permission may be shown without a label').to.deep.eq([])
+        expect(
+            unlabelled.map((entry) => entry.name),
+            'no permission may be shown without a label',
+        ).to.deep.eq([])
 
         // The fallback humanises the name rather than showing the bundle key, so a permission with no bundle
         // entry still reads as words. Whichever path answered, the label must not be the key itself.
@@ -160,8 +163,9 @@ describe('Roles and permissions - the permission catalog', () => {
         const split = catalog.entries.filter(
             (entry) => /^[a-z][A-Z]/.test(entry.name) && /^[A-Za-z]\s/.test(entry.label),
         )
-        expect(split.map((entry) => `${entry.name} -> ${entry.label}`), 'no label may split a prefix').to.deep.eq(
-            [],
-        )
+        expect(
+            split.map((entry) => `${entry.name} -> ${entry.label}`),
+            'no label may split a prefix',
+        ).to.deep.eq([])
     })
 })
