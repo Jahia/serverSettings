@@ -13,10 +13,21 @@ import {
 import PermissionChangeDialog from './PermissionChangeDialog';
 import classes from './styles.css';
 
-/** The row state, derived from the two facts the server answers. */
+/**
+ * The row state, derived from the two facts the server answers.
+ *
+ * The role naming a permission and something else holding it are two facts, and a row the role names
+ * is editable whatever else holds it. So isDirect decides the state and lockKind is read only when the
+ * role names nothing. Reading lockKind first would report a redundant name as inherited, hide it from
+ * the caption and disable the checkbox that removes it.
+ */
 const rowStateOf = effective => {
     if (!effective) {
         return 'NOT_GRANTED';
+    }
+
+    if (effective.isDirect) {
+        return 'DIRECT';
     }
 
     if (effective.lockKind === 'INHERITED_FROM_ROLE') {
@@ -189,6 +200,16 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
 
         if (state === 'IMPLIED') {
             return t('rolesAndPermissions.reason.impliedByPermission', {permission: effective.lockedBy});
+        }
+
+        // The role names it and something else holds it too. Both facts belong on the line, because
+        // stating one of the two is what makes a redundant name invisible.
+        if (state === 'DIRECT' && effective.lockKind === 'INHERITED_FROM_ROLE') {
+            return t('rolesAndPermissions.reason.directAndInherited', {role: effective.lockedBy});
+        }
+
+        if (state === 'DIRECT' && effective.lockKind === 'IMPLIED_BY_PERMISSION') {
+            return t('rolesAndPermissions.reason.directAndImplied', {permission: effective.lockedBy});
         }
 
         return null;

@@ -147,7 +147,8 @@
       "lost": "Le rôle cesse d'accorder",
       "gained": "Le rôle commence à accorder",
       "added": "Noms ajoutés",
-      "removed": "Noms retirés"
+      "removed": "Noms retirés",
+      "blockedButNamed": "Ce rôle nomme {{permission}}, et le rôle {{role}} l’accorde aussi. Retirer le nom ici laisse la permission accordée par {{role}}."
     },
     "explorer": {
       "label": "Permissions",
@@ -187,7 +188,9 @@
     "reason": {
       "direct": "Accordée directement",
       "inheritedFromRole": "Héritée du rôle {{role}}",
-      "impliedByPermission": "Accordée via {{permission}}"
+      "impliedByPermission": "Accordée via {{permission}}",
+      "directAndInherited": "Accordée directement, et héritée du rôle {{role}}",
+      "directAndImplied": "Accordée directement, et accordée via {{permission}}"
     },
     "reset": {
       "action": "Reinitialiser",

@@ -40,9 +40,18 @@ export const PermissionChangeDialog = ({change, onConfirm, onCancel}) => {
     const {kind, permission, plan} = change;
     const blocked = kind === 'revoke' && plan.outcome === 'BLOCKED_BY_PARENT_ROLE';
 
+    // A parent role holding the permission does not always make the change pointless. When the target
+    // names the permission too, removing that name is the change, and the permission stays granted by
+    // the parent. Only a plan that removes no name at all has nothing to apply.
+    const nothingToApply = blocked && plan.removedPermissions.length === 0;
+
     const headline = () => {
-        if (blocked) {
+        if (nothingToApply) {
             return t('rolesAndPermissions.dialog.blocked', {permission, role: plan.blockedBy});
+        }
+
+        if (blocked) {
+            return t('rolesAndPermissions.dialog.blockedButNamed', {permission, role: plan.blockedBy});
         }
 
         if (kind === 'collapse') {
@@ -73,8 +82,16 @@ export const PermissionChangeDialog = ({change, onConfirm, onCancel}) => {
                 <ModalBody>
                     <Typography variant="body" data-testid="permission-change-headline">{headline()}</Typography>
 
+                    {/*
+                      * A blocked plan loses nothing, because the parent role goes on granting the
+                      * permission. Listing the effective sets there would state a loss that does not
+                      * happen, so only the names removed from this role are shown.
+                      */}
                     {blocked ?
-                        null :
+                        <NameList
+                            testId="permission-change-removed"
+                            label={t('rolesAndPermissions.dialog.removed')}
+                            names={plan.removedPermissions}/> :
                         <>
                             <NameList
                                 testId="permission-change-lost"
@@ -99,7 +116,7 @@ export const PermissionChangeDialog = ({change, onConfirm, onCancel}) => {
                         label={t('rolesAndPermissions.dialog.cancel')}
                         data-testid="permission-change-cancel"
                         onClick={onCancel}/>
-                    {blocked ?
+                    {nothingToApply ?
                         null :
                         <Button
                             size="big"

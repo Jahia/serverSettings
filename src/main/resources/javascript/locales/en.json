@@ -147,7 +147,8 @@
       "lost": "The role stops granting",
       "gained": "The role starts granting",
       "added": "Names added",
-      "removed": "Names removed"
+      "removed": "Names removed",
+      "blockedButNamed": "This role names {{permission}}, and the {{role}} role grants it too. Removing the name here leaves the permission granted by {{role}}."
     },
     "explorer": {
       "label": "Permissions",
@@ -187,7 +188,9 @@
     "reason": {
       "direct": "Granted directly",
       "inheritedFromRole": "Inherited from the {{role}} role",
-      "impliedByPermission": "Granted through {{permission}}"
+      "impliedByPermission": "Granted through {{permission}}",
+      "directAndInherited": "Granted directly, and inherited from the {{role}} role",
+      "directAndImplied": "Granted directly, and granted through {{permission}}"
     },
     "reset": {
       "action": "Reset to declared",

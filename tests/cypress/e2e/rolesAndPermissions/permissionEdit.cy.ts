@@ -225,6 +225,52 @@ describe('Roles and permissions - editing what a role grants', () => {
         page.getPermissionCheckbox('api-access').should('be.disabled')
     })
 
+    it('lets a role remove a name its parent role also grants, and says the grant stays', () => {
+        // The two facts ADR-0001 keeps apart, on one row: the role NAMES the permission, and the
+        // parent role HOLDS it. A redundant name is what an administrator opens this screen to clean
+        // up, so the row has to stay editable and the caption has to state both facts.
+        const name = `rpEditRedundant${uniq}`
+        roles.push(name)
+        cy.apolloClient().apollo({
+            mutation: gql`
+                mutation CreateChild($name: String!) {
+                    admin {
+                        rolesAndPermissions {
+                            createRole(name: $name, parentRole: "editor", roleGroup: "edit-role")
+                        }
+                    }
+                }
+            `,
+            variables: { name },
+        })
+        cy.apolloClient().apollo({
+            mutation: GRANT,
+            variables: { role: name, permissions: ['api-access'] },
+        })
+
+        const page = RoleDetailPage.visit(name).openPermissionsTab()
+        page.searchPermission('api-access')
+
+        page.getPermissionState('api-access').should('eq', 'DIRECT')
+        page.getPermissionCheckbox('api-access').should('not.be.disabled')
+        // Crediting only the parent would state something the repository does not say.
+        page.getPermissionRow('api-access').should('contain', 'editor')
+        page.getPermissionRow('api-access').should('contain', 'directly')
+
+        page.togglePermission('api-access')
+
+        // The dialog states what the removal does and what it does not do, and offers to apply it.
+        page.getDialogHeadline().should('contain', 'editor')
+        page.getDialogRemoved().should('contain', 'api-access')
+        page.confirmDialog()
+
+        storedNames(name).should('deep.eq', [])
+        effectiveNames(name).then((names) => {
+            expect(names, 'the parent role goes on granting it').to.include('api-access')
+        })
+        page.getPermissionState('api-access').should('eq', 'INHERITED')
+    })
+
     it('groups the children of a permission back onto it, and states what that starts granting', () => {
         const role = newRole('Group', ['viewComponentRightsTab', 'viewEditRolesTab', 'viewLiveRolesTab'])
         const page = RoleDetailPage.visit(role).openPermissionsTab()
