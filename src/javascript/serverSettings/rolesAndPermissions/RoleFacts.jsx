@@ -34,6 +34,21 @@ Fact.propTypes = {
 export const RoleFacts = ({role}) => {
     const {t} = useTranslation('serverSettings');
 
+    // Three answers, not two. AclListener reads j:privilegedAccess on the whole role chain, so a
+    // sub-role of a privileged role is privileged whatever its own property says, and that is the one
+    // case where nothing on this role can change the answer. So the line names the parent there.
+    const privilegedAccess = () => {
+        if (!role.hasEffectivePrivilegedAccess) {
+            return t('rolesAndPermissions.detail.notPrivileged');
+        }
+
+        if (role.hasPrivilegedAccess) {
+            return t('rolesAndPermissions.detail.privilegedYes');
+        }
+
+        return t('rolesAndPermissions.detail.privilegedViaParent', {parent: role.parentRoleName});
+    };
+
     return (
         <div className={classes.factsBar} data-testid="role-facts">
             {role.description ?
@@ -63,24 +78,9 @@ export const RoleFacts = ({role}) => {
                     <Typography variant="body">{t('rolesAndPermissions.detail.anyNodeType')}</Typography>}
             </Fact>
 
-            {/*
-              * AclListener reads j:privilegedAccess on the whole role chain, so a sub-role of a
-              * privileged role is privileged whatever its own property says. The line states which
-              * of the two it is, because only one of them can be changed here.
-              */}
+            {/* The value answers the label, so it does not repeat it. */}
             <Fact testId="role-facts-privileged" label={t('rolesAndPermissions.detail.privileged')}>
-                <Typography variant="body">
-                    {/*
-                      * The value answers the label, so it does not repeat it. A role privileged only
-                      * through its parent names that parent, because that is the one case where
-                      * nothing on this role can change the answer.
-                      */}
-                    {role.hasEffectivePrivilegedAccess ?
-                        t(role.hasPrivilegedAccess ?
-                            'rolesAndPermissions.detail.privilegedYes' :
-                            'rolesAndPermissions.detail.privilegedViaParent', {parent: role.parentRoleName}) :
-                        t('rolesAndPermissions.detail.notPrivileged')}
-                </Typography>
+                <Typography variant="body">{privilegedAccess()}</Typography>
             </Fact>
 
             <Fact testId="role-facts-visibility" label={t('rolesAndPermissions.detail.visibility')}>
