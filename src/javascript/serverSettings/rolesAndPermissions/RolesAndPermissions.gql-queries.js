@@ -46,6 +46,11 @@ export const GET_ROLES = gql`
                     subRoleNames
                     roleGroup
                     nodeTypes
+                    grantSummary(language: $language, limit: 3) {
+                        labels
+                        remaining
+                        isAdditive
+                    }
                     isHidden
                     hasPrivilegedAccess
                     hasEffectivePrivilegedAccess
@@ -132,6 +137,12 @@ export const GET_ROLE = gql`
                     description(language: $language)
                     translatedLanguages
                     unknownPermissionNames
+                    directPermissionNames
+                    usage {
+                        entryCount
+                        principals
+                        isTruncated
+                    }
                     warnings {
                         code
                         subject

@@ -35,12 +35,9 @@
       "columns": {
         "role": "Rôle",
         "scope": "Portée",
-        "grantableOn": "Accordable sur",
-        "names": "Nomme",
-        "reaches": "Atteint",
-        "targets": "Cibles",
         "flags": "Marqueurs",
-        "actions": "Actions"
+        "actions": "Actions",
+        "grants": "Accorde"
       },
       "create": "Créer un rôle",
       "createTitle": "Créer un rôle",
@@ -61,14 +58,22 @@
       "privilegedByParent": "Privilégié via {{parent}}",
       "privilegedVia": "Privilégié via {{parent}}",
       "hidden": "Masqué du sélecteur",
-      "matchCount": "{{count}} rôles sur {{total}}",
+      "matchCount": "{{count}} role sur {{total}}",
       "noMatch": "Aucun rôle ne correspond à ces filtres.",
       "ambiguousTitle": "Un nom de rôle est porté par plusieurs nœuds de rôle",
       "ambiguousNames": "Une entrée de contrôle d'accès porte un nom de rôle, et Jahia le résout par une requête qui prend le premier résultat. Les permissions appliquées sont donc indéfinies pour ces noms : {{names}}",
       "missingDeclared": "{{count}} role declare par les sources installees est absent de ce referentiel. Le restaurer remet le role en place, et les entrees de controle d'acces qui le nommaient accordent de nouveau.",
       "restoreRole": "Restaurer {{role}}",
       "missingDeclared_plural": "{{count}} roles declares par les sources installees sont absents de ce referentiel. En restaurer un remet le role en place, et les entrees de controle d'acces qui le nommaient accordent de nouveau.",
-      "missingDeclaredTitle": "Des roles sont absents"
+      "missingDeclaredTitle": "Des roles sont absents",
+      "grantsList": "{{labels}}",
+      "grantsAdds": "Ajoute {{labels}}",
+      "grantsMore": "et {{count}} permission de plus",
+      "grantsMore_plural": "et {{count}} permissions de plus",
+      "grantsNothing": "Rien qui lui soit propre",
+      "matchCount_plural": "{{count}} roles sur {{total}}",
+      "duplicate": "Cloner le role",
+      "delete": "Supprimer le role"
     },
     "warning": {
       "DUPLICATE_TARGET_PATH": "Deux cibles s'appliquent sur {{subject}}",
@@ -124,7 +129,11 @@
       "notApplicable": "Ce changement ne s'applique pas à cette cible.",
       "unknownGranted": "Accordées et déclarées par aucun module : {{names}}",
       "removeUnknown": "Retirer {{name}}",
-      "areaWithCount": "{{area}} ({{granted}} sur {{total}})"
+      "areaWithCount": "{{area}} ({{granted}} sur {{total}})",
+      "appliesOnHint": "Ou le role s'applique. Une cible declaree par un role parent est affichee et ne peut pas etre retiree ici.",
+      "edit": "Modifier",
+      "editTitle": "Modifier le role {{role}}",
+      "close": "Fermer"
     },
     "dialog": {
       "revokeTitle": "Retirer une permission",

@@ -35,12 +35,9 @@
       "columns": {
         "role": "Role",
         "scope": "Scope",
-        "grantableOn": "Grantable on",
-        "names": "Names",
-        "reaches": "Reaches",
-        "targets": "Targets",
         "flags": "Flags",
-        "actions": "Actions"
+        "actions": "Actions",
+        "grants": "Grants"
       },
       "create": "Create a role",
       "createTitle": "Create a role",
@@ -61,14 +58,22 @@
       "privilegedByParent": "Privileged through {{parent}}",
       "privilegedVia": "Privileged via {{parent}}",
       "hidden": "Hidden from the picker",
-      "matchCount": "{{count}} of {{total}} roles",
+      "matchCount": "{{count}} of {{total}} role",
       "noMatch": "No role matches these filters.",
       "ambiguousTitle": "A role name is carried by more than one role node",
       "ambiguousNames": "An access control entry holds a role name, and Jahia resolves it with a query that takes the first result. So which permissions apply is undefined for these names: {{names}}",
       "missingDeclared": "{{count}} role the installed sources declare is not in this repository. Restoring it puts the role back, and the access control entries that named it start granting again.",
       "restoreRole": "Restore {{role}}",
       "missingDeclared_plural": "{{count}} roles the installed sources declare are not in this repository. Restoring one puts the role back, and the access control entries that named it start granting again.",
-      "missingDeclaredTitle": "Roles are missing"
+      "missingDeclaredTitle": "Roles are missing",
+      "grantsList": "{{labels}}",
+      "grantsAdds": "Adds {{labels}}",
+      "grantsMore": "and {{count}} more permission",
+      "grantsMore_plural": "and {{count}} more permissions",
+      "grantsNothing": "Nothing of its own",
+      "matchCount_plural": "{{count}} of {{total}} roles",
+      "duplicate": "Clone the role",
+      "delete": "Delete the role"
     },
     "warning": {
       "DUPLICATE_TARGET_PATH": "Two targets apply on {{subject}}",
@@ -124,7 +129,11 @@
       "notApplicable": "That change does not apply to this target.",
       "unknownGranted": "Granted and declared by no module: {{names}}",
       "removeUnknown": "Remove {{name}}",
-      "areaWithCount": "{{area}} ({{granted}} of {{total}})"
+      "areaWithCount": "{{area}} ({{granted}} of {{total}})",
+      "appliesOnHint": "Where the role reaches. A target only a parent role declares is shown and cannot be removed here.",
+      "edit": "Edit",
+      "editTitle": "Edit the {{role}} role",
+      "close": "Close"
     },
     "dialog": {
       "revokeTitle": "Remove a permission",

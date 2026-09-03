@@ -37,6 +37,8 @@ import org.jahia.modules.serversettings.roles.seed.SeedTarget;
 import org.jahia.modules.serversettings.roles.seed.RoleSeedCatalog;
 import org.jahia.modules.serversettings.roles.seed.RoleSeed;
 import org.jahia.modules.serversettings.roles.seed.ResetPlan;
+import javax.jcr.nodetype.ConstraintViolationException;
+import java.util.regex.Pattern;
 
 @Component(service = RolesAndPermissionsService.class, immediate = true)
 public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsService {
@@ -527,7 +529,8 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
     @Override
     public String createRole(String name, String parentRoleName, String roleGroup) throws RepositoryException {
         RoleModel model = getRoleModel();
-        refuseTakenRoleName(model, name);
+        validateRoleName(model, name);
+        validateRoleGroup(roleGroup);
 
         JCRSessionWrapper session = currentSession();
         JCRNodeWrapper parent;
@@ -557,7 +560,7 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
         if (source == null) {
             throw new PathNotFoundException("No role is named " + roleName);
         }
-        refuseTakenRoleName(model, newName);
+        validateRoleName(model, newName);
 
         JCRSessionWrapper session = currentSession();
         JCRNodeWrapper sourceNode = session.getNode(source.getPath());
@@ -731,11 +734,58 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
         return ISO9075.encode(relative.replace("/", "-")) + "-access";
     }
 
-    private void refuseTakenRoleName(RoleModel model, String name) throws RepositoryException {
+    /**
+     * Characters a JCR node name cannot carry.
+     * <p>
+     * A colon opens a namespace prefix, a slash separates path segments, a star and a pipe are query
+     * syntax, and brackets index a same-name sibling. A role name reaches the repository as a node
+     * name, so a name carrying one of these does not become the role the caller asked for.
+     */
+    private static final Pattern ILLEGAL_NAME_CHARACTERS = Pattern.compile("[/:\\[\\]|*]");
+
+    /**
+     * Refuses a role name the repository or this model could not carry.
+     * <p>
+     * The check is here and not only in the browser, because two administrators can pick one name at
+     * the same time, and because the mutation is a public API that any client can call.
+     */
+    private void validateRoleName(RoleModel model, String name) throws RepositoryException {
+        if (name == null || name.trim().isEmpty()) {
+            throw new ConstraintViolationException("A role name is required");
+        }
+        if (!name.equals(name.trim())) {
+            throw new ConstraintViolationException(
+                    "A role name cannot open or close with a space: '" + name + "'");
+        }
+        if (ILLEGAL_NAME_CHARACTERS.matcher(name).find()) {
+            throw new ConstraintViolationException(
+                    "A role name cannot carry any of / : [ ] | * , and '" + name + "' does");
+        }
+        if (".".equals(name) || "..".equals(name)) {
+            throw new ConstraintViolationException("A role cannot be named '" + name + "'");
+        }
         if (model.get(name) != null) {
             // An access control entry holds a role NAME, so two roles of one name make the applied
             // permissions undefined. The screen refuses to create the second one.
             throw new ItemExistsException("A role is already named " + name);
+        }
+    }
+
+    /**
+     * Refuses a role group no role currently carries.
+     * <p>
+     * A role group is a scope the platform defines, and a typo in one produces a scope that exists
+     * only on that role and that no screen or seed knows. The set is read from the repository rather
+     * than configured, so a group a module introduces is accepted as soon as one role carries it.
+     */
+    private void validateRoleGroup(String roleGroup) throws RepositoryException {
+        if (roleGroup == null || roleGroup.trim().isEmpty()) {
+            return;
+        }
+        List<String> known = getRoleGroups();
+        if (!known.contains(roleGroup)) {
+            throw new ConstraintViolationException("No role carries the scope '" + roleGroup
+                    + "'. This instance uses: " + String.join(", ", known));
         }
     }
 

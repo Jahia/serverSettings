@@ -183,8 +183,9 @@ describe('Roles and permissions - nothing irreversible happens on one click', ()
     })
 
     it('does not remove a target on one click, and lists the permissions that would go', () => {
-        const page = RoleDetailPage.visit(withTarget).openPermissionsTab()
-        page.selectTarget('currentSite-access')
+        // A target is where the role reaches, so it is removed from the role's own settings and no
+        // longer from the screen that grants permissions.
+        RoleDetailPage.visit(withTarget).openIdentityTab()
 
         cy.get('[data-testid="role-remove-target-currentSite-access"]').click()
 
@@ -204,8 +205,7 @@ describe('Roles and permissions - nothing irreversible happens on one click', ()
     })
 
     it('removes the target once the path is typed, and only then', () => {
-        const page = RoleDetailPage.visit(withTarget).openPermissionsTab()
-        page.selectTarget('currentSite-access')
+        RoleDetailPage.visit(withTarget).openIdentityTab()
 
         cy.get('[data-testid="role-remove-target-currentSite-access"]').click()
         dialog.word().type('currentSite')

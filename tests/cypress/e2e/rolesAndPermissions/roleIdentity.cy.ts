@@ -141,7 +141,12 @@ describe('Roles and permissions - the identity tab', () => {
     })
 
     it('goes back to the list, and the list is the one the route rendered before', () => {
+        // The role's settings are a dialog over the page, so the way out of them is to close them.
+        // Reaching the page's own back button through the overlay is not something a person can do
+        // either, and a test that did it would be testing a path the interface does not offer.
         const page = RoleDetailPage.visit(role).openIdentityTab()
+        page.closeEdit()
+
         page.back()
         cy.get(`[data-testid="role-name-${role}"]`).should('be.visible')
     })

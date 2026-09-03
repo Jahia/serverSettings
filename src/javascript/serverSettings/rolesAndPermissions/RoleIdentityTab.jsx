@@ -1,13 +1,13 @@
-import React, {useCallback, useState} from 'react';
+import React, {useState} from 'react';
 import PropTypes from 'prop-types';
-import {useLazyQuery, useMutation} from 'react-apollo';
+import {useMutation} from 'react-apollo';
 import {useTranslation} from 'react-i18next';
-import {Button, Chip, Dropdown, Field, Input, Switch, Textarea, Typography} from '@jahia/moonstone';
-import {RESET_ROLE, ROLE_RESET_PLAN, SAVE_ROLE_GROUP, SAVE_ROLE_METADATA, SAVE_ROLE_TEXT} from './RolesAndPermissions.gql-queries';
-import RoleResetDialog from './RoleResetDialog';
+import {Add, Button, Chip, Delete, Dropdown, Field, Input, Switch, Textarea, Typography} from '@jahia/moonstone';
+import {ADD_TARGET, REMOVE_TARGET, SAVE_ROLE_GROUP, SAVE_ROLE_METADATA, SAVE_ROLE_TEXT} from './RolesAndPermissions.gql-queries';
+import ConfirmDestructiveDialog from './ConfirmDestructiveDialog';
 import classes from './styles.css';
 
-export const RoleIdentityTab = ({role, roleGroups, language, onSaved}) => {
+export const RoleIdentityTab = ({role, roleGroups, language, saveRef, onSaved}) => {
     const {t} = useTranslation('serverSettings');
 
     const [title, setTitle] = useState(role.title || '');
@@ -16,63 +16,40 @@ export const RoleIdentityTab = ({role, roleGroups, language, onSaved}) => {
     const [nodeTypes, setNodeTypes] = useState((role.nodeTypes || []).join(', '));
     const [hidden, setHidden] = useState(role.isHidden);
     const [privileged, setPrivileged] = useState(role.hasPrivilegedAccess);
+    const [newTargetPath, setNewTargetPath] = useState('');
+    const [pendingTargetRemoval, setPendingTargetRemoval] = useState(null);
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
     const [error, setError] = useState(null);
 
-    const [resetPlan, setResetPlan] = useState(null);
-    const [resetError, setResetError] = useState(null);
-    const [resetting, setResetting] = useState(false);
+    const [addTarget] = useMutation(ADD_TARGET);
+    const [removeTarget] = useMutation(REMOVE_TARGET);
 
-    // The plan is read when the action is asked for, and not with the role. Reading it walks every
-    // installed bundle, which is not work to do on a screen that may never reset anything.
-    const [readResetPlan] = useLazyQuery(ROLE_RESET_PLAN, {
-        fetchPolicy: 'network-only',
-        onCompleted: data => {
-            const answer = data?.admin?.rolesAndPermissions?.role;
-            if (!answer?.resetPlan?.applicable) {
-                setResetError(t('rolesAndPermissions.reset.notDeclared'));
-                return;
-            }
-
-            if (answer.resetPlan.noop) {
-                setResetError(t('rolesAndPermissions.reset.alreadyMatches'));
-                return;
-            }
-
-            setResetPlan({...answer.resetPlan, revision: answer.revision});
-        },
-        onError: () => setResetError(t('rolesAndPermissions.reset.planFailed'))
-    });
-
-    const [resetRole] = useMutation(RESET_ROLE);
-
-    const applyReset = useCallback(async () => {
-        setResetting(true);
-        setResetError(null);
-        try {
-            const answer = await resetRole({variables: {role: role.name, revision: resetPlan.revision}});
-            const outcome = answer?.data?.admin?.rolesAndPermissions?.resetRoleToDeclared?.outcome;
-            if (outcome === 'REFUSED_STALE_REVISION') {
-                // Somebody wrote to the role between the preview and the apply, so the difference on
-                // screen is not the difference that would be written.
-                setResetError(t('rolesAndPermissions.reset.stale'));
-                return;
-            }
-
-            setResetPlan(null);
-            onSaved();
-        } catch (e) {
-            setResetError(e.message);
-        } finally {
-            setResetting(false);
+    // A target is created and removed as its own write, and not on save. It carries permissions, so
+    // batching it with the metadata would make one Save button do two very different things.
+    const onAddTarget = async () => {
+        const path = newTargetPath.trim();
+        if (path === '') {
+            return;
         }
-    }, [resetRole, resetPlan, role, onSaved, t]);
+
+        await addTarget({variables: {role: role.name, path}});
+        setNewTargetPath('');
+        onSaved();
+    };
+
+    const onRemoveTarget = async () => {
+        await removeTarget({variables: {role: role.name, target: pendingTargetRemoval.id}});
+        setPendingTargetRemoval(null);
+        onSaved();
+    };
 
     const [saveMetadata] = useMutation(SAVE_ROLE_METADATA);
     const [saveRoleGroup] = useMutation(SAVE_ROLE_GROUP);
     const [saveText] = useMutation(SAVE_ROLE_TEXT);
 
+    // The dialog puts Save in its footer, where it stays in view however long the form is, so the
+    // form hands its save up rather than drawing a button that scrolls away.
     const save = async () => {
         setSaving(true);
         setSaved(false);
@@ -108,6 +85,10 @@ export const RoleIdentityTab = ({role, roleGroups, language, onSaved}) => {
             setSaving(false);
         }
     };
+
+    if (saveRef) {
+        saveRef.current = {save, isSaving: saving, isSaved: saved};
+    }
 
     return (
         <div className={classes.form} data-testid="role-identity-tab">
@@ -179,6 +160,59 @@ export const RoleIdentityTab = ({role, roleGroups, language, onSaved}) => {
                     }}/>
             </Field>
 
+            {/*
+              * Where the role reaches. This is a property of the role, so it is edited here and not on
+              * the screen that grants permissions: that screen reads a target and never creates one.
+              * A target only an ancestor role declares is shown and cannot be removed, because such a
+              * target is not this role's to remove.
+              */}
+            <Field
+                id="role-targets-field"
+                data-testid="role-targets-field"
+                label={t('rolesAndPermissions.detail.appliesOn')}
+                helper={t('rolesAndPermissions.detail.appliesOnHint')}
+            >
+                <div className={classes.chipRow}>
+                    {role.grants.map(grant => (
+                        <span key={grant.id || 'currentNode'} className={classes.targetChip}>
+                            <Chip
+                                label={grant.id === '' ?
+                                    t('rolesAndPermissions.target.currentNode') :
+                                    (grant.path || grant.id)}
+                                data-testid={`role-edit-target-${grant.id || 'currentNode'}`}/>
+                            {/*
+                              * The removal is its own button. Chip takes a label, a colour and an
+                              * icon, and nothing else, so a chip cannot carry an action.
+                              */}
+                            {grant.id !== '' && !grant.isInheritedOnly ?
+                                <Button
+                                    size="small"
+                                    variant="ghost"
+                                    icon={<Delete/>}
+                                    data-testid={`role-remove-target-${grant.id}`}
+                                    onClick={() => setPendingTargetRemoval(grant)}/> :
+                                null}
+                        </span>
+                    ))}
+                </div>
+                <div className={classes.switchRow}>
+                    <Input
+                        className={classes.targetInput}
+                        value={newTargetPath}
+                        placeholder={t('rolesAndPermissions.detail.newTargetPlaceholder')}
+                        data-testid="role-new-target-path"
+                        onChange={event => setNewTargetPath(event.target.value)}/>
+                    <Button
+                        size="default"
+                        variant="outlined"
+                        icon={<Add/>}
+                        isDisabled={newTargetPath.trim() === ''}
+                        label={t('rolesAndPermissions.detail.addTarget')}
+                        data-testid="role-add-target"
+                        onClick={onAddTarget}/>
+                </div>
+            </Field>
+
             <Field id="role-hidden-field" data-testid="role-hidden-field" label={t('rolesAndPermissions.detail.visibility')}>
                 <span className={classes.switchRow}>
                     <Switch
@@ -238,46 +272,41 @@ export const RoleIdentityTab = ({role, roleGroups, language, onSaved}) => {
                 </Typography> :
                 null}
 
-            <div className={classes.formActions}>
-                <Button
-                    size="big"
-                    color="accent"
-                    isDisabled={saving}
-                    label={t('rolesAndPermissions.detail.save')}
-                    data-testid="role-identity-save"
-                    onClick={save}/>
-                <Button
-                    size="big"
-                    variant="outlined"
-                    label={t('rolesAndPermissions.reset.action')}
-                    data-testid="role-reset"
-                    onClick={() => {
-                        setResetError(null);
-                        readResetPlan({variables: {role: role.name}});
-                    }}/>
-                {saved ?
-                    <Typography variant="body" data-testid="role-identity-saved">
-                        {t('rolesAndPermissions.detail.saved')}
-                    </Typography> :
-                    null}
-                {resetError && !resetPlan ?
-                    <Typography variant="body" className={classes.formError} data-testid="role-reset-message">
-                        {resetError}
-                    </Typography> :
-                    null}
-            </div>
+            {saveRef ?
+                null :
+                <div className={classes.formActions}>
+                    <Button
+                        size="big"
+                        color="accent"
+                        isDisabled={saving}
+                        label={t('rolesAndPermissions.detail.save')}
+                        data-testid="role-identity-save"
+                        onClick={save}/>
+                    {saved ?
+                        <Typography variant="body" data-testid="role-identity-saved">
+                            {t('rolesAndPermissions.detail.saved')}
+                        </Typography> :
+                        null}
+                </div>}
 
-            {resetPlan ?
-                <RoleResetDialog
-                    roleName={role.name}
-                    plan={resetPlan}
-                    error={resetError}
-                    isApplying={resetting}
-                    onConfirm={applyReset}
-                    onCancel={() => {
-                        setResetPlan(null);
-                        setResetError(null);
-                    }}/> :
+            {pendingTargetRemoval ?
+                <ConfirmDestructiveDialog
+                    title={t('rolesAndPermissions.confirm.removeTargetTitle')}
+                    confirmLabel={t('rolesAndPermissions.confirm.removeTargetConfirm')}
+                    message={t('rolesAndPermissions.confirm.removeTargetMessage', {
+                        path: pendingTargetRemoval.path
+                    })}
+                    consequences={pendingTargetRemoval.directPermissions.length === 0 ? [] : [
+                        t('rolesAndPermissions.confirm.removeTargetPermissions', {
+                            count: pendingTargetRemoval.directPermissions.length,
+                            names: pendingTargetRemoval.directPermissions.join(', ')
+                        })
+                    ]}
+                    confirmWord={pendingTargetRemoval.directPermissions.length > 0 ?
+                        pendingTargetRemoval.path :
+                        null}
+                    onConfirm={onRemoveTarget}
+                    onCancel={() => setPendingTargetRemoval(null)}/> :
                 null}
         </div>
     );
@@ -296,11 +325,21 @@ RoleIdentityTab.propTypes = {
         subRoleNames: PropTypes.arrayOf(PropTypes.string).isRequired,
         isHidden: PropTypes.bool.isRequired,
         hasPrivilegedAccess: PropTypes.bool.isRequired,
-        hasEffectivePrivilegedAccess: PropTypes.bool.isRequired
+        hasEffectivePrivilegedAccess: PropTypes.bool.isRequired,
+        grants: PropTypes.arrayOf(PropTypes.shape({
+            id: PropTypes.string.isRequired,
+            path: PropTypes.string,
+            isInheritedOnly: PropTypes.bool,
+            directPermissions: PropTypes.arrayOf(PropTypes.string).isRequired
+        })).isRequired
     }).isRequired,
     roleGroups: PropTypes.arrayOf(PropTypes.string).isRequired,
+    /** When given, the form writes its save handler here and draws no button of its own. */
+    saveRef: PropTypes.object,
     language: PropTypes.string.isRequired,
     onSaved: PropTypes.func.isRequired
 };
+
+RoleIdentityTab.defaultProps = {saveRef: null};
 
 export default RoleIdentityTab;

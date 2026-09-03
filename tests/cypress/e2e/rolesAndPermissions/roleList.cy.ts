@@ -74,54 +74,35 @@ describe('Roles and permissions - the role list', () => {
         cy.get('[data-testid="role-hidden-translator"]').should('be.visible')
     })
 
-    it('states the scope of a role, and where the role can be granted', () => {
+    it('states the scope of a role', () => {
         const page = RoleListPage.visit()
 
         page.getScope('server-administrator').should('have.text', 'server-role')
-        // root-roles.xml gives this role j:nodeTypes="rep:root", so it is granted at the repository root.
-        page.getNodeTypes('server-administrator').should('contain', 'rep:root')
-
-        // site-administrator is declared a site role and carries no j:nodeTypes, so
-        // JCRNodeWrapperImpl.getAvailableRoles offers it on any node type. The screen says so rather
-        // than leaving the column empty.
         page.getScope('site-administrator').should('have.text', 'site-role')
-        page.getNodeTypes('site-administrator').should('contain', 'Any node type')
     })
 
-    it('states what a role names, how far that reaches, and how much comes from the parent role', () => {
+    it('says what a role grants, in the words the rest of the interface uses', () => {
         const page = RoleListPage.visit()
 
-        // editor-in-chief names a handful of permissions and reaches far further, because jContent
-        // aggregates a subtree and the editor role adds its own set. So the two numbers must differ,
-        // and the reach cell must attribute part of itself to the parent role.
-        let named = 0
-        page.getNamedCount('editor-in-chief')
-            .invoke('text')
-            .then((text) => {
-                named = Number(text)
-                expect(named, 'the role names at least one permission').to.be.greaterThan(0)
-            })
+        // The cell carries permission labels and not permission names, because the row is read by
+        // somebody deciding which role to open. The server reduces the role's own names to the ones
+        // no other listed name already covers, so nothing here repeats itself.
+        page.getGrants('reader').should('contain', 'Add comment')
+        page.getGrants('reader').should('not.contain', 'addComment')
 
-        let reaches = 0
-        page.getReachCount('editor-in-chief')
-            .invoke('text')
-            .then((text) => {
-                reaches = Number(text)
-                expect(reaches, 'aggregation and inheritance reach further than the names').to.be.greaterThan(
-                    named,
-                )
-            })
+        // A role that names nothing of its own says so, rather than showing an empty cell that could
+        // equally mean the screen failed to load.
+        page.getGrants('jahiapp-user').should('contain', 'Nothing of its own')
+    })
 
-        page.getInheritedCaption('editor-in-chief')
-            .invoke('text')
-            .then((text) => {
-                const inherited = Number((text.match(/\d+/) || ['0'])[0])
-                expect(inherited, 'the editor role contributes to the reach').to.be.greaterThan(0)
-                expect(inherited, 'the inherited part cannot exceed the reach').to.be.at.most(reaches)
-            })
+    it('says a nested role ADDS, because its parent already grants the rest', () => {
+        const page = RoleListPage.visit()
 
-        // A role with no parent attributes none of its reach, so the caption is absent rather than zero.
-        cy.get('[data-testid="role-inherited-count-editor"]').should('not.exist')
+        // editor-in-chief is nested inside editor, so what it names is what it adds on top. Reading
+        // the same cell as a complete list of what the role grants would be wrong by everything the
+        // parent grants.
+        page.getGrants('editor-in-chief').should('contain', 'Adds')
+        page.getGrants('editor').should('not.contain', 'Adds')
     })
 
     it('reports a role as privileged when only an ancestor role sets the property', () => {

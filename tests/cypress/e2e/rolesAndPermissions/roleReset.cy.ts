@@ -112,13 +112,14 @@ const dialog = {
     word: () => cy.get('[data-testid="reset-word"]'),
     confirm: () => cy.get('[data-testid="reset-confirm"]'),
     cancel: () => cy.get('[data-testid="reset-cancel"]'),
-    message: () => cy.get('[data-testid="role-reset-message"]'),
+    message: () => cy.get('[data-testid="role-action-message"]'),
 }
 
+// The reset acts on the role as a whole, so it lives in the header menu beside the other actions on
+// the role, and no longer inside the form that edits the role's own settings.
 const openReset = (role: string) => {
     const page = RoleDetailPage.visit(role)
-    page.openIdentityTab()
-    cy.get('[data-testid="role-reset"]').click()
+    page.chooseAction('reset')
     return page
 }
 

@@ -14,6 +14,8 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Predicate;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 /**
  * Every role of the instance, and what each one effectively grants.
@@ -233,6 +235,37 @@ public final class RoleModel {
      * @param roleName the role
      * @return the names, sorted
      */
+    /**
+     * The permissions worth naming when the role has to be described in one line.
+     * <p>
+     * These are the names the role itself carries, with every name an already listed name covers
+     * removed. A role that names a permission and three of its descendants is described by the one
+     * permission, because granting it granted the other three anyway.
+     * <p>
+     * Nothing is chosen or ranked by meaning. The reduction is the aggregation the repository already
+     * defines, so the result says what the role names and not what a screen thinks matters.
+     *
+     * @return the reduced names, the ones reaching the most permissions first, then alphabetically
+     */
+    public List<String> getSummaryPermissionNames(String roleName) {
+        SortedSet<String> named = getDirectPermissionNames(roleName);
+        return named.stream()
+                .filter(name -> catalog.getAncestorNames(name).stream().noneMatch(named::contains))
+                .sorted(Comparator.comparingInt(this::reachOf).reversed().thenComparing(name -> name))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * How many permissions a name reaches, itself included.
+     * <p>
+     * This is what makes one name more telling than another. Depth in the tree does not: a permission
+     * sitting at the top can grant nothing, while a deeper one can carry the whole point of a role.
+     * Reach is measured from the catalog, so the order states a fact rather than an opinion.
+     */
+    private int reachOf(String permissionName) {
+        return 1 + catalog.getDescendantNames(permissionName).size();
+    }
+
     public SortedSet<String> getEffectivePermissionNames(String roleName) {
         return collectNames(roleName, effective -> true);
     }

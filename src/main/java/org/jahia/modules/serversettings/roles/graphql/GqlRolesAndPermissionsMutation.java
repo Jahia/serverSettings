@@ -14,6 +14,7 @@ import graphql.annotations.annotationTypes.GraphQLNonNull;
 import org.jahia.modules.graphql.provider.dxm.GqlConstraintViolationException;
 import org.jahia.modules.graphql.provider.dxm.osgi.annotations.GraphQLOsgiService;
 import org.jahia.modules.serversettings.roles.RolesAndPermissionsService;
+import javax.jcr.nodetype.ConstraintViolationException;
 
 /**
  * The write entry point of the roles and permissions administration.
@@ -95,9 +96,9 @@ public class GqlRolesAndPermissionsMutation {
             throws RepositoryException {
         try {
             return rolesAndPermissionsService.createRole(name, parentRole, roleGroup);
-        } catch (ItemExistsException e) {
+        } catch (ItemExistsException | ConstraintViolationException e) {
             // A plain repository exception reaches the client as "Internal Server Error", which tells
-            // an administrator nothing. This one carries its own message.
+            // an administrator nothing. These carry their own message.
             throw new GqlConstraintViolationException(e, Collections.emptyMap());
         }
     }
@@ -113,7 +114,7 @@ public class GqlRolesAndPermissionsMutation {
             Boolean withSubRoles) throws RepositoryException {
         try {
             return rolesAndPermissionsService.duplicateRole(role, newName, Boolean.TRUE.equals(withSubRoles));
-        } catch (ItemExistsException e) {
+        } catch (ItemExistsException | ConstraintViolationException e) {
             throw new GqlConstraintViolationException(e, Collections.emptyMap());
         }
     }

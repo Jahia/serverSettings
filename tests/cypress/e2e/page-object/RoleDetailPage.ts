@@ -13,27 +13,46 @@ export class RoleDetailPage extends BasePage {
     }
 
     /**
-     * Select one tab.
+     * Wait for the permissions to be on screen.
      *
-     * Moonstone gives the selected tab `pointer-events: none`, so clicking the tab already open can
-     * never land. The click is therefore conditional on the tab not being selected.
+     * The page used to carry two tabs and now carries one subject, so there is nothing to click: the
+     * permissions ARE the page. The method stays because what a spec means by it has not changed.
      */
-    private openTab(tab: string, panel: string) {
-        cy.get(`[data-testid="role-tab-${tab}"]`).then((element) => {
-            if (element.attr('aria-selected') !== 'true') {
-                cy.wrap(element).click()
-            }
-        })
-        cy.get(`[data-testid="${panel}"]`).should('be.visible')
+    openPermissionsTab() {
+        cy.get('[data-testid="role-permissions-tab"]').should('be.visible')
         return this
     }
 
-    openPermissionsTab() {
-        return this.openTab('permissions', 'role-permissions-tab')
+    /**
+     * Open the role's own settings.
+     *
+     * These used to be a tab beside the permissions. Editing the role is a detour from deciding what
+     * it grants, so it is a dialog opened from the header, the way creating a role is.
+     */
+    openIdentityTab() {
+        cy.get('[data-testid="role-edit"]').click()
+        cy.get('[data-testid="role-identity-tab"]').should('be.visible')
+        return this
     }
 
-    openIdentityTab() {
-        return this.openTab('identity', 'role-identity-tab')
+    closeEdit() {
+        cy.get('[data-testid="role-edit-close"]').click()
+        cy.get('[data-testid="role-edit-dialog"]').should('not.exist')
+        return this
+    }
+
+    /** Open the header menu that carries every action on the role as a whole. */
+    openActionsMenu() {
+        cy.get('[data-testid="role-more-actions"]').click()
+        cy.get('[data-testid="role-actions-menu"]').should('be.visible')
+        return this
+    }
+
+    /** One action from the header menu: `clone`, `reset` or `delete`. */
+    chooseAction(action: 'clone' | 'reset' | 'delete') {
+        this.openActionsMenu()
+        cy.get(`[data-testid="role-action-${action}"]`).click()
+        return this
     }
 
     back() {
@@ -43,9 +62,33 @@ export class RoleDetailPage extends BasePage {
 
     // ----- the permissions tab -----
 
-    /** Pick a target. Pass `currentNode` for the node the role is granted on. */
+    /**
+     * Pick a target. Pass `currentNode` for the node the role is granted on.
+     *
+     * A target is a tab, and Moonstone gives the selected tab `pointer-events: none`, so a click on
+     * the tab already open can never land. The click is conditional on the tab not being selected.
+     */
     selectTarget(targetId: string) {
-        cy.get(`[data-testid="role-target-${targetId}"]`).click()
+        cy.get(`[data-testid="role-target-${targetId}"]`).then((element) => {
+            if (element.attr('aria-selected') !== 'true') {
+                cy.wrap(element).click()
+            }
+        })
+        return this
+    }
+
+    /**
+     * Add a target to the role.
+     *
+     * A target is where the role reaches, which is a property of the role, so it is added from the
+     * edit dialog and no longer from the screen that grants permissions.
+     */
+    addTarget(path: string) {
+        this.openIdentityTab()
+        cy.get('[data-testid="role-new-target-path"]').clear()
+        cy.get('[data-testid="role-new-target-path"]').type(path)
+        cy.get('[data-testid="role-add-target"]').click()
+        this.closeEdit()
         return this
     }
 

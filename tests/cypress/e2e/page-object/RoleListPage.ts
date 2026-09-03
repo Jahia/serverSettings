@@ -21,30 +21,13 @@ export class RoleListPage extends BasePage {
         return cy.get(`[data-testid="role-name-${role}"]`)
     }
 
+    /** What the role grants, in the words the screens use. */
+    getGrants(role: string) {
+        return cy.get(`[data-testid="role-grants-${role}"]`)
+    }
+
     getScope(role: string) {
         return cy.get(`[data-testid="role-scope-${role}"]`)
-    }
-
-    getNodeTypes(role: string) {
-        return cy.get(`[data-testid="role-nodetypes-${role}"]`)
-    }
-
-    /** The count of permissions the role's own targets name. */
-    getNamedCount(role: string) {
-        return cy.get(`[data-testid="role-named-${role}"]`)
-    }
-
-    /** The count of permissions the role grants across every target. */
-    getReachCount(role: string) {
-        return cy.get(`[data-testid="role-reach-count-${role}"]`)
-    }
-
-    /**
-     * The caption naming the part of the reach a parent role contributes. Absent on a role with no
-     * parent, so a test asserts on its absence rather than on a zero.
-     */
-    getInheritedCaption(role: string) {
-        return cy.get(`[data-testid="role-inherited-count-${role}"]`)
     }
 
     getFlags(role: string) {
@@ -80,8 +63,19 @@ export class RoleListPage extends BasePage {
     }
 
     /** Narrow the list to one scope. Pass `any` for the chip that keeps every role. */
+    /**
+     * Show one scope.
+     *
+     * A role belongs to exactly one scope, so choosing one is switching view rather than narrowing a
+     * set. That is a tab, and Moonstone gives the selected tab `pointer-events: none`, so the click is
+     * conditional on the tab not being selected.
+     */
     filterByScope(scope: string) {
-        cy.get(`[data-testid="role-scope-filter-${scope}"]`).click()
+        cy.get(`[data-testid="role-scope-tab-${scope}"]`).then((element) => {
+            if (element.attr('aria-selected') !== 'true') {
+                cy.wrap(element).click()
+            }
+        })
         return this
     }
 

@@ -2,17 +2,14 @@ import React, {useMemo, useState} from 'react';
 import PropTypes from 'prop-types';
 import {useApolloClient, useMutation} from 'react-apollo';
 import {useTranslation} from 'react-i18next';
-import {Add, Button, Checkbox, Chip, Delete, EmptyData, Input, SearchInput, TreeView, Typography} from '@jahia/moonstone';
+import {Button, Checkbox, EmptyData, SearchInput, Tab, TabItem, TreeView, Typography} from '@jahia/moonstone';
 import {
-    ADD_TARGET,
     COLLAPSE_PERMISSION,
     GET_COLLAPSE_PLAN,
     GET_REVOKE_PLAN,
     GRANT_PERMISSIONS,
-    REMOVE_TARGET,
     REVOKE_PERMISSION
 } from './RolesAndPermissions.gql-queries';
-import ConfirmDestructiveDialog from './ConfirmDestructiveDialog';
 import PermissionChangeDialog from './PermissionChangeDialog';
 import classes from './styles.css';
 
@@ -42,14 +39,10 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
     const [search, setSearch] = useState('');
     const [change, setChange] = useState(null);
     const [notice, setNotice] = useState(null);
-    const [newTargetPath, setNewTargetPath] = useState('');
-    const [pendingTargetRemoval, setPendingTargetRemoval] = useState(null);
 
     const [grant] = useMutation(GRANT_PERMISSIONS);
     const [revoke] = useMutation(REVOKE_PERMISSION);
     const [collapse] = useMutation(COLLAPSE_PERMISSION);
-    const [addTarget] = useMutation(ADD_TARGET);
-    const [removeTarget] = useMutation(REMOVE_TARGET);
 
     const target = role.grants.find(candidate => candidate.id === targetId) || role.grants[0];
 
@@ -174,26 +167,8 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
         applyResult(answer, kind);
     };
 
-    const onAddTarget = async () => {
-        const path = newTargetPath.trim();
-        if (path === '') {
-            return;
-        }
-
-        await addTarget({variables: {role: role.name, path}});
-        setNewTargetPath('');
-        onChanged();
-    };
-
     // Removing a target drops the whole permission set it holds, and nothing brings it back. So the
     // confirmation lists what goes rather than asking whether the administrator is sure.
-    const onRemoveTarget = async () => {
-        await removeTarget({variables: {role: role.name, target: pendingTargetRemoval.id}});
-        setPendingTargetRemoval(null);
-        setTargetId('');
-        onChanged();
-    };
-
     const targetLabel = candidate => {
         if (candidate.kind === 'CURRENT_NODE') {
             return t('rolesAndPermissions.target.currentNode');
@@ -221,44 +196,22 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
 
     return (
         <div data-testid="role-permissions-tab">
-            <div className={classes.targetBar} data-testid="role-target-bar">
-                <Typography isUpperCase variant="caption" className={classes.fieldLabel}>
-                    {t('rolesAndPermissions.detail.appliesOn')}
-                </Typography>
+            {/*
+              * A target is a tab. The role grants a different set on each one, so choosing a target is
+              * switching view rather than filtering, exactly as choosing a scope is on the role list.
+              * Adding and removing a target is editing the role, so both live in the edit form.
+              */}
+            <Tab data-testid="role-target-bar">
                 {role.grants.map(candidate => (
-                    <Chip
+                    <TabItem
                         key={candidate.id || 'currentNode'}
+                        size="big"
                         label={targetLabel(candidate)}
-                        color={candidate.id === target.id ? 'accent' : 'default'}
-                        className={classes.scopeChip}
+                        isSelected={candidate.id === target.id}
                         data-testid={`role-target-${candidate.id || 'currentNode'}`}
                         onClick={() => setTargetId(candidate.id)}/>
                 ))}
-                <Input
-                    className={classes.targetInput}
-                    value={newTargetPath}
-                    placeholder={t('rolesAndPermissions.detail.newTargetPlaceholder')}
-                    data-testid="role-new-target-path"
-                    onChange={event => setNewTargetPath(event.target.value)}/>
-                <Button
-                    size="default"
-                    variant="outlined"
-                    icon={<Add/>}
-                    isDisabled={newTargetPath.trim() === ''}
-                    label={t('rolesAndPermissions.detail.addTarget')}
-                    data-testid="role-add-target"
-                    onClick={onAddTarget}/>
-
-                {target.kind !== 'CURRENT_NODE' && !target.isInheritedOnly ?
-                    <Button
-                        size="default"
-                        variant="ghost"
-                        icon={<Delete/>}
-                        label={t('rolesAndPermissions.detail.removeTarget')}
-                        data-testid={`role-remove-target-${target.id}`}
-                        onClick={() => setPendingTargetRemoval(target)}/> :
-                    null}
-            </div>
+            </Tab>
 
             {target.isInheritedOnly ?
                 <div className={classes.targetBar} data-testid="role-target-inherited-only">
@@ -309,7 +262,13 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
                                     area: candidate,
                                     ...counts
                                 }),
-                                treeItemProps: {'data-testid': `role-area-${candidate}`}
+                                // An area the role already grants something in is marked, so the areas
+                                // worth opening are visible without reading every count.
+                                className: counts.granted > 0 ? classes.areaWithGrants : undefined,
+                                treeItemProps: {
+                                    'data-testid': `role-area-${candidate}`,
+                                    'data-granted': counts.granted > 0 ? 'yes' : 'no'
+                                }
                             };
                         })}
                         selectedItems={search.trim() === '' ? [area] : []}
@@ -384,25 +343,6 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
                 onCancel={() => setChange(null)}
                 onConfirm={confirmChange}/>
 
-            {pendingTargetRemoval ?
-                <ConfirmDestructiveDialog
-                    title={t('rolesAndPermissions.confirm.removeTargetTitle')}
-                    confirmLabel={t('rolesAndPermissions.confirm.removeTargetConfirm')}
-                    message={t('rolesAndPermissions.confirm.removeTargetMessage', {
-                        path: pendingTargetRemoval.path
-                    })}
-                    consequences={[
-                        t('rolesAndPermissions.confirm.removeTargetPermissions', {
-                            count: pendingTargetRemoval.directPermissions.length,
-                            names: pendingTargetRemoval.directPermissions.join(', ')
-                        })
-                    ]}
-                    confirmWord={pendingTargetRemoval.directPermissions.length > 0 ?
-                        pendingTargetRemoval.path :
-                        null}
-                    onCancel={() => setPendingTargetRemoval(null)}
-                    onConfirm={onRemoveTarget}/> :
-                null}
         </div>
     );
 };

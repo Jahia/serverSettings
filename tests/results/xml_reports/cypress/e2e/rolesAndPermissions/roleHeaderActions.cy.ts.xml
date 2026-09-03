@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="9.307" tests="6" failures="0">
+  <testsuite name="Root Suite" timestamp="2026-09-03T00:05:58" tests="0" file="cypress/e2e/rolesAndPermissions/roleHeaderActions.cy.ts" time="0.000" failures="0">
+  </testsuite>
+  <testsuite name="Roles and permissions - the actions on a role page" timestamp="2026-09-03T00:05:58" tests="6" time="9.238" failures="0">
+    <testcase name="Roles and permissions - the actions on a role page shows the permissions and nothing else, with the role name only in the page title" time="1.446" classname="shows the permissions and nothing else, with the role name only in the page title">
+    </testcase>
+    <testcase name="Roles and permissions - the actions on a role page opens the role settings from the header, and closing them leaves the page as it was" time="0.704" classname="opens the role settings from the header, and closing them leaves the page as it was">
+    </testcase>
+    <testcase name="Roles and permissions - the actions on a role page carries clone, reset and delete behind one menu" time="0.799" classname="carries clone, reset and delete behind one menu">
+    </testcase>
+    <testcase name="Roles and permissions - the actions on a role page lands on the copy after cloning, because the copy is what was asked for" time="1.677" classname="lands on the copy after cloning, because the copy is what was asked for">
+    </testcase>
+    <testcase name="Roles and permissions - the actions on a role page goes back to the list after deleting, because the page has lost its subject" time="1.255" classname="goes back to the list after deleting, because the page has lost its subject">
+    </testcase>
+    <testcase name="Roles and permissions - the actions on a role page adds a target from the role settings, and the permissions view then offers it as a tab" time="3.242" classname="adds a target from the role settings, and the permissions view then offers it as a tab">
+    </testcase>
+  </testsuite>
+</testsuites>

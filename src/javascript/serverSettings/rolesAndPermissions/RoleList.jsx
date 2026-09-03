@@ -2,8 +2,7 @@ import React, {useCallback, useMemo, useState} from 'react';
 import PropTypes from 'prop-types';
 import {useMutation, useQuery} from 'react-apollo';
 import {useTranslation} from 'react-i18next';
-import {Add, Banner, Button, Chip, Copy, DataTable, Delete, EmptyData, Header, LayoutContent, Loader, Paper, SearchInput, Typography} from '@jahia/moonstone';
-import {stringColumn} from '@jahia/moonstone/DataTable';
+import {Add, Banner, Button, Chip, Copy, DataTable, Delete, EmptyData, Header, LayoutContent, Loader, Paper, SearchInput, Tab, TabItem, Typography} from '@jahia/moonstone';
 import {CREATE_ROLE, DELETE_ROLE, DUPLICATE_ROLE, GET_ROLES, RESET_ROLE} from './RolesAndPermissions.gql-queries';
 import ConfirmDestructiveDialog from './ConfirmDestructiveDialog';
 import RoleNameDialog from './RoleNameDialog';
@@ -170,58 +169,34 @@ export const RoleList = ({onOpenRole}) => {
                 <Typography variant="caption">{t('rolesAndPermissions.list.noScope')}</Typography>)
         },
         {
-            key: 'nodeTypes',
-            label: t('rolesAndPermissions.list.columns.grantableOn'),
-            width: '180px',
+            key: 'grantSummary',
+            label: t('rolesAndPermissions.list.columns.grants'),
+            // What the role grants, in the words the screens use everywhere else. The server reduces
+            // the role's own names to the ones no other listed name already covers, and orders them by
+            // how many permissions each one reaches, so the row states a fact and ranks nothing by
+            // opinion. A nested role shows what it ADDS, because its parent's grants are the parent's.
             render: ({data: role}) => (
-                <Typography variant="caption" data-testid={`role-nodetypes-${role.name}`}>
-                    {role.nodeTypes.length === 0 ?
-                        t('rolesAndPermissions.list.anyNodeType') :
-                        role.nodeTypes.join(', ')}
-                </Typography>
-            )
-        },
-        {
-            key: 'directPermissionNames',
-            label: t('rolesAndPermissions.list.columns.names'),
-            width: '90px',
-            align: 'right',
-            render: ({data: role}) => (
-                <Typography variant="body" data-testid={`role-named-${role.name}`}>
-                    {role.directPermissionNames.length}
-                </Typography>
-            )
-        },
-        {
-            key: 'effectivePermissionNames',
-            label: t('rolesAndPermissions.list.columns.reaches'),
-            width: '150px',
-            // Two numbers rather than one, because one would hide the model. The role names a set, and
-            // that set reaches further once aggregation and role inheritance apply.
-            render: ({data: role}) => (
-                <span className={classes.roleName} data-testid={`role-reaches-${role.name}`}>
-                    <Typography variant="body" data-testid={`role-reach-count-${role.name}`}>
-                        {role.effectivePermissionNames.length}
+                <span className={classes.grantSummary} data-testid={`role-grants-${role.name}`}>
+                    <Typography variant="body">
+                        {role.grantSummary.labels.length === 0 ?
+                            t('rolesAndPermissions.list.grantsNothing') :
+                            t(role.grantSummary.isAdditive ?
+                                'rolesAndPermissions.list.grantsAdds' :
+                                'rolesAndPermissions.list.grantsList', {
+                                labels: role.grantSummary.labels.join(', ')
+                            })}
                     </Typography>
-                    {role.inheritedPermissionNames.length > 0 ?
+                    {role.grantSummary.remaining > 0 ?
                         <Typography
                             variant="caption"
                             className={classes.roleTechnicalName}
-                            data-testid={`role-inherited-count-${role.name}`}
+                            data-testid={`role-grants-more-${role.name}`}
                         >
-                            {t('rolesAndPermissions.list.fromParent', {
-                                count: role.inheritedPermissionNames.length
-                            })}
+                            {t('rolesAndPermissions.list.grantsMore', {count: role.grantSummary.remaining})}
                         </Typography> :
                         null}
                 </span>
             )
-        },
-        {
-            key: 'targets',
-            label: t('rolesAndPermissions.list.columns.targets'),
-            width: '110px',
-            ...stringColumn(role => String(role.grants.length))
         },
         {
             key: 'flags',
@@ -370,6 +345,27 @@ export const RoleList = ({onOpenRole}) => {
                         </Banner> :
                         null}
 
+                    {/*
+                      * The scope is a tab and no longer a chip. A role belongs to exactly one scope,
+                      * so choosing one is switching view rather than narrowing a set, and a tab says
+                      * that. The search then applies inside the scope on screen.
+                      */}
+                    <Tab data-testid="role-scope-tabs">
+                        <TabItem
+                            label={t('rolesAndPermissions.list.anyScope')}
+                            isSelected={scope === ANY_SCOPE}
+                            data-testid="role-scope-tab-any"
+                            onClick={() => setScope(ANY_SCOPE)}/>
+                        {roleGroups.map(group => (
+                            <TabItem
+                                key={group}
+                                label={group}
+                                isSelected={scope === group}
+                                data-testid={`role-scope-tab-${group}`}
+                                onClick={() => setScope(group)}/>
+                        ))}
+                    </Tab>
+
                     <div className={classes.filterBar} data-testid="role-filter-bar">
                         <SearchInput
                             className={classes.search}
@@ -379,24 +375,11 @@ export const RoleList = ({onOpenRole}) => {
                             onChange={event => setSearch(event.target.value)}
                             onClear={() => setSearch('')}/>
 
-                        <Chip
-                            label={t('rolesAndPermissions.list.anyScope')}
-                            color={scope === ANY_SCOPE ? 'accent' : 'default'}
-                            className={classes.scopeChip}
-                            data-testid="role-scope-filter-any"
-                            onClick={() => setScope(ANY_SCOPE)}/>
-                        {roleGroups.map(group => (
-                            <Chip
-                                key={group}
-                                label={group}
-                                color={scope === group ? 'accent' : 'default'}
-                                className={classes.scopeChip}
-                                data-testid={`role-scope-filter-${group}`}
-                                onClick={() => setScope(group)}/>
-                        ))}
-
                         <span className={classes.matchCount} data-testid="role-match-count">
-                            {t('rolesAndPermissions.list.matchCount', {count: rows.length, total: roles.length})}
+                            {t('rolesAndPermissions.list.matchCount', {
+                                count: rows.length,
+                                total: roles.length
+                            })}
                         </span>
                     </div>
 

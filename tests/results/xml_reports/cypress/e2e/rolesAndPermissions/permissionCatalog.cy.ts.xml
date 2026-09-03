@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Mocha Tests" time="0.291" tests="8" failures="0">
-  <testsuite name="Root Suite" timestamp="2026-09-02T20:24:04" tests="0" file="cypress/e2e/rolesAndPermissions/permissionCatalog.cy.ts" time="0.000" failures="0">
+<testsuites name="Mocha Tests" time="0.303" tests="8" failures="0">
+  <testsuite name="Root Suite" timestamp="2026-09-03T00:05:23" tests="0" file="cypress/e2e/rolesAndPermissions/permissionCatalog.cy.ts" time="0.000" failures="0">
   </testsuite>
-  <testsuite name="Roles and permissions - the permission catalog" timestamp="2026-09-02T20:24:04" tests="8" time="0.234" failures="0">
-    <testcase name="Roles and permissions - the permission catalog reports no ambiguous name, which is what licenses the merge by logical path" time="0.109" classname="reports no ambiguous name, which is what licenses the merge by logical path">
+  <testsuite name="Roles and permissions - the permission catalog" timestamp="2026-09-03T00:05:23" tests="8" time="0.220" failures="0">
+    <testcase name="Roles and permissions - the permission catalog reports no ambiguous name, which is what licenses the merge by logical path" time="0.135" classname="reports no ambiguous name, which is what licenses the merge by logical path">
     </testcase>
     <testcase name="Roles and permissions - the permission catalog holds every permission of the instance" time="0.005" classname="holds every permission of the instance">
     </testcase>
@@ -13,9 +13,9 @@
     </testcase>
     <testcase name="Roles and permissions - the permission catalog reads the workspace facet from the name suffix" time="0.004" classname="reads the workspace facet from the name suffix">
     </testcase>
-    <testcase name="Roles and permissions - the permission catalog records the module that declares a permission, and records none for a core-only one" time="0.004" classname="records the module that declares a permission, and records none for a core-only one">
+    <testcase name="Roles and permissions - the permission catalog records the module that declares a permission, and records none for a core-only one" time="0.003" classname="records the module that declares a permission, and records none for a core-only one">
     </testcase>
-    <testcase name="Roles and permissions - the permission catalog gives every permission a readable label" time="0.103" classname="gives every permission a readable label">
+    <testcase name="Roles and permissions - the permission catalog gives every permission a readable label" time="0.096" classname="gives every permission a readable label">
     </testcase>
     <testcase name="Roles and permissions - the permission catalog keeps a Jahia product prefix whole in the fallback label" time="0.003" classname="keeps a Jahia product prefix whole in the fallback label">
     </testcase>

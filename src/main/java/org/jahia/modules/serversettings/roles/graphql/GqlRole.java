@@ -18,6 +18,9 @@ import org.jahia.modules.serversettings.roles.RolesAndPermissionsService;
 import org.jahia.modules.serversettings.roles.seed.RoleSeedCatalog;
 import org.jahia.modules.serversettings.roles.seed.ResetPlan;
 import java.util.function.Supplier;
+import org.jahia.utils.LanguageCodeConverters;
+import org.jahia.modules.serversettings.roles.PermissionEntry;
+import java.util.Locale;
 
 @GraphQLName("Role")
 @GraphQLDescription("One role, with every set of permissions it grants")
@@ -186,6 +189,29 @@ public class GqlRole {
             + "repository no longer has, and those entries then grant nothing")
     public GqlRoleUsage getUsage() throws RepositoryException {
         return new GqlRoleUsage(service.getRoleUsage(role.getName()));
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
+    @GraphQLDescription("What this role grants, short enough for one row of a list. The permissions "
+            + "the role names, with every permission an already listed one covers removed")
+    public GqlRoleGrantSummary getGrantSummary(
+            @GraphQLName("language") @GraphQLNonNull @GraphQLDescription("The language of the labels")
+            String language,
+            @GraphQLName("limit") @GraphQLDescription("How many labels to return. Default 3")
+            Integer limit) {
+        List<String> names = model.getSummaryPermissionNames(role.getName());
+        int cap = limit == null ? 3 : Math.max(0, limit);
+        Locale locale = LanguageCodeConverters.languageCodeToLocale(language);
+        List<String> labels = names.stream()
+                .limit(cap)
+                .map(name -> {
+                    PermissionEntry entry = model.getCatalog().get(name);
+                    return entry == null ? name : service.getPermissionLabel(entry, locale);
+                })
+                .collect(Collectors.toList());
+        return new GqlRoleGrantSummary(labels, Math.max(0, names.size() - cap),
+                role.getParentRolePath() != null);
     }
 
     @GraphQLField
