@@ -30,6 +30,38 @@ const ROLE_GROUPS = gql`
     }
 `
 
+const DELETE_ROLE = gql`
+    mutation DeleteRole($role: String!) {
+        admin {
+            rolesAndPermissions {
+                deleteRole(role: $role)
+            }
+        }
+    }
+`
+
+const CREATE_ROLE = gql`
+    mutation CreateRole($name: String!) {
+        admin {
+            rolesAndPermissions {
+                createRole(name: $name, roleGroup: "edit-role")
+            }
+        }
+    }
+`
+
+const ROLE = gql`
+    query Role($role: String!) {
+        admin {
+            rolesAndPermissions {
+                role(name: $role) {
+                    name
+                }
+            }
+        }
+    }
+`
+
 /** What one call to the namespace came back with. */
 interface Outcome {
     roleGroups?: string[]
@@ -98,6 +130,60 @@ describe('Roles and permissions - the GraphQL permission gate', () => {
             expect(errorPath, 'root must not be refused').to.be.undefined
             expect(roleGroups, 'the seeded role groups must be listed').to.include.members(['edit-role'])
         })
+    })
+
+    // AdminMutationExtension carries its own @GraphQLRequiresPermission("adminRoles"), and the query
+    // gate above says nothing about it. A write gate that regressed would leave this file green while
+    // deleteRole went open to any caller that clears the admin root.
+    it('refuses a write from a caller that clears the admin root but does not administer roles', () => {
+        const victim = 'rpVictim' + uniq
+
+        cy.login()
+        cy.apolloClient().apollo({ mutation: CREATE_ROLE, variables: { name: victim } })
+
+        cy.apolloClient({ username: outsider, password: PASSWORD })
+            .apollo({ mutation: DELETE_ROLE, variables: { role: victim }, errorPolicy: 'all' })
+            .then((result) => {
+                const errors = (result as { errors?: Array<{ path?: ReadonlyArray<string | number> }> }).errors
+                expect(errors?.[0]?.path?.join('.'), "the refusal must come from this module's own gate").to.eq(
+                    'admin.rolesAndPermissions',
+                )
+            })
+
+        // The role is what proves the refusal took effect. An error with the role gone would mean the
+        // write landed and the answer failed afterwards.
+        cy.login()
+        cy.apolloClient()
+            .apollo({ query: ROLE, variables: { role: victim }, fetchPolicy: 'network-only' })
+            .then((result) => {
+                expect(
+                    result.data.admin.rolesAndPermissions.role,
+                    'the role a refused caller tried to delete is still there',
+                ).to.not.be.null
+            })
+
+        cy.apolloClient().apollo({ mutation: DELETE_ROLE, variables: { role: victim } })
+    })
+
+    // The same write from a caller that DOES administer roles, so the refusal above is not owed to the
+    // mutation being unreachable for everyone.
+    it('accepts a write from a server administrator (positive control)', () => {
+        const disposable = 'rpDisposable' + uniq
+
+        cy.login()
+        cy.apolloClient().apollo({ mutation: CREATE_ROLE, variables: { name: disposable } })
+
+        cy.apolloClient({ username: serverAdmin, password: PASSWORD })
+            .apollo({ mutation: DELETE_ROLE, variables: { role: disposable }, errorPolicy: 'all' })
+            .then((result) => {
+                const errors = (result as { errors?: Array<unknown> }).errors
+                expect(errors, 'a server administrator must not be refused the write').to.be.undefined
+                expect(
+                    (result.data as { admin?: { rolesAndPermissions?: { deleteRole?: boolean } } })?.admin
+                        ?.rolesAndPermissions?.deleteRole,
+                    'and the write reports that it happened',
+                ).to.eq(true)
+            })
     })
 
     it('refuses a caller that clears the admin root but does not administer roles', () => {

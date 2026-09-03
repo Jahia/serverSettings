@@ -13,6 +13,7 @@
 // The name has to be typed whenever something is actually lost, which is what makes the wrong row
 // impossible to delete by accident. A role nobody holds and nothing is nested inside needs one
 // confirmation and no typing, because the friction belongs where the loss is.
+import { createUser, deleteUser, grantRoles } from '@jahia/cypress'
 import gql from 'graphql-tag'
 import { RoleListPage } from '../page-object/RoleListPage'
 import { RoleDetailPage } from '../page-object/RoleDetailPage'
@@ -68,6 +69,7 @@ const READ = gql`
                     usage {
                         entryCount
                         principals
+                        isTruncated
                     }
                     grants {
                         id
@@ -121,6 +123,66 @@ describe('Roles and permissions - nothing irreversible happens on one click', ()
 
     beforeEach(() => {
         cy.login()
+    })
+
+    // The principal list is cut at RoleUsage.PRINCIPAL_LIMIT, and the confirmation appends an ellipsis
+    // when it was. A role held by exactly the limit is complete, so the ellipsis there would say there
+    // are more principals than the list names.
+    describe('the principal list is cut only when there is more to show', () => {
+        const LIMIT = 20
+        const atLimit = `rpAtLimit${uniq}`
+        const overLimit = `rpOverLimit${uniq}`
+        const holders: string[] = []
+
+        before(() => {
+            cy.login()
+            cy.apolloClient().apollo({ mutation: CREATE, variables: { name: atLimit } })
+            cy.apolloClient().apollo({ mutation: CREATE, variables: { name: overLimit } })
+
+            // One principal more than the limit, so one role sits exactly on it and the other past it.
+            for (let index = 0; index < LIMIT + 1; index++) {
+                const holder = `rpHolder${index}${uniq}`
+                holders.push(holder)
+                createUser(holder, 'password')
+                grantRoles('/', [overLimit], holder, 'USER')
+                if (index < LIMIT) {
+                    grantRoles('/', [atLimit], holder, 'USER')
+                }
+            }
+        })
+
+        after(() => {
+            cy.login()
+            holders.forEach((holder) => deleteUser(holder))
+            ;[atLimit, overLimit].forEach((role) => {
+                cy.apolloClient().apollo({ mutation: DELETE, variables: { role } })
+            })
+        })
+
+        it('reports a role held by exactly the limit as complete', () => {
+            readRole(atLimit).then((role) => {
+                expect(role.usage.principals, 'the list carries the limit').to.have.length(LIMIT)
+                expect(role.usage.isTruncated, 'and nothing is missing from it').to.be.false
+            })
+
+            const page = RoleListPage.visit()
+            cy.get(`[data-testid="role-delete-${atLimit}"]`).click()
+            dialog.consequences().should('not.contain', '…')
+            dialog.cancel().click()
+            page.getRoleName(atLimit).should('be.visible')
+        })
+
+        it('reports a role held by more than the limit as cut, and says so', () => {
+            readRole(overLimit).then((role) => {
+                expect(role.usage.principals, 'the list is cut at the limit').to.have.length(LIMIT)
+                expect(role.usage.isTruncated, 'and it says there is more').to.be.true
+            })
+
+            RoleListPage.visit()
+            cy.get(`[data-testid="role-delete-${overLimit}"]`).click()
+            dialog.consequences().should('contain', '…')
+            dialog.cancel().click()
+        })
     })
 
     it('does not delete a seeded role on one click, and says who would lose access', () => {

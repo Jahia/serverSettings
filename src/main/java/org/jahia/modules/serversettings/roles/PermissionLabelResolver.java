@@ -1,8 +1,10 @@
 package org.jahia.modules.serversettings.roles;
 
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.jahia.data.templates.JahiaTemplatesPackage;
@@ -23,7 +25,13 @@ import org.jahia.utils.i18n.Messages;
 public class PermissionLabelResolver {
 
     private static final Pattern UNDERSCORE_OR_DASH = Pattern.compile("[_-]");
-    private static final Pattern UPPERCASE_LETTER = Pattern.compile("([A-Z])");
+    /**
+     * Where one word ends and the next opens: a lowercase or digit before a capital, and the last
+     * capital of a run of capitals. A space before every capital would split a run letter by letter,
+     * so {@code adminDBSettings} would read as "Admin d b settings".
+     */
+    private static final Pattern WORD_BOUNDARY =
+            Pattern.compile("(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])");
     private static final Pattern DASH = Pattern.compile("-");
 
     // One lowercase letter, then an uppercase one, then the rest of that word. This is the
@@ -98,20 +106,33 @@ public class PermissionLabelResolver {
      * A name opening with one lowercase letter and then an uppercase one carries a Jahia product
      * prefix, as {@code jContent} and {@code jExperience} do. That prefix is a product name, so it
      * keeps its own case and stays whole: {@code jContentActions} reads as "jContent actions".
+     * <p>
+     * An acronym keeps its case too, so {@code adminDBSettings} reads as "Admin DB settings".
      */
     private static String humanise(String localName) {
         Matcher productPrefix = PRODUCT_PREFIX.matcher(localName);
         if (productPrefix.lookingAt()) {
             String prefix = productPrefix.group();
-            String rest = splitWords(localName.substring(prefix.length()));
-            return rest.isEmpty() ? prefix : prefix + " " + rest.toLowerCase();
+            String rest = lowerWords(splitWords(localName.substring(prefix.length())));
+            return rest.isEmpty() ? prefix : prefix + " " + rest;
         }
-        return StringUtils.capitalize(splitWords(localName).toLowerCase());
+        return StringUtils.capitalize(lowerWords(splitWords(localName)));
     }
 
-    /** One space before each uppercase letter, and one for each underscore or dash. */
+    /** One space at each word boundary, and one for each underscore or dash. */
     private static String splitWords(String name) {
-        String spaced = UPPERCASE_LETTER.matcher(name).replaceAll(" $0");
+        String spaced = WORD_BOUNDARY.matcher(name).replaceAll(" ");
         return UNDERSCORE_OR_DASH.matcher(spaced).replaceAll(" ").trim();
+    }
+
+    /**
+     * Lowercase each word, except a word that is already whole capitals. Lowercasing the whole string
+     * would flatten an acronym the split just kept together.
+     */
+    private static String lowerWords(String words) {
+        return Arrays.stream(StringUtils.split(words, ' '))
+                .map(word -> word.length() > 1 && word.equals(word.toUpperCase(Locale.ROOT)) ?
+                        word : word.toLowerCase(Locale.ROOT))
+                .collect(Collectors.joining(" "));
     }
 }

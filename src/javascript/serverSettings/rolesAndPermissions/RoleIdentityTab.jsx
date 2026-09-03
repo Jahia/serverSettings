@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useImperativeHandle, useState} from 'react';
 import PropTypes from 'prop-types';
 import {useMutation} from 'react-apollo';
 import {useTranslation} from 'react-i18next';
@@ -33,15 +33,26 @@ export const RoleIdentityTab = ({role, roleGroups, language, saveRef, onSaved}) 
             return;
         }
 
-        await addTarget({variables: {role: role.name, path}});
-        setNewTargetPath('');
-        onSaved();
+        try {
+            await addTarget({variables: {role: role.name, path}});
+            setError(null);
+            setNewTargetPath('');
+            onSaved();
+        } catch (mutationError) {
+            setError(mutationError.message);
+        }
     };
 
     const onRemoveTarget = async () => {
-        await removeTarget({variables: {role: role.name, target: pendingTargetRemoval.id}});
-        setPendingTargetRemoval(null);
-        onSaved();
+        try {
+            await removeTarget({variables: {role: role.name, target: pendingTargetRemoval.id}});
+            setError(null);
+            setPendingTargetRemoval(null);
+            onSaved();
+        } catch (mutationError) {
+            setError(mutationError.message);
+            setPendingTargetRemoval(null);
+        }
     };
 
     const [saveMetadata] = useMutation(SAVE_ROLE_METADATA);
@@ -81,14 +92,17 @@ export const RoleIdentityTab = ({role, roleGroups, language, saveRef, onSaved}) 
             onSaved();
         } catch (mutationError) {
             setError(mutationError.message);
+            // The error is shown here AND rethrown. The dialog owns the footer, so a caller that
+            // swallowed this would report a save that did not happen.
+            throw mutationError;
         } finally {
             setSaving(false);
         }
     };
 
-    if (saveRef) {
-        saveRef.current = {save, isSaving: saving, isSaved: saved};
-    }
+    // A ref assigned in the render body outlives a render React discards, which is the one thing a
+    // render is asked not to leave behind. This says the same thing where React expects it.
+    useImperativeHandle(saveRef, () => ({save}));
 
     return (
         <div className={classes.form} data-testid="role-identity-tab">
@@ -189,6 +203,8 @@ export const RoleIdentityTab = ({role, roleGroups, language, saveRef, onSaved}) 
                                     size="small"
                                     variant="ghost"
                                     icon={<Delete/>}
+                                    aria-label={t('rolesAndPermissions.detail.removeTarget')}
+                                    title={t('rolesAndPermissions.detail.removeTarget')}
                                     data-testid={`role-remove-target-${grant.id}`}
                                     onClick={() => setPendingTargetRemoval(grant)}/> :
                                 null}

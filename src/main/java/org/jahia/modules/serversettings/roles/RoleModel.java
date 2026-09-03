@@ -47,12 +47,12 @@ public final class RoleModel {
         this.catalog = catalog;
     }
 
-    /** Every role, in path order so a parent precedes the roles nested inside it. */
     /** The catalog this model resolved its permissions against. */
     public PermissionCatalog getCatalog() {
         return catalog;
     }
 
+    /** Every role, in path order so a parent precedes the roles nested inside it. */
     public Collection<RoleView> getRoles() {
         return Collections.unmodifiableCollection(byPath.values());
     }
@@ -227,15 +227,6 @@ public final class RoleModel {
     }
 
     /**
-     * Every permission the role grants, across every target.
-     * <p>
-     * This is the reach of the role, and it is larger than what it names, because a granted permission
-     * grants what it aggregates and a sub-role adds what its parent grants.
-     *
-     * @param roleName the role
-     * @return the names, sorted
-     */
-    /**
      * The permissions worth naming when the role has to be described in one line.
      * <p>
      * These are the names the role itself carries, with every name an already listed name covers
@@ -245,6 +236,7 @@ public final class RoleModel {
      * Nothing is chosen or ranked by meaning. The reduction is the aggregation the repository already
      * defines, so the result says what the role names and not what a screen thinks matters.
      *
+     * @param roleName the role
      * @return the reduced names, the ones reaching the most permissions first, then alphabetically
      */
     public List<String> getSummaryPermissionNames(String roleName) {
@@ -266,6 +258,15 @@ public final class RoleModel {
         return 1 + catalog.getDescendantNames(permissionName).size();
     }
 
+    /**
+     * Every permission the role grants, across every target.
+     * <p>
+     * This is the reach of the role, and it is larger than what it names, because a granted permission
+     * grants what it aggregates and a sub-role adds what its parent grants.
+     *
+     * @param roleName the role
+     * @return the names, sorted
+     */
     public SortedSet<String> getEffectivePermissionNames(String roleName) {
         return collectNames(roleName, effective -> true);
     }

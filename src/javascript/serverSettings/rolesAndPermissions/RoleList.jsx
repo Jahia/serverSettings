@@ -7,6 +7,7 @@ import {CREATE_ROLE, DELETE_ROLE, DUPLICATE_ROLE, GET_ROLES, RESET_ROLE} from '.
 import ConfirmDestructiveDialog from './ConfirmDestructiveDialog';
 import RoleNameDialog from './RoleNameDialog';
 import RoleWarnings from './RoleWarnings';
+import {deleteConsequences, isCostlyDelete} from './roleDelete';
 import classes from './styles.css';
 
 const ANY_SCOPE = '';
@@ -17,7 +18,6 @@ const ANY_SCOPE = '';
  * A role nobody holds and that nothing is nested inside can be deleted with one confirmation. A role
  * somebody holds, or one with roles nested inside it, cannot be brought back.
  */
-const isCostlyDelete = role => role.usage.entryCount > 0 || role.subRoleNames.length > 0;
 
 /** The roles the search and the scope chip keep. */
 const filterRoles = (roles, search, scope) => {
@@ -40,38 +40,13 @@ export const RoleList = ({onOpenRole}) => {
     const {t, i18n} = useTranslation('serverSettings');
 
     /** What deleting the role takes away, stated one fact per line. */
-    const deleteConsequences = role => {
-        const lines = [];
-        if (role.usage.entryCount > 0) {
-            lines.push(t('rolesAndPermissions.confirm.deleteHeld', {
-                count: role.usage.entryCount,
-                principals: role.usage.principals.join(', ') + (role.usage.isTruncated ? '…' : '')
-            }));
-        } else {
-            lines.push(t('rolesAndPermissions.confirm.deleteUnused'));
-        }
-
-        if (role.subRoleNames.length > 0) {
-            lines.push(t('rolesAndPermissions.confirm.deleteSubRoles', {
-                names: role.subRoleNames.join(', ')
-            }));
-        }
-
-        if (role.directPermissionNames.length > 0) {
-            lines.push(t('rolesAndPermissions.confirm.deletePermissions', {
-                count: role.directPermissionNames.length
-            }));
-        }
-
-        return lines;
-    };
-
     const language = i18n.language || 'en';
 
     const [search, setSearch] = useState('');
     const [scope, setScope] = useState(ANY_SCOPE);
     const [dialog, setDialog] = useState(null);
     const [dialogError, setDialogError] = useState(null);
+    const [restoreError, setRestoreError] = useState(null);
     const [pendingDelete, setPendingDelete] = useState(null);
 
     const {data, loading, error, refetch} = useQuery(GET_ROLES, {
@@ -126,10 +101,15 @@ export const RoleList = ({onOpenRole}) => {
 
     const restore = useCallback(async name => {
         setRestoring(name);
+        setRestoreError(null);
         try {
             // No revision: there is no role to have read one from, and nothing to be stale against.
             await resetRole({variables: {role: name, revision: null}});
             await refetch();
+        } catch (mutationError) {
+            // The banner offers this, and a refusal has nowhere else to go. Without the message the
+            // button simply stops looking busy and the role is still missing.
+            setRestoreError(mutationError.message);
         } finally {
             setRestoring(null);
         }
@@ -225,9 +205,15 @@ export const RoleList = ({onOpenRole}) => {
             width: '110px',
             render: ({data: role}) => (
                 <span className={classes.rowActions}>
+                    {/*
+                      * An icon with no label announces "button" and nothing else, on the screen that
+                      * administers access. The strings are already in the bundle.
+                      */}
                     <Button
                         variant="ghost"
                         icon={<Copy/>}
+                        aria-label={t('rolesAndPermissions.list.duplicate')}
+                        title={t('rolesAndPermissions.list.duplicate')}
                         data-testid={`role-duplicate-${role.name}`}
                         onClick={() => {
                             setDialogError(null);
@@ -236,6 +222,8 @@ export const RoleList = ({onOpenRole}) => {
                     <Button
                         variant="ghost"
                         icon={<Delete/>}
+                        aria-label={t('rolesAndPermissions.list.delete')}
+                        title={t('rolesAndPermissions.list.delete')}
                         data-testid={`role-delete-${role.name}`}
                         onClick={() => {
                             setDialogError(null);
@@ -272,6 +260,11 @@ export const RoleList = ({onOpenRole}) => {
                             onClick={() => restore(name)}/>
                     ))}
                 </div>
+                {restoreError ?
+                    <Typography variant="body" className={classes.formError} data-testid="restore-role-error">
+                        {restoreError}
+                    </Typography> :
+                    null}
             </Banner>
         );
     };
@@ -392,7 +385,7 @@ export const RoleList = ({onOpenRole}) => {
                                 role: pendingDelete.name
                             })}
                             confirmLabel={t('rolesAndPermissions.confirm.deleteConfirm')}
-                            consequences={deleteConsequences(pendingDelete)}
+                            consequences={deleteConsequences(pendingDelete, t)}
                             confirmWord={isCostlyDelete(pendingDelete) ? pendingDelete.name : null}
                             error={dialogError}
                             onCancel={() => setPendingDelete(null)}

@@ -738,12 +738,20 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
             }
 
             entryCount++;
-            if (entry.hasProperty(ACE_PRINCIPAL_PROPERTY) && principals.size() < RoleUsage.PRINCIPAL_LIMIT) {
+            // One past the limit, so a role held by exactly the limit is told apart from one held by
+            // more. Stopping at the limit reports both as truncated, and the confirmation then adds
+            // an ellipsis to a list that is in fact complete.
+            if (entry.hasProperty(ACE_PRINCIPAL_PROPERTY) && principals.size() <= RoleUsage.PRINCIPAL_LIMIT) {
                 principals.add(entry.getProperty(ACE_PRINCIPAL_PROPERTY).getString());
             }
         }
 
-        return new RoleUsage(entryCount, principals, principals.size() >= RoleUsage.PRINCIPAL_LIMIT);
+        boolean truncated = principals.size() > RoleUsage.PRINCIPAL_LIMIT;
+        if (truncated) {
+            principals.remove(principals.last());
+        }
+
+        return new RoleUsage(entryCount, principals, truncated);
     }
 
     /**

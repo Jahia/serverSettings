@@ -28,6 +28,7 @@ import RolePermissionsTab from './RolePermissionsTab';
 import RoleNameDialog from './RoleNameDialog';
 import RoleResetDialog from './RoleResetDialog';
 import ConfirmDestructiveDialog from './ConfirmDestructiveDialog';
+import {deleteConsequences, isCostlyDelete} from './roleDelete';
 import RoleWarnings from './RoleWarnings';
 import classes from './styles.css';
 
@@ -60,6 +61,8 @@ const RoleHeader = ({role, roleName, menuAnchor, t, onClose, onEdit, onToggleMen
                     size="big"
                     variant="ghost"
                     icon={<MoreVert/>}
+                    aria-label={t('rolesAndPermissions.detail.moreActions')}
+                    title={t('rolesAndPermissions.detail.moreActions')}
                     data-testid="role-more-actions"
                     onClick={onToggleMenu}/>
             </span>
@@ -150,7 +153,16 @@ export const RoleDetail = ({roleName, onClose, onOpenRole}) => {
     }, [duplicateRole, roleName, onOpenRole]);
 
     const onDeleted = useCallback(async () => {
-        await deleteRole({variables: {role: roleName}});
+        setDialogError(null);
+        try {
+            await deleteRole({variables: {role: roleName}});
+        } catch (mutationError) {
+            // The dialog stays open on the refusal. Closing it and leaving the page would report the
+            // deletion the confirmation just asked about.
+            setDialogError(mutationError.message);
+            return;
+        }
+
         setDialog(null);
         // The page has lost its subject, so it cannot stay open on it.
         onClose();
@@ -204,35 +216,24 @@ export const RoleDetail = ({roleName, onClose, onOpenRole}) => {
         );
     }
 
-    if (roleQuery.error || catalogQuery.error || !role) {
+    // A read that failed and a role that is not there are different facts. Reporting a refusal or a
+    // network failure as a missing role sends the administrator looking for a role that does exist.
+    const readError = roleQuery.error || catalogQuery.error;
+    if (readError || !role) {
         return (
             <LayoutContent
                 header={header}
                 content={
                     <Paper>
                         <div className={classes.detailEmpty} data-testid="role-detail-error">
-                            <EmptyData message={t('rolesAndPermissions.detail.notFound', {role: roleName})}/>
+                            <EmptyData message={readError ?
+                                t('rolesAndPermissions.detail.readFailed', {error: readError.message}) :
+                                t('rolesAndPermissions.detail.notFound', {name: roleName})}/>
                         </div>
                     </Paper>
                 }/>
         );
     }
-
-    const isCostlyDelete = role.usage.entryCount > 0 || role.subRoleNames.length > 0;
-    const deleteConsequences = [
-        role.usage.entryCount === 0 ?
-            t('rolesAndPermissions.confirm.deleteUnused') :
-            t('rolesAndPermissions.confirm.deleteHeld', {
-                count: role.usage.entryCount,
-                principals: role.usage.principals.join(', ')
-            }),
-        ...(role.subRoleNames.length > 0 ?
-            [t('rolesAndPermissions.confirm.deleteSubRoles', {names: role.subRoleNames.join(', ')})] :
-            []),
-        ...(role.directPermissionNames.length > 0 ?
-            [t('rolesAndPermissions.confirm.deletePermissions', {count: role.directPermissionNames.length})] :
-            [])
-    ];
 
     return (
         <LayoutContent
@@ -296,8 +297,8 @@ export const RoleDetail = ({roleName, onClose, onOpenRole}) => {
                             title={t('rolesAndPermissions.confirm.deleteTitle', {role: role.name})}
                             confirmLabel={t('rolesAndPermissions.confirm.deleteConfirm')}
                             message={t('rolesAndPermissions.confirm.deleteMessage')}
-                            consequences={deleteConsequences}
-                            confirmWord={isCostlyDelete ? role.name : null}
+                            consequences={deleteConsequences(role, t)}
+                            confirmWord={isCostlyDelete(role) ? role.name : null}
                             error={dialogError}
                             onConfirm={onDeleted}
                             onCancel={() => setDialog(null)}/> :

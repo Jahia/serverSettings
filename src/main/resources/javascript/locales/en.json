@@ -133,7 +133,10 @@
       "appliesOnHint": "Where the role reaches. A target only a parent role declares is shown and cannot be removed here.",
       "edit": "Edit",
       "editTitle": "Edit the {{role}} role",
-      "close": "Close"
+      "close": "Close",
+      "readFailed": "The roles could not be read: {{error}}",
+      "planUnavailable": "The effect of this change could not be read, so nothing was applied.",
+      "moreActions": "More actions on this role"
     },
     "dialog": {
       "revokeTitle": "Remove a permission",

@@ -97,6 +97,18 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
         [target, effectiveByName]
     );
 
+    // Every write here can be refused, and a refusal rejects the promise rather than answering an
+    // outcome. Without this the checkbox stays where it was and nothing is rendered, which on a
+    // permission row reads as "it worked". applyResult covers the outcomes the server REPORTS; this
+    // covers the one it THROWS, and both land in the same notice bar.
+    const guarded = async run => {
+        try {
+            await run();
+        } catch (mutationError) {
+            setNotice(mutationError.message);
+        }
+    };
+
     const applyResult = (result, operation) => {
         if (result?.outcome === 'REFUSED_STALE_REVISION') {
             setNotice(t('rolesAndPermissions.detail.staleRevision'));
@@ -109,7 +121,7 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
         onChanged();
     };
 
-    const onGrant = async permission => {
+    const onGrant = permission => guarded(async () => {
         const {data} = await grant({
             variables: {
                 role: role.name,
@@ -119,9 +131,9 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
             }
         });
         applyResult(data?.admin?.rolesAndPermissions?.grantPermissions, 'grant');
-    };
+    });
 
-    const onRevokeClicked = async permission => {
+    const onRevokeClicked = permission => guarded(async () => {
         const {data} = await client.query({
             query: GET_REVOKE_PLAN,
             variables: {name: role.name, target: target.id, permission},
@@ -129,9 +141,16 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
         });
         const plan = data?.admin?.rolesAndPermissions?.role?.grant?.revokePlan;
 
+        // No plan is not an empty plan. The dialog reads plan.outcome, so opening it on an answer
+        // that carried no data takes the screen down instead of stating a problem.
+        if (!plan) {
+            setNotice(t('rolesAndPermissions.detail.planUnavailable'));
+            return;
+        }
+
         // A removal with no consequence beyond the row is applied straight away. Everything else is
         // shown first, because the administrator has to see what it costs.
-        if (plan?.outcome === 'IMMEDIATE') {
+        if (plan.outcome === 'IMMEDIATE') {
             const result = await revoke({
                 variables: {
                     role: role.name,
@@ -145,22 +164,24 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
         }
 
         setChange({kind: 'revoke', permission, plan});
-    };
+    });
 
-    const onCollapseClicked = async permission => {
+    const onCollapseClicked = permission => guarded(async () => {
         const {data} = await client.query({
             query: GET_COLLAPSE_PLAN,
             variables: {name: role.name, target: target.id, permission},
             fetchPolicy: 'network-only'
         });
-        setChange({
-            kind: 'collapse',
-            permission,
-            plan: data?.admin?.rolesAndPermissions?.role?.grant?.collapsePlan
-        });
-    };
+        const plan = data?.admin?.rolesAndPermissions?.role?.grant?.collapsePlan;
+        if (!plan) {
+            setNotice(t('rolesAndPermissions.detail.planUnavailable'));
+            return;
+        }
 
-    const confirmChange = async () => {
+        setChange({kind: 'collapse', permission, plan});
+    });
+
+    const confirmChange = () => guarded(async () => {
         const {kind, permission} = change;
         setChange(null);
         const mutate = kind === 'revoke' ? revoke : collapse;
@@ -176,7 +197,7 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
             data?.admin?.rolesAndPermissions?.revokePermission :
             data?.admin?.rolesAndPermissions?.collapsePermission;
         applyResult(answer, kind);
-    };
+    });
 
     // Removing a target drops the whole permission set it holds, and nothing brings it back. So the
     // confirmation lists what goes rather than asking whether the administrator is sure.
@@ -328,9 +349,16 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
                                     data-testid={`role-permission-${entry.name}`}
                                     data-state={state}
                                 >
+                                    {/*
+                                      * Moonstone's Field renders a label with no htmlFor, and the
+                                      * row's own label is a sibling span, so the input has no
+                                      * accessible name of its own. ControlledCheckbox spreads its
+                                      * props onto the input, so aria-label reaches it.
+                                      */}
                                     <Checkbox
                                         checked={state !== 'NOT_GRANTED'}
                                         isDisabled={locked}
+                                        aria-label={entry.label || entry.name}
                                         data-testid={`role-permission-checkbox-${entry.name}`}
                                         onChange={() => (state === 'NOT_GRANTED' ?
                                             onGrant(entry.name) :

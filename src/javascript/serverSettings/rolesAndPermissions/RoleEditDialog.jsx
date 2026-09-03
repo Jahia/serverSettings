@@ -14,6 +14,7 @@ export const RoleEditDialog = ({role, roleGroups, language, onSaved, onClose}) =
     const {t} = useTranslation('serverSettings');
     const form = useRef(null);
     const [isSaved, setSaved] = useState(false);
+    const [isSaving, setSaving] = useState(false);
 
     return (
         <Modal isOpen size="big" onOpenChange={open => !open && onClose()}>
@@ -51,15 +52,31 @@ export const RoleEditDialog = ({role, roleGroups, language, onSaved, onClose}) =
                         label={t('rolesAndPermissions.detail.close')}
                         data-testid="role-edit-close"
                         onClick={onClose}/>
+                    {/*
+                      * "Saved" is shown only when the save resolved. The form writes three mutations
+                      * in sequence and reports a refusal in its own body, so a footer that announced
+                      * the save regardless would contradict the message beside it.
+                      *
+                      * The button is disabled while the three run, because a second click sends them
+                      * again.
+                      */}
                     <Button
                         size="big"
                         color="accent"
+                        isDisabled={isSaving}
                         label={t('rolesAndPermissions.detail.save')}
                         data-testid="role-identity-save"
                         onClick={async () => {
                             setSaved(false);
-                            await form.current.save();
-                            setSaved(true);
+                            setSaving(true);
+                            try {
+                                await form.current.save();
+                                setSaved(true);
+                            } catch {
+                                // The form states the refusal in its own body.
+                            } finally {
+                                setSaving(false);
+                            }
                         }}/>
                 </ModalFooter>
             </div>

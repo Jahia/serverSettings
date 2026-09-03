@@ -133,7 +133,10 @@
       "appliesOnHint": "Ou le role s'applique. Une cible declaree par un role parent est affichee et ne peut pas etre retiree ici.",
       "edit": "Modifier",
       "editTitle": "Modifier le role {{role}}",
-      "close": "Fermer"
+      "close": "Fermer",
+      "readFailed": "Les rôles n’ont pas pu être lus : {{error}}",
+      "planUnavailable": "L'effet de ce changement n'a pas pu être lu, donc rien n'a été appliqué.",
+      "moreActions": "Autres actions sur ce rôle"
     },
     "dialog": {
       "revokeTitle": "Retirer une permission",

@@ -238,7 +238,11 @@ public final class PermissionCatalog {
             return null;
         }
         if (!MODULES_SEGMENT.equals(segments[0])) {
-            return nodePath.startsWith(PERMISSIONS_ROOT) ? nodePath : null;
+            // The separator is part of the test. Without it /permissionsArchive passes as a logical
+            // path, and addNode then reads no segment after "/permissions/" and walks off an empty
+            // array, which takes the whole catalog down on one stray top-level node.
+            return nodePath.equals(PERMISSIONS_ROOT) || nodePath.startsWith(PERMISSIONS_ROOT + "/")
+                    ? nodePath : null;
         }
         // A module subtree is /modules/<module>/<version>/permissions/... — the segment index is fixed,
         // so a module whose own name is "permissions" cannot shift the answer.
