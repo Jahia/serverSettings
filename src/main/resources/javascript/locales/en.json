@@ -36,8 +36,7 @@
         "role": "Role",
         "scope": "Scope",
         "flags": "Flags",
-        "actions": "Actions",
-        "grants": "Grants"
+        "actions": "Actions"
       },
       "create": "Create a role",
       "createTitle": "Create a role",
@@ -66,11 +65,6 @@
       "restoreRole": "Restore {{role}}",
       "missingDeclared_plural": "{{count}} roles the installed sources declare are not in this repository. Restoring one puts the role back, and the access control entries that named it start granting again.",
       "missingDeclaredTitle": "Roles are missing",
-      "grantsList": "{{labels}}",
-      "grantsAdds": "Adds {{labels}}",
-      "grantsMore": "and {{count}} more permission",
-      "grantsMore_plural": "and {{count}} more permissions",
-      "grantsNothing": "Nothing of its own",
       "matchCount_plural": "{{count}} of {{total}} roles",
       "duplicate": "Clone the role",
       "delete": "Delete the role"
@@ -221,7 +215,10 @@
       "adds_plural": "Adds {{count}} permission names",
       "removes_plural": "Removes {{count}} permission names",
       "addsReach_plural": "The role then grants {{count}} permissions here, because an added name grants its {{extra}} descendants too.",
-      "removesReach_plural": "The role stops granting {{count}} permissions here, because a removed name granted its {{extra}} descendants too."
+      "removesReach_plural": "The role stops granting {{count}} permissions here, because a removed name granted its {{extra}} descendants too.",
+      "roleGroupCleared": "the scope is removed, because no source declares one",
+      "textChange": "the title and the description in {{languages}}",
+      "textChange_plural": "the title and the description in {{languages}}"
     }
   },
   "webProjects": {

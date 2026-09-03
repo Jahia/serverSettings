@@ -58,6 +58,18 @@ export const RoleResetDialog = ({roleName, plan, error, isApplying, onConfirm, o
 
     const changed = plan.targets.filter(target => target.addedNames.length > 0 || target.removedNames.length > 0);
 
+    const identityChanges = [
+        plan.roleGroupCleared && t('rolesAndPermissions.reset.roleGroupCleared'),
+        !plan.roleGroupCleared && plan.roleGroupChange &&
+            t('rolesAndPermissions.reset.roleGroupChange', {value: plan.roleGroupChange}),
+        plan.privilegedAccessChange && t('rolesAndPermissions.reset.privilegedChange', {value: plan.privilegedAccessChange}),
+        plan.hiddenChange && t('rolesAndPermissions.reset.hiddenChange', {value: plan.hiddenChange}),
+        (plan.textLanguagesChanged || []).length > 0 && t('rolesAndPermissions.reset.textChange', {
+            count: plan.textLanguagesChanged.length,
+            languages: plan.textLanguagesChanged.join(', ')
+        })
+    ].filter(Boolean);
+
     return (
         <Modal isOpen size="big" onOpenChange={open => !open && onCancel()}>
             <div data-testid="role-reset-dialog">
@@ -101,15 +113,13 @@ export const RoleResetDialog = ({roleName, plan, error, isApplying, onConfirm, o
                         </Typography>
                     ))}
 
-                    {plan.roleGroupChange || plan.privilegedAccessChange || plan.hiddenChange ?
+                    {/*
+                      * A source silent on a property declares no value, so the reset removes it. The
+                      * clear is stated here as a change, because it is one.
+                      */}
+                    {identityChanges.length > 0 ?
                         <Typography variant="caption" className={classes.fieldHint} data-testid="reset-identity">
-                            {t('rolesAndPermissions.reset.identity', {
-                                changes: [
-                                    plan.roleGroupChange && t('rolesAndPermissions.reset.roleGroupChange', {value: plan.roleGroupChange}),
-                                    plan.privilegedAccessChange && t('rolesAndPermissions.reset.privilegedChange', {value: plan.privilegedAccessChange}),
-                                    plan.hiddenChange && t('rolesAndPermissions.reset.hiddenChange', {value: plan.hiddenChange})
-                                ].filter(Boolean).join(', ')
-                            })}
+                            {t('rolesAndPermissions.reset.identity', {changes: identityChanges.join(', ')})}
                         </Typography> :
                         null}
 
@@ -160,8 +170,10 @@ RoleResetDialog.propTypes = {
         unreadableSources: PropTypes.arrayOf(PropTypes.string).isRequired,
         targets: PropTypes.array.isRequired,
         roleGroupChange: PropTypes.string,
+        roleGroupCleared: PropTypes.bool,
         privilegedAccessChange: PropTypes.string,
-        hiddenChange: PropTypes.string
+        hiddenChange: PropTypes.string,
+        textLanguagesChanged: PropTypes.arrayOf(PropTypes.string)
     }).isRequired,
     error: PropTypes.string,
     isApplying: PropTypes.bool,

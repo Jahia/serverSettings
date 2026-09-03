@@ -63,6 +63,28 @@ const REVOKE = gql`
     }
 `
 
+const SET_TEXT = gql`
+    mutation SetText($role: String!, $title: String) {
+        admin {
+            rolesAndPermissions {
+                setRoleText(role: $role, language: "en", title: $title)
+            }
+        }
+    }
+`
+
+const SET_PRIVILEGED = gql`
+    mutation SetPrivileged($path: String!, $value: String!) {
+        jcr(workspace: EDIT) {
+            mutateNode(pathOrId: $path) {
+                mutateProperty(name: "j:privilegedAccess") {
+                    setValue(type: BOOLEAN, value: $value)
+                }
+            }
+        }
+    }
+`
+
 const RESET = gql`
     mutation Reset($role: String!) {
         admin {
@@ -84,11 +106,15 @@ const READ = gql`
                     name
                     parentRoleName
                     directPermissionNames
+                    title(language: "en")
+                    hasPrivilegedAccess
                     resetPlan {
                         applicable
                         noop
                         widening
                         sourceLabels
+                        textLanguagesChanged
+                        privilegedAccessChange
                     }
                 }
             }
@@ -269,6 +295,56 @@ describe('Roles and permissions - resetting a role to the declared baseline', ()
         })
     })
 
+    // The sources declare a title and a description per language, so the reset writes them. Reading
+    // the text and never writing it left a recreated role with no label at all, and left an edited
+    // title in place after an action that says it restores what the sources declare.
+    it('restores the title the sources declare, and states it in the difference first', () => {
+        cy.apolloClient().apollo({ mutation: RESET, variables: { role: SEEDED_ROLE } })
+        cy.apolloClient().apollo({
+            mutation: SET_TEXT,
+            variables: { role: SEEDED_ROLE, title: 'Edited by an administrator' },
+        })
+
+        read(SEEDED_ROLE).then(({ role }) => {
+            expect(role.title, 'the edit landed').to.eq('Edited by an administrator')
+            expect(role.resetPlan.textLanguagesChanged, 'and the plan names the language').to.deep.eq([
+                'en',
+            ])
+        })
+
+        cy.apolloClient().apollo({ mutation: RESET, variables: { role: SEEDED_ROLE } })
+
+        read(SEEDED_ROLE).then(({ role }) => {
+            expect(role.title, 'the declared title is back').to.eq('Editor in chief')
+            expect(role.resetPlan.noop, 'and nothing is left to reset').to.be.true
+        })
+    })
+
+    // A source silent on a property declares no value for it, so the reset removes the property.
+    // j:privilegedAccess is the one that matters: it decides whether granting the role adds the
+    // principal to the site privileged group.
+    it('removes a property no source declares, and states that first', () => {
+        const silent = 'reader'
+        cy.apolloClient().apollo({
+            mutation: SET_PRIVILEGED,
+            variables: { path: `/roles/${silent}`, value: 'true' },
+        })
+
+        read(silent).then(({ role }) => {
+            expect(role.hasPrivilegedAccess, 'the property was set by hand').to.be.true
+            expect(role.resetPlan.privilegedAccessChange, 'and the plan says the reset clears it').to.eq(
+                'false',
+            )
+        })
+
+        cy.apolloClient().apollo({ mutation: RESET, variables: { role: silent } })
+
+        read(silent).then(({ role }) => {
+            expect(role.hasPrivilegedAccess, 'the reset restored the default').to.be.false
+            expect(role.resetPlan.privilegedAccessChange, 'and there is nothing left to clear').to.be.null
+        })
+    })
+
     it('offers a deleted role back, and restores the access it granted', () => {
         cy.apolloClient().apollo({ mutation: RESET, variables: { role: SEEDED_ROLE } })
         cy.apolloClient().apollo({ mutation: DELETE, variables: { role: SEEDED_ROLE } })
@@ -290,6 +366,9 @@ describe('Roles and permissions - resetting a role to the declared baseline', ()
                 SEEDED_PARENT,
             )
             expect(role.resetPlan.noop, 'and it matches the baseline exactly').to.be.true
+            // Without the text the role came back with no label at all, so the list showed its
+            // technical name where every other seeded role shows a title.
+            expect(role.title, 'and it carries the title the sources declare').to.eq('Editor in chief')
         })
     })
 })

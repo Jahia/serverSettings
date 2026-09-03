@@ -149,36 +149,6 @@ export const RoleList = ({onOpenRole}) => {
                 <Typography variant="caption">{t('rolesAndPermissions.list.noScope')}</Typography>)
         },
         {
-            key: 'grantSummary',
-            label: t('rolesAndPermissions.list.columns.grants'),
-            // What the role grants, in the words the screens use everywhere else. The server reduces
-            // the role's own names to the ones no other listed name already covers, and orders them by
-            // how many permissions each one reaches, so the row states a fact and ranks nothing by
-            // opinion. A nested role shows what it ADDS, because its parent's grants are the parent's.
-            render: ({data: role}) => (
-                <span className={classes.grantSummary} data-testid={`role-grants-${role.name}`}>
-                    <Typography variant="body">
-                        {role.grantSummary.labels.length === 0 ?
-                            t('rolesAndPermissions.list.grantsNothing') :
-                            t(role.grantSummary.isAdditive ?
-                                'rolesAndPermissions.list.grantsAdds' :
-                                'rolesAndPermissions.list.grantsList', {
-                                labels: role.grantSummary.labels.join(', ')
-                            })}
-                    </Typography>
-                    {role.grantSummary.remaining > 0 ?
-                        <Typography
-                            variant="caption"
-                            className={classes.roleTechnicalName}
-                            data-testid={`role-grants-more-${role.name}`}
-                        >
-                            {t('rolesAndPermissions.list.grantsMore', {count: role.grantSummary.remaining})}
-                        </Typography> :
-                        null}
-                </span>
-            )
-        },
-        {
             key: 'flags',
             label: t('rolesAndPermissions.list.columns.flags'),
             // No fixed width. The chips of a role with several flags outgrew one, and the overflow

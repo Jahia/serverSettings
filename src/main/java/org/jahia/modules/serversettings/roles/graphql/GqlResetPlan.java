@@ -89,9 +89,18 @@ public class GqlResetPlan {
     }
 
     @GraphQLField
-    @GraphQLDescription("The role group the reset writes, or null when it does not change")
+    @GraphQLDescription("The role group the reset writes, or null when it does not change and when it "
+            + "is removed. roleGroupCleared tells the two nulls apart")
     public String getRoleGroupChange() {
         return plan.getRoleGroupChange();
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
+    @GraphQLDescription("True when no source declares a role group, so the reset removes the one the "
+            + "role carries")
+    public boolean isRoleGroupCleared() {
+        return plan.isRoleGroupCleared();
     }
 
     @GraphQLField
@@ -111,6 +120,14 @@ public class GqlResetPlan {
     @GraphQLDescription("The node types the reset adds")
     public List<String> getNodeTypesAdded() {
         return new ArrayList<>(plan.getNodeTypesAdded());
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
+    @GraphQLDescription("The languages where the reset writes the title or the description the "
+            + "sources declare, sorted")
+    public List<String> getTextLanguagesChanged() {
+        return new ArrayList<>(plan.getTextLanguagesChanged());
     }
 
     @GraphQLField

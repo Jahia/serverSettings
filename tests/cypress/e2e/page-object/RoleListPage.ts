@@ -21,11 +21,6 @@ export class RoleListPage extends BasePage {
         return cy.get(`[data-testid="role-name-${role}"]`)
     }
 
-    /** What the role grants, in the words the screens use. */
-    getGrants(role: string) {
-        return cy.get(`[data-testid="role-grants-${role}"]`)
-    }
-
     getScope(role: string) {
         return cy.get(`[data-testid="role-scope-${role}"]`)
     }

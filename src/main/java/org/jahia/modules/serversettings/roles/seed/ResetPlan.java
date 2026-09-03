@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -28,10 +29,12 @@ public final class ResetPlan {
     private final List<TargetResetDiff> targets = new ArrayList<>();
     private final List<String> unreadableSources;
     private String roleGroupChange;
+    private boolean roleGroupCleared;
     private String privilegedAccessChange;
     private String hiddenChange;
     private final SortedSet<String> nodeTypesAdded = new TreeSet<>();
     private final SortedSet<String> nodeTypesRemoved = new TreeSet<>();
+    private final SortedSet<String> textLanguagesChanged = new TreeSet<>();
 
     private ResetPlan(String roleName, boolean roleExists, RoleSeed seed, List<String> unreadableSources) {
         this.roleName = roleName;
@@ -78,24 +81,58 @@ public final class ResetPlan {
         return plan;
     }
 
+    /**
+     * What the reset writes on the role's own properties and text.
+     * <p>
+     * A source silent on a property declares no value for it, so the reset removes the property and
+     * the node type's default applies. The plan therefore compares the live value with the value the
+     * reset produces, and a clear is a change like any other. Reporting only the properties a source
+     * states would leave an administrator's own {@code j:privilegedAccess} out of the preview and
+     * still remove it.
+     */
     private void measureIdentity(RoleView role, RoleSeed declared) {
         if (role == null) {
             return;
         }
-        if (declared.getRoleGroup() != null && !declared.getRoleGroup().equals(role.getRoleGroup())) {
-            roleGroupChange = declared.getRoleGroup();
+
+        String declaredRoleGroup = declared.getRoleGroup();
+        if (!Objects.equals(declaredRoleGroup, role.getRoleGroup())) {
+            roleGroupChange = declaredRoleGroup;
+            roleGroupCleared = declaredRoleGroup == null;
         }
-        if (declared.getPrivilegedAccess() != null && declared.getPrivilegedAccess() != role.isPrivilegedAccess()) {
-            privilegedAccessChange = String.valueOf(declared.getPrivilegedAccess());
+
+        boolean declaredPrivileged = Boolean.TRUE.equals(declared.getPrivilegedAccess());
+        if (declaredPrivileged != role.isPrivilegedAccess()) {
+            privilegedAccessChange = String.valueOf(declaredPrivileged);
         }
-        if (declared.getHidden() != null && declared.getHidden() != role.isHidden()) {
-            hiddenChange = String.valueOf(declared.getHidden());
+
+        boolean declaredHidden = Boolean.TRUE.equals(declared.getHidden());
+        if (declaredHidden != role.isHidden()) {
+            hiddenChange = String.valueOf(declaredHidden);
         }
+
         if (!declared.getNodeTypes().isEmpty() || !role.getNodeTypes().isEmpty()) {
             nodeTypesAdded.addAll(declared.getNodeTypes());
             nodeTypesAdded.removeAll(role.getNodeTypes());
             nodeTypesRemoved.addAll(role.getNodeTypes());
             nodeTypesRemoved.removeAll(declared.getNodeTypes());
+        }
+
+        measureText(role, declared);
+    }
+
+    /** The languages where the reset writes a title or a description the role does not already carry. */
+    private void measureText(RoleView role, RoleSeed declared) {
+        SortedSet<String> languages = new TreeSet<>(declared.getTitles().keySet());
+        languages.addAll(declared.getDescriptions().keySet());
+        for (String language : languages) {
+            boolean sameTitle = Objects.equals(
+                    declared.getTitles().get(language), role.getTitles().get(language));
+            boolean sameDescription = Objects.equals(
+                    declared.getDescriptions().get(language), role.getDescriptions().get(language));
+            if (!sameTitle || !sameDescription) {
+                textLanguagesChanged.add(language);
+            }
         }
     }
 
@@ -153,8 +190,10 @@ public final class ResetPlan {
     /** True when the role already matches the baseline, so the reset would write nothing. */
     public boolean isNoop() {
         return seed != null && roleExists && targets.stream().allMatch(TargetResetDiff::isEmpty)
-                && roleGroupChange == null && privilegedAccessChange == null && hiddenChange == null
-                && nodeTypesAdded.isEmpty() && nodeTypesRemoved.isEmpty();
+                && roleGroupChange == null && !roleGroupCleared
+                && privilegedAccessChange == null && hiddenChange == null
+                && nodeTypesAdded.isEmpty() && nodeTypesRemoved.isEmpty()
+                && textLanguagesChanged.isEmpty();
     }
 
     /** The sources that declare this role, so a reader can see whose baseline this is. */
@@ -194,9 +233,17 @@ public final class ResetPlan {
         return all;
     }
 
-    /** The role group the reset writes, or null when it does not change. */
+    /**
+     * The role group the reset writes, or null when it does not change AND when it is removed. Read
+     * {@link #isRoleGroupCleared()} to tell the two nulls apart.
+     */
     public String getRoleGroupChange() {
         return roleGroupChange;
+    }
+
+    /** True when no source declares a role group, so the reset removes the one the role carries. */
+    public boolean isRoleGroupCleared() {
+        return roleGroupCleared;
     }
 
     /** The privileged access the reset writes, or null when it does not change. */
@@ -215,6 +262,11 @@ public final class ResetPlan {
 
     public SortedSet<String> getNodeTypesRemoved() {
         return Collections.unmodifiableSortedSet(nodeTypesRemoved);
+    }
+
+    /** The languages where the reset writes a title or a description, sorted. */
+    public SortedSet<String> getTextLanguagesChanged() {
+        return Collections.unmodifiableSortedSet(textLanguagesChanged);
     }
 
     /** The baseline this plan measures against. */

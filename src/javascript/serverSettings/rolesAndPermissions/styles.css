@@ -142,11 +142,14 @@
     overflow-wrap: anywhere;
 }
 
+/* A flags cell holds several chips, and they wrap inside the cell rather than overflowing it. */
 .warningRow {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-nano);
     align-items: center;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .scopeChip {
@@ -283,12 +286,6 @@
     text-decoration: underline;
 }
 
-/* A flags cell holds several chips, and they wrap inside the cell rather than overflowing it. */
-.warningRow {
-    max-width: 100%;
-    overflow: hidden;
-}
-
 /*
  * The Moonstone modal overlay is position: fixed with z-index: auto, and the sticky head of the
  * Moonstone data table is z-index: 5. So the table head paints across any dialog opened over the
@@ -333,22 +330,6 @@
     gap: var(--spacing-nano);
 }
 
-/*
- * The grants cell: the summary, and the remainder under it.
- *
- * The table cell already clips and ends in an ellipsis, but that applies to its own text and not to a
- * block nested inside it, which simply overflowed and was cut mid-word. Each line truncates itself.
- */
-.grantSummary {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
-
-.grantSummary > * {
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
 
 /*
  * An area the role already grants something in. The mark is on the label rather than on the count,

@@ -46,11 +46,6 @@ export const GET_ROLES = gql`
                     subRoleNames
                     roleGroup
                     nodeTypes
-                    grantSummary(language: $language, limit: 3) {
-                        labels
-                        remaining
-                        isAdditive
-                    }
                     isHidden
                     hasPrivilegedAccess
                     hasEffectivePrivilegedAccess
@@ -364,8 +359,10 @@ export const ROLE_RESET_PLAN = gql`
                         gainedPermissions
                         lostPermissions
                         roleGroupChange
+                        roleGroupCleared
                         privilegedAccessChange
                         hiddenChange
+                        textLanguagesChanged
                         targets {
                             id
                             path

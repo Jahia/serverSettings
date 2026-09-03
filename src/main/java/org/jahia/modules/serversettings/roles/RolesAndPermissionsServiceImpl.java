@@ -457,6 +457,7 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
         // restore here. The plan reports it so it can be removed by the action that already exists.
 
         session.save();
+        applySeedText(roleNode.getPath(), seed);
 
         RoleModel after = getRoleModel(catalog);
         RoleView written = after.get(roleName);
@@ -486,22 +487,45 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
         return parent.addNode(seed.getName(), Constants.JAHIANT_ROLE);
     }
 
+    /**
+     * Writes the five properties the sources declare, and clears the ones they do not.
+     * <p>
+     * A seed that says nothing about a property means the property has no declared value, so the reset
+     * removes it and the node type's own default applies. {@code j:privilegedAccess} is the one that
+     * matters: it decides whether granting the role adds the principal to the site privileged group,
+     * and leaving an administrator's {@code true} in place would restore less than the action says.
+     */
     private void applySeedProperties(JCRNodeWrapper roleNode, RoleSeed seed) throws RepositoryException {
-        if (seed.getRoleGroup() != null) {
-            roleNode.setProperty(ROLE_GROUP_PROPERTY, seed.getRoleGroup());
-        }
-        if (seed.getPrivilegedAccess() != null) {
-            roleNode.setProperty(PRIVILEGED_ACCESS_PROPERTY, seed.getPrivilegedAccess());
-        }
-        if (seed.getHidden() != null) {
-            roleNode.setProperty(HIDDEN_PROPERTY, seed.getHidden());
-        }
+        setOrRemove(roleNode, ROLE_GROUP_PROPERTY, seed.getRoleGroup());
+        setOrRemoveBoolean(roleNode, PRIVILEGED_ACCESS_PROPERTY, seed.getPrivilegedAccess());
+        setOrRemoveBoolean(roleNode, HIDDEN_PROPERTY, seed.getHidden());
         if (seed.getNodeTypes().isEmpty()) {
             if (roleNode.hasProperty(NODE_TYPES_PROPERTY)) {
                 roleNode.getProperty(NODE_TYPES_PROPERTY).remove();
             }
         } else {
             roleNode.setProperty(NODE_TYPES_PROPERTY, seed.getNodeTypes().toArray(new String[0]));
+        }
+    }
+
+    /**
+     * Writes the title and the description the sources declare, in every language they declare one in.
+     * <p>
+     * Jahia routes an i18n property to the translation child of the session's language, so a language
+     * needs its own session. The reset runs after the rest is saved, because a role the reset just
+     * recreated has to exist before a per-language session can open it.
+     */
+    private void applySeedText(String rolePath, RoleSeed seed) throws RepositoryException {
+        SortedSet<String> languages = new TreeSet<>(seed.getTitles().keySet());
+        languages.addAll(seed.getDescriptions().keySet());
+        for (String language : languages) {
+            Locale locale = LanguageCodeConverters.languageCodeToLocale(language);
+            JCRSessionWrapper session = JCRSessionFactory.getInstance()
+                    .getCurrentUserSession(Constants.EDIT_WORKSPACE, locale);
+            JCRNodeWrapper node = session.getNode(rolePath);
+            setOrRemove(node, Constants.JCR_TITLE, seed.getTitles().get(language));
+            setOrRemove(node, Constants.JCR_DESCRIPTION, seed.getDescriptions().get(language));
+            session.save();
         }
     }
 
@@ -701,6 +725,18 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
         setOrRemove(node, Constants.JCR_TITLE, title);
         setOrRemove(node, Constants.JCR_DESCRIPTION, description);
         session.save();
+    }
+
+    /** A boolean property, written as a boolean or removed when the sources declare no value. */
+    private static void setOrRemoveBoolean(JCRNodeWrapper node, String propertyName, Boolean value)
+            throws RepositoryException {
+        if (value == null) {
+            if (node.hasProperty(propertyName)) {
+                node.getProperty(propertyName).remove();
+            }
+            return;
+        }
+        node.setProperty(propertyName, value);
     }
 
     private static void setOrRemove(JCRNodeWrapper node, String propertyName, String value)

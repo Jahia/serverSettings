@@ -36,8 +36,7 @@
         "role": "Rôle",
         "scope": "Portée",
         "flags": "Marqueurs",
-        "actions": "Actions",
-        "grants": "Accorde"
+        "actions": "Actions"
       },
       "create": "Créer un rôle",
       "createTitle": "Créer un rôle",
@@ -66,11 +65,6 @@
       "restoreRole": "Restaurer {{role}}",
       "missingDeclared_plural": "{{count}} roles declares par les sources installees sont absents de ce referentiel. En restaurer un remet le role en place, et les entrees de controle d'acces qui le nommaient accordent de nouveau.",
       "missingDeclaredTitle": "Des roles sont absents",
-      "grantsList": "{{labels}}",
-      "grantsAdds": "Ajoute {{labels}}",
-      "grantsMore": "et {{count}} permission de plus",
-      "grantsMore_plural": "et {{count}} permissions de plus",
-      "grantsNothing": "Rien qui lui soit propre",
       "matchCount_plural": "{{count}} roles sur {{total}}",
       "duplicate": "Cloner le role",
       "delete": "Supprimer le role"
@@ -221,7 +215,10 @@
       "adds_plural": "Ajoute {{count}} noms de permission",
       "removes_plural": "Retire {{count}} noms de permission",
       "addsReach_plural": "Le role accorde alors {{count}} permissions ici, car un nom ajoute accorde aussi ses {{extra}} descendants.",
-      "removesReach_plural": "Le role cesse d'accorder {{count}} permissions ici, car un nom retire accordait aussi ses {{extra}} descendants."
+      "removesReach_plural": "Le role cesse d'accorder {{count}} permissions ici, car un nom retire accordait aussi ses {{extra}} descendants.",
+      "roleGroupCleared": "la portée est retirée, car aucune source n’en déclare",
+      "textChange": "le titre et la description en {{languages}}",
+      "textChange_plural": "le titre et la description en {{languages}}"
     }
   },
   "webProjects": {

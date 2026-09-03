@@ -81,30 +81,6 @@ describe('Roles and permissions - the role list', () => {
         page.getScope('site-administrator').should('have.text', 'site-role')
     })
 
-    it('says what a role grants, in the words the rest of the interface uses', () => {
-        const page = RoleListPage.visit()
-
-        // The cell carries permission labels and not permission names, because the row is read by
-        // somebody deciding which role to open. The server reduces the role's own names to the ones
-        // no other listed name already covers, so nothing here repeats itself.
-        page.getGrants('reader').should('contain', 'Add comment')
-        page.getGrants('reader').should('not.contain', 'addComment')
-
-        // A role that names nothing of its own says so, rather than showing an empty cell that could
-        // equally mean the screen failed to load.
-        page.getGrants('jahiapp-user').should('contain', 'Nothing of its own')
-    })
-
-    it('says a nested role ADDS, because its parent already grants the rest', () => {
-        const page = RoleListPage.visit()
-
-        // editor-in-chief is nested inside editor, so what it names is what it adds on top. Reading
-        // the same cell as a complete list of what the role grants would be wrong by everything the
-        // parent grants.
-        page.getGrants('editor-in-chief').should('contain', 'Adds')
-        page.getGrants('editor').should('not.contain', 'Adds')
-    })
-
     it('reports a role as privileged when only an ancestor role sets the property', () => {
         const page = RoleListPage.visit()
 
