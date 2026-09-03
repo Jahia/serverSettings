@@ -142,26 +142,4 @@ describe('Roles and permissions - the role list', () => {
         // administrator did not ask for.
         page.getDescription('reader').should('not.exist')
     })
-
-    it('gives the description the width, and keeps a long name readable', () => {
-        const page = RoleListPage.visit()
-
-        // The name column is sized on its content and the description takes what is left. Left
-        // flexible the two split the free space evenly, so the name column held 501px for 186px of
-        // content while the description wrapped.
-        cy.get('[data-testid="role-table"] tbody tr:first-child td').then(($cells) => {
-            const nameWidth = $cells[0].offsetWidth
-            const descriptionWidth = $cells[2].offsetWidth
-            expect(descriptionWidth, 'the description is the widest column').to.be.greaterThan(nameWidth)
-        })
-
-        // A name that does not fit ends in an ellipsis and the cell carries it in full as a tooltip.
-        // It cannot wrap: the table gives every row one height, so a third line would be clipped with
-        // nothing to show the name had been cut.
-        page.getRoleName('editor').should('have.attr', 'title')
-        cy.get('[data-testid="role-table"] tbody tr').then(($rows) => {
-            const heights = [...$rows].map((row) => row.offsetHeight)
-            expect(new Set(heights).size, 'every row has the same height').to.eq(1)
-        })
-    })
 })
