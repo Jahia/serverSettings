@@ -120,6 +120,15 @@ export const RoleList = ({onOpenRole}) => {
         {
             key: 'name',
             label: t('rolesAndPermissions.list.columns.role'),
+            // Sized on the content and not on the free space. A name cell is two short lines: the
+            // title, at most 20 characters on a stock instance, and the technical name, at most 32
+            // with the "inside <parent>" of a sub-role. Left flexible it took half of what the table
+            // had spare, 501px for 186px of content, and the description paid for it.
+            //
+            // A name that does not fit ends in an ellipsis and the cell carries it as a tooltip. It
+            // cannot wrap: the table gives every row one height, so a third line would be clipped
+            // with nothing to show the name had been cut.
+            width: '240px',
             // A sub-role is indented, so the chain that decides what it adds to is visible without a
             // second widget. The repository nests roles one level deep in practice.
             render: ({data: role}) => (
@@ -129,6 +138,7 @@ export const RoleList = ({onOpenRole}) => {
                         className={role.parentRoleName ?
                             `${classes.roleNameButton} ${classes.subRoleName}` :
                             `${classes.roleNameButton} ${classes.roleName}`}
+                        title={role.title ? `${role.title} (${role.name})` : role.name}
                         data-testid={`role-name-${role.name}`}
                         onClick={() => onOpenRole(role.name)}
                     >
@@ -153,7 +163,9 @@ export const RoleList = ({onOpenRole}) => {
         {
             key: 'roleGroup',
             label: t('rolesAndPermissions.list.columns.scope'),
-            width: '140px',
+            // A scope is a chip of at most 11 characters on a stock instance, "server-role" being
+            // the longest.
+            width: '120px',
             render: ({data: role}) => (role.roleGroup ?
                 <Chip label={role.roleGroup} data-testid={`role-scope-${role.name}`}/> :
                 <Typography variant="caption">{t('rolesAndPermissions.list.noScope')}</Typography>)
@@ -161,6 +173,9 @@ export const RoleList = ({onOpenRole}) => {
         {
             key: 'description',
             label: t('rolesAndPermissions.list.columns.description'),
+            // No width. This is the only column whose content has no bound, so it absorbs whatever
+            // the others do not need.
+
             // The description the sources declare, and the one an administrator edits in the role
             // settings. It says what the role is FOR, which is what somebody scanning the list is
             // deciding on, and it is the role's own text rather than anything derived from what it

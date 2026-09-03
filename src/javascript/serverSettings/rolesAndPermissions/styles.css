@@ -139,7 +139,6 @@
 
 .roleTechnicalName {
     color: var(--color-gray_dark);
-    overflow-wrap: anywhere;
 }
 
 /*
@@ -291,6 +290,20 @@
     cursor: pointer;
     font: inherit;
     width: 100%;
+    min-width: 0;
+}
+
+/*
+ * Each of the two lines ends in an ellipsis rather than being clipped mid-character. The column has a
+ * fixed width and the table gives every row the same height, so a line that wrapped lost its tail
+ * with nothing to show it had one. A name that does not fit is a name to read in full, and the button
+ * carries it as a tooltip.
+ */
+.roleNameButton > * {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .roleNameButton:hover {
