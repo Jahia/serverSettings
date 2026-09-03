@@ -154,7 +154,12 @@ export const RoleList = ({onOpenRole}) => {
             // The description the sources declare, and the one an administrator edits in the role
             // settings. It says what the role is FOR, which is what somebody scanning the list is
             // deciding on, and it is the role's own text rather than anything derived from what it
-            // grants. A role with none says so, because an empty cell reads as a screen that failed.
+            // grants.
+            //
+            // The cell is empty when the role carries no text in the interface language, and nothing
+            // stands in for it. The text of a role is declared per language, the core seed declares
+            // English only, and a placeholder repeated down the column would say nothing while a
+            // fallback would show a language the administrator did not ask for.
             render: ({data: role}) => (role.description ?
                 <Typography
                     variant="body"
@@ -163,13 +168,7 @@ export const RoleList = ({onOpenRole}) => {
                 >
                     {role.description}
                 </Typography> :
-                <Typography
-                    variant="caption"
-                    className={classes.roleTechnicalName}
-                    data-testid={`role-description-${role.name}`}
-                >
-                    {t('rolesAndPermissions.list.noDescription')}
-                </Typography>)
+                null)
         },
         {
             key: 'flags',

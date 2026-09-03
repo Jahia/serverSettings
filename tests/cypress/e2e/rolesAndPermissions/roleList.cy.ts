@@ -138,7 +138,7 @@ describe('Roles and permissions - the role list', () => {
         cy.get('[data-testid="role-delete-editor"]').should('have.attr', 'aria-label').and('not.be.empty')
     })
 
-    it('shows the description of a role, and says when there is none', () => {
+    it('shows the description of a role, and shows nothing when there is none', () => {
         const page = RoleListPage.visit()
 
         // The description is the role's own text: what the sources declare, and what an administrator
@@ -146,8 +146,10 @@ describe('Roles and permissions - the role list', () => {
         // the list is deciding on.
         page.getDescription('editor').should('contain', 'Can edit content using jContent')
 
-        // Core declares a description for some seeded roles and not for others. A role with none says
-        // so, because an empty cell reads as a screen that failed to load.
-        page.getDescription('reader').should('contain', 'No description')
+        // The text is declared per language and the core seed declares English only, so a role with
+        // none in the interface language shows an empty cell. Nothing stands in for it: a placeholder
+        // repeated down the column says nothing, and a fallback would show a language the
+        // administrator did not ask for.
+        page.getDescription('reader').should('not.exist')
     })
 })

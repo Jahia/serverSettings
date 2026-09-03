@@ -68,8 +68,7 @@
       "missingDeclaredTitle": "Des roles sont absents",
       "matchCount_plural": "{{count}} roles sur {{total}}",
       "duplicate": "Cloner le role",
-      "delete": "Supprimer le role",
-      "noDescription": "Pas de description"
+      "delete": "Supprimer le role"
     },
     "warning": {
       "DUPLICATE_TARGET_PATH": "Deux cibles s'appliquent sur {{subject}}",
