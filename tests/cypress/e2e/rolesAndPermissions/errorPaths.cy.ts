@@ -57,6 +57,39 @@ const RESET = gql`
     }
 `
 
+const READ = gql`
+    query Read($role: String!) {
+        admin {
+            rolesAndPermissions {
+                role(name: $role) {
+                    name
+                    title(language: "en")
+                    grants {
+                        id
+                        directPermissions
+                    }
+                }
+            }
+        }
+    }
+`
+
+/**
+ * The role as the repository holds it.
+ *
+ * Every refusal below is proved here and not on the screen. A screen that did not refetch shows the
+ * old state whether the write landed or not, so reading the repository is the only assertion that
+ * tells a refused write from one that went through and was merely reported as refused.
+ */
+const readRole = (role: string) =>
+    cy
+        .apolloClient()
+        .apollo({ query: READ, variables: { role }, fetchPolicy: 'no-cache' })
+        .then((result) => result.data.admin.rolesAndPermissions.role)
+
+const ownNames = (role: string) =>
+    readRole(role).then((answered) => answered.grants.find((grant) => grant.id === '').directPermissions)
+
 const REFUSAL = 'The repository refused this write'
 
 // The banner that offers a deleted role back lists only roles a source declares, so this test needs a
@@ -101,6 +134,7 @@ describe('Roles and permissions - what a refused write says', () => {
         // indistinguishable from a click that never registered.
         cy.get('[data-testid="role-permissions-notice"]').should('contain', REFUSAL)
         page.getPermissionState('clearLock').should('eq', 'NOT_GRANTED')
+        ownNames(role).should('not.include', 'clearLock')
     })
 
     it('states a refused removal', () => {
@@ -116,6 +150,7 @@ describe('Roles and permissions - what a refused write says', () => {
 
         cy.get('[data-testid="role-permissions-notice"]').should('contain', REFUSAL)
         page.getPermissionState('viewRolesTab').should('eq', 'DIRECT')
+        ownNames(role).should('include', 'viewRolesTab')
     })
 
     it('does not open the change dialog when the plan answers no data', () => {
@@ -157,6 +192,9 @@ describe('Roles and permissions - what a refused write says', () => {
         // assertions are needed: the message alone passed before the fix.
         cy.get('[data-testid="role-identity-error"]').should('contain', REFUSAL)
         cy.get('[data-testid="role-identity-saved"]').should('not.exist')
+        readRole(role).then((answered) => {
+            expect(answered.title, 'and the title was not written').to.not.eq('A title that will not land')
+        })
     })
 
     it('states a refused target removal, and keeps the target', () => {
@@ -169,10 +207,15 @@ describe('Roles and permissions - what a refused write says', () => {
         cy.get('[data-testid="confirm-destructive-confirm"]').click()
 
         cy.get('[data-testid="role-identity-error"]').should('contain', REFUSAL)
-        page.closeEdit()
 
-        // The target is still a tab, because nothing was written.
-        cy.get('[data-testid="role-target-currentSite-access"]').should('exist')
+        // The repository, not the tab bar. A screen that has not refetched still draws the tab
+        // whether the removal landed or not, so the tab proves nothing on its own.
+        readRole(role).then((answered) => {
+            expect(
+                answered.grants.map((grant) => grant.id),
+                'the target is still there',
+            ).to.include('currentSite-access')
+        })
     })
 
     it('states a refused deletion, and stays on the role', () => {
@@ -186,6 +229,7 @@ describe('Roles and permissions - what a refused write says', () => {
         // just asked about.
         cy.get('[data-testid="confirm-destructive-dialog"]').should('be.visible')
         cy.get('[data-testid="confirm-destructive-error"]').should('contain', REFUSAL)
+        readRole(role).should('not.be.null')
     })
 
     it('states a failed read as a failure, and not as a role that does not exist', () => {
@@ -245,5 +289,6 @@ describe('Roles and permissions - what a refused write says', () => {
         // Without the message the button simply stops looking busy and the role is still missing.
         cy.get('[data-testid="restore-role-error"]').should('contain', REFUSAL)
         page.getRoleName(SEEDED_ROLE).should('not.exist')
+        readRole(SEEDED_ROLE).should('be.null')
     })
 })

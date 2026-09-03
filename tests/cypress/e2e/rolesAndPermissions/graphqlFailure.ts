@@ -1,41 +1,30 @@
 /**
- * Force one GraphQL operation to fail, so a screen's error path can be exercised.
+ * Refuse one GraphQL operation, so a screen's error path can be exercised.
  *
- * The refusals these helpers simulate are all reachable on a real instance: a role deleted from
- * another session, a permission revoked while the plan was on screen, a write refused by the
- * repository. None of them is reachable from a test on demand, and each one is a branch that
- * rendered nothing at all before it was fixed, so the interception is what makes the branch testable.
+ * The refusals this simulates are all reachable on a real instance: a role deleted from another
+ * session, a write the repository turns down, a revision that moved. None of them is reachable from a
+ * test on demand, and each one is a branch that rendered nothing at all before it was fixed, so the
+ * refusal is what makes the branch testable.
  *
- * The client batches, so a request body is an array of operations and the response body is an array
- * of answers at the same indexes. A single-operation body is handled too, because whether the client
- * batches a given call is not something a spec should depend on.
+ * The request is ANSWERED here and never forwarded. Rewriting the real answer instead would let the
+ * write land while the screen was told it had not, so an assertion that the repository did not change
+ * would pass for the wrong reason. A refusal has to refuse.
+ *
+ * That only holds for an operation sent on its own, so a batch carrying anything else is forwarded
+ * untouched and the caller sees the real answer. Every operation used here is what one click sends.
  */
 
 const GRAPHQL = { method: 'POST', url: '/modules/graphql' }
 
-type Answer = Record<string, unknown>
-
-/** Replace the answer to `operationName` with whatever `answer` returns. */
-const replaceAnswer = (operationName: string, answer: () => Answer, alias: string) => {
+/** The operation is refused and never reaches the repository. */
+export const refuse = (operationName: string, message: string, alias = 'refused') => {
     cy.intercept(GRAPHQL, (req) => {
-        req.continue((res) => {
-            const operations = Array.isArray(req.body) ? req.body : [req.body]
-            const matches = operations.some((operation) => operation?.operationName === operationName)
-            if (!matches) {
-                return
-            }
+        const operations = Array.isArray(req.body) ? req.body : [req.body]
+        if (operations.length !== 1 || operations[0]?.operationName !== operationName) {
+            return
+        }
 
-            if (Array.isArray(res.body)) {
-                res.body = res.body.map((original: Answer, index: number) =>
-                    operations[index]?.operationName === operationName ? answer() : original,
-                )
-            } else {
-                res.body = answer()
-            }
-        })
+        const answer = { errors: [{ message }], data: null }
+        req.reply({ statusCode: 200, body: Array.isArray(req.body) ? [answer] : answer })
     }).as(alias)
 }
-
-/** The operation is refused, the way a repository refusal reaches the client. */
-export const refuse = (operationName: string, message: string, alias = 'refused') =>
-    replaceAnswer(operationName, () => ({ errors: [{ message }], data: null }), alias)
