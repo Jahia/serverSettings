@@ -32,12 +32,12 @@ import org.jahia.modules.serversettings.roles.seed.RoleSeedCatalog;
 @GraphQLDescription("Read the role and permission model of this Jahia instance")
 public class GqlRolesAndPermissions {
 
-    // NOSONAR - field injection is how the provider supplies an OSGi service to a GraphQL type. The
-    // schema instantiates this class through its no-argument constructor and OSGIServiceInjectorDataFetcher
+    // Field injection is how the provider supplies an OSGi service to a GraphQL type. The schema
+    // instantiates this class through its no-argument constructor and OSGIServiceInjectorDataFetcher
     // then sets the field, so a constructor parameter would never be filled.
     @Inject
     @GraphQLOsgiService
-    private RolesAndPermissionsService rolesAndPermissionsService;
+    private RolesAndPermissionsService rolesAndPermissionsService;  // NOSONAR - see above
 
     private PermissionCatalog catalog;
     private RoleModel roleModel;

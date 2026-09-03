@@ -113,7 +113,7 @@ public final class RoleSeed {
     }
 
     void mergeTarget(String nodeName, String path, Collection<String> permissions) {
-        targetsByName.computeIfAbsent(nodeName, name -> new SeedTarget(name, path))
+        targetsByName.computeIfAbsent(nodeName, targetName -> new SeedTarget(targetName, path))
                 .addPermissionNames(permissions);
     }
 

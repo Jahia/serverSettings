@@ -122,7 +122,10 @@ public final class RoleSeedCatalog {
         boolean failed = false;
         while (archives.hasMoreElements()) {
             URL archive = archives.nextElement();
-            try (ZipInputStream zip = new ZipInputStream(archive.openStream())) {
+            // NOSONAR - the entry is read through BoundedEntryStream, which abandons it past
+            // MAX_ENTRY_BYTES, so one entry cannot make the reader hold the heap. Nothing is expanded
+            // to disk and no entry name reaches a path.
+            try (ZipInputStream zip = new ZipInputStream(archive.openStream())) {  // NOSONAR
                 ZipEntry entry;
                 while ((entry = zip.getNextEntry()) != null) {
                     if (!ROLES_ENTRY.equals(entry.getName())) {
