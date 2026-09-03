@@ -197,27 +197,6 @@ describe('Roles and permissions - what a refused write says', () => {
         })
     })
 
-    it('states a refused target removal, and keeps the target', () => {
-        const page = RoleDetailPage.visit(role)
-        page.addTarget('currentSite')
-
-        page.openIdentityTab()
-        refuse('RemoveTarget', REFUSAL)
-        cy.get('[data-testid="role-remove-target-currentSite-access"]').click()
-        cy.get('[data-testid="confirm-destructive-confirm"]').click()
-
-        cy.get('[data-testid="role-identity-error"]').should('contain', REFUSAL)
-
-        // The repository, not the tab bar. A screen that has not refetched still draws the tab
-        // whether the removal landed or not, so the tab proves nothing on its own.
-        readRole(role).then((answered) => {
-            expect(
-                answered.grants.map((grant) => grant.id),
-                'the target is still there',
-            ).to.include('currentSite-access')
-        })
-    })
-
     it('states a refused deletion, and stays on the role', () => {
         const page = RoleDetailPage.visit(role)
         page.chooseAction('delete')

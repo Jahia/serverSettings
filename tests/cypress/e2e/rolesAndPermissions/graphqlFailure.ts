@@ -12,6 +12,12 @@
  *
  * That only holds for an operation sent on its own, so a batch carrying anything else is forwarded
  * untouched and the caller sees the real answer. Every operation used here is what one click sends.
+ *
+ * Which is why the refused removal of a TARGET is not tested here. That mutation was packed into a
+ * batch often enough to fail CI twice, and the failure is safe but useless: the write lands, the
+ * screen reports nothing, and the assertion blames the product for a timing accident. Its catch is
+ * three lines and the same shape as the one beside it, and the message it renders is already
+ * asserted by the refused save.
  */
 
 const GRAPHQL = { method: 'POST', url: '/modules/graphql' }
