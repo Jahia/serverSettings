@@ -20,6 +20,16 @@ const GRANT = gql`
     }
 `
 
+const DUPLICATE = gql`
+    mutation Duplicate($role: String!, $newName: String!, $withSubRoles: Boolean) {
+        admin {
+            rolesAndPermissions {
+                duplicateRole(role: $role, newName: $newName, withSubRoles: $withSubRoles)
+            }
+        }
+    }
+`
+
 const DELETE = gql`
     mutation Delete($role: String!) {
         admin {
@@ -37,6 +47,8 @@ const READ = gql`
                 role(name: $role) {
                     roleGroup
                     parentRoleName
+                    subRoleNames
+                    title(language: "en")
                     grants {
                         id
                         directPermissions
@@ -65,6 +77,7 @@ describe('Roles and permissions - creating, copying and deleting a role', () => 
     const created = `rpNew${uniq}`
     const copy = `rpNew${uniq}-copy`
     const nested = `rpNested${uniq}`
+    const seededCopy = `rpReviewer${uniq}`
 
     beforeEach(() => {
         cy.login()
@@ -72,7 +85,7 @@ describe('Roles and permissions - creating, copying and deleting a role', () => 
 
     after(() => {
         cy.login()
-        ;[copy, nested, created].forEach((role) => {
+        ;[copy, nested, seededCopy, created].forEach((role) => {
             cy.apolloClient().apollo({ mutation: DELETE, variables: { role } })
         })
     })
@@ -128,6 +141,51 @@ describe('Roles and permissions - creating, copying and deleting a role', () => 
                     role.grants.find((grant) => grant.id === '').directPermissions,
                     'and it names what the source names',
                 ).to.deep.eq(['clearLock', 'publish'])
+            })
+    })
+
+    // A role the test creates has no title, so the copy above never reads the jnt:translation child a
+    // seeded role carries. That child is what made the copy fail for every seeded role.
+    it('copies a seeded role with the title it carries', () => {
+        const page = RoleListPage.visit()
+        cy.get('[data-testid="role-duplicate-reviewer"]').click()
+        nameDialog.name().clear()
+        nameDialog.name().type(seededCopy)
+        nameDialog.confirm().click()
+
+        page.getRoleName(seededCopy).should('be.visible')
+
+        cy.apolloClient()
+            .apollo({ query: READ, variables: { role: seededCopy } })
+            .then((result) => {
+                const role = result.data.admin.rolesAndPermissions.role
+                expect(role, 'the copy was created').to.not.be.null
+                expect(role.title, 'and it carries the title of the source').to.eq('Reviewer')
+            })
+    })
+
+    // A sub-role is copied under its own name, and a role name is what an access control entry holds,
+    // so copying the sub-roles of `editor` would leave two roles named editor-in-chief. The server
+    // refuses it and names the collision.
+    it('refuses to copy the sub-roles when a sub-role name is already taken', () => {
+        cy.apolloClient()
+            .apollo({
+                mutation: DUPLICATE,
+                variables: { role: 'editor', newName: `${seededCopy}-subs`, withSubRoles: true },
+                errorPolicy: 'all',
+            })
+            .then((result) => {
+                expect(result.errors, 'the copy is refused').to.not.be.empty
+                expect(result.errors[0].message).to.contain('editor-in-chief')
+            })
+
+        cy.apolloClient()
+            .apollo({ query: READ, variables: { role: `${seededCopy}-subs` } })
+            .then((result) => {
+                expect(
+                    result.data.admin.rolesAndPermissions.role,
+                    'and nothing was created',
+                ).to.be.null
             })
     })
 

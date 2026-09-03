@@ -564,6 +564,9 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
 
         JCRSessionWrapper session = currentSession();
         JCRNodeWrapper sourceNode = session.getNode(source.getPath());
+        if (withSubRoles) {
+            validateSubRoleNames(model, sourceNode);
+        }
         JCRNodeWrapper parent = sourceNode.getParent();
         JCRNodeWrapper copy = parent.addNode(newName, Constants.JAHIANT_ROLE);
 
@@ -571,6 +574,20 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
         copyRoleChildren(session, sourceNode, copy, withSubRoles);
         session.save();
         return copy.getPath();
+    }
+
+    // A sub-role is copied under its own name, so a source that has one always collides with it. The
+    // name is what an access control entry holds, so a second role of that name makes the applied
+    // permissions undefined, and validateRoleName refuses that name everywhere else.
+    private void validateSubRoleNames(RoleModel model, JCRNodeWrapper roleNode) throws RepositoryException {
+        NodeIterator children = roleNode.getNodes();
+        while (children.hasNext()) {
+            JCRNodeWrapper child = (JCRNodeWrapper) children.nextNode();
+            if (child.isNodeType(Constants.JAHIANT_ROLE)) {
+                validateRoleName(model, child.getName());
+                validateSubRoleNames(model, child);
+            }
+        }
     }
 
     private void copyRoleProperties(JCRSessionWrapper session, JCRNodeWrapper from, JCRNodeWrapper to)
@@ -590,6 +607,8 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
         }
     }
 
+    // `to` was added to the session by the caller and is still transient, so every child is added the
+    // same way. Workspace.copy reads the persistent workspace, which does not yet hold `to`.
     private void copyRoleChildren(JCRSessionWrapper session, JCRNodeWrapper from, JCRNodeWrapper to,
                                   boolean withSubRoles) throws RepositoryException {
         NodeIterator children = from.getNodes();
@@ -602,9 +621,17 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
                 }
                 setPermissionNames(session, copy, multipleValues(child, PERMISSION_NAMES_PROPERTY));
             } else if (child.isNodeType(Constants.JAHIANT_TRANSLATION)) {
-                session.getWorkspace().copy(child.getPath(), to.getPath() + "/" + child.getName());
+                JCRNodeWrapper copy = to.addNode(child.getName(), Constants.JAHIANT_TRANSLATION);
+                for (String property : new String[]{Constants.JCR_LANGUAGE, Constants.JCR_TITLE,
+                        Constants.JCR_DESCRIPTION}) {
+                    if (child.hasProperty(property)) {
+                        copy.setProperty(property, child.getProperty(property).getString());
+                    }
+                }
             } else if (withSubRoles && child.isNodeType(Constants.JAHIANT_ROLE)) {
-                session.getWorkspace().copy(child.getPath(), to.getPath() + "/" + child.getName());
+                JCRNodeWrapper copy = to.addNode(child.getName(), Constants.JAHIANT_ROLE);
+                copyRoleProperties(session, child, copy);
+                copyRoleChildren(session, child, copy, true);
             }
         }
     }
