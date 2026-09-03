@@ -31,6 +31,9 @@ import javax.jcr.nodetype.ConstraintViolationException;
 @GraphQLDescription("Change the role and permission model of this Jahia instance")
 public class GqlRolesAndPermissionsMutation {
 
+    // NOSONAR - field injection is how the provider supplies an OSGi service to a GraphQL type. The
+    // schema instantiates this class through its no-argument constructor and OSGIServiceInjectorDataFetcher
+    // then sets the field, so a constructor parameter would never be filled.
     @Inject
     @GraphQLOsgiService
     private RolesAndPermissionsService rolesAndPermissionsService;

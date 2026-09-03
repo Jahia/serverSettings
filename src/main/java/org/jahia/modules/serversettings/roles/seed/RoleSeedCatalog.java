@@ -2,6 +2,7 @@ package org.jahia.modules.serversettings.roles.seed;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -41,6 +42,17 @@ public final class RoleSeedCatalog {
     private static final String IMPORT_DIRECTORY = "META-INF";
     private static final String IMPORT_ARCHIVE_PATTERN = "import*.zip";
     private static final String ROLES_ENTRY = "roles.xml";
+
+    /**
+     * How much of one archive entry is read before the read is abandoned.
+     * <p>
+     * A roles.xml declares a handful of roles and is measured in kilobytes. The cap is here because
+     * the size an archive entry declares is not the size it expands to, so a corrupt or hostile
+     * bundle could otherwise hold the reader on one entry until the heap is gone. A refused entry
+     * makes its source unreadable, and a reset then states the baseline is incomplete rather than
+     * presenting a partial one as the whole.
+     */
+    private static final long MAX_ENTRY_BYTES = 8L * 1024 * 1024;
 
     private final Map<String, RoleSeed> seedsByName;
     private final List<RoleSeedSource> sources;
@@ -118,7 +130,7 @@ public final class RoleSeedCatalog {
                     }
                     // The stream is handed to the reader without closing it, because closing it would
                     // close the archive under the loop that still has entries to walk.
-                    reader.read(new NonClosingStream(zip), seeds, source);
+                    reader.read(new BoundedEntryStream(zip, MAX_ENTRY_BYTES), seeds, source);
                     declared = true;
                 }
             } catch (IOException | RuntimeException | org.xml.sax.SAXException e) {
@@ -160,10 +172,46 @@ public final class RoleSeedCatalog {
         return Collections.unmodifiableList(unreadableSources);
     }
 
-    /** A stream that ignores close, so one archive entry can be parsed without ending the archive. */
-    private static final class NonClosingStream extends java.io.FilterInputStream {
-        NonClosingStream(InputStream in) {
+    /**
+     * One archive entry, read up to a limit and never closed.
+     * <p>
+     * Close is ignored because the archive owns the stream, and closing it would end the loop that
+     * still has entries to walk. The limit bounds what one entry can make the reader hold.
+     */
+    private static final class BoundedEntryStream extends FilterInputStream {
+
+        private final long limit;
+        private long read;
+
+        BoundedEntryStream(InputStream in, long limit) {
             super(in);
+            this.limit = limit;
+        }
+
+        @Override
+        public int read() throws IOException {
+            int value = super.read();
+            if (value != -1) {
+                count(1);
+            }
+            return value;
+        }
+
+        @Override
+        public int read(byte[] buffer, int offset, int length) throws IOException {
+            int count = super.read(buffer, offset, length);
+            if (count > 0) {
+                count(count);
+            }
+            return count;
+        }
+
+        private void count(int bytes) throws IOException {
+            read += bytes;
+            if (read > limit) {
+                throw new IOException("The archive entry is larger than the " + limit
+                        + " bytes a role seed is read up to");
+            }
         }
 
         @Override

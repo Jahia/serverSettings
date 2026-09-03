@@ -168,38 +168,12 @@ public final class RoleModel {
         // The parent role goes first, so anything this role adds afterwards overrides the reason.
         RoleView parent = byPath.get(role.getParentRolePath());
         if (parent != null) {
-            for (EffectivePermission inherited : effectiveOf(parent, grantId)) {
-                reasons.put(inherited.getName(),
-                        Reason.locked(PermissionLockKind.INHERITED_FROM_ROLE, parent.getName(),
-                                inherited.isKnown()));
-            }
+            addInheritedReasons(reasons, parent, grantId);
         }
 
         RoleGrant own = role.getGrant(grantId);
         if (own != null) {
-            for (String granted : own.getDirectPermissions()) {
-                boolean known = catalog.contains(granted);
-                // The row is direct here. Any lock an ancestor role put on it stays, because clearing
-                // this name does not remove what the parent role grants.
-                reasons.put(granted, Reason.direct(known, reasons.get(granted)));
-
-                if (!known) {
-                    continue;
-                }
-                for (String descendant : catalog.getDescendantNames(granted)) {
-                    Reason current = reasons.get(descendant);
-                    if (current != null && current.direct) {
-                        // A permission named by this target stays direct, and its own lock is kept.
-                        continue;
-                    }
-                    if (current != null && current.lockKind == PermissionLockKind.INHERITED_FROM_ROLE) {
-                        // A parent role already holds it, and that lock is the one no local edit frees.
-                        continue;
-                    }
-                    reasons.put(descendant,
-                            Reason.locked(PermissionLockKind.IMPLIED_BY_PERMISSION, granted, true));
-                }
-            }
+            addOwnReasons(reasons, own);
         }
 
         List<EffectivePermission> effective = new ArrayList<>(reasons.size());
@@ -209,6 +183,44 @@ public final class RoleModel {
         List<EffectivePermission> result = Collections.unmodifiableList(effective);
         effectiveCache.put(cacheKey, result);
         return result;
+    }
+
+    /** Everything the parent role grants on the same target, each locked by that role. */
+    private void addInheritedReasons(SortedMap<String, Reason> reasons, RoleView parent, String grantId) {
+        for (EffectivePermission inherited : effectiveOf(parent, grantId)) {
+            reasons.put(inherited.getName(),
+                    Reason.locked(PermissionLockKind.INHERITED_FROM_ROLE, parent.getName(),
+                            inherited.isKnown()));
+        }
+    }
+
+    /** Every name the target holds itself, and everything each of those names aggregates. */
+    private void addOwnReasons(SortedMap<String, Reason> reasons, RoleGrant own) {
+        for (String granted : own.getDirectPermissions()) {
+            boolean known = catalog.contains(granted);
+            // The row is direct here. Any lock an ancestor role put on it stays, because clearing
+            // this name does not remove what the parent role grants.
+            reasons.put(granted, Reason.direct(known, reasons.get(granted)));
+
+            if (known) {
+                addImpliedReasons(reasons, granted);
+            }
+        }
+    }
+
+    /** Everything a granted name aggregates, unless a stronger reason already holds the row. */
+    private void addImpliedReasons(SortedMap<String, Reason> reasons, String granted) {
+        for (String descendant : catalog.getDescendantNames(granted)) {
+            Reason current = reasons.get(descendant);
+            // A permission this target names stays direct, and a lock a parent role put on it is the
+            // one no local edit frees. Either way the existing reason is the stronger one.
+            boolean alreadyStronger = current != null
+                    && (current.direct || current.lockKind == PermissionLockKind.INHERITED_FROM_ROLE);
+            if (!alreadyStronger) {
+                reasons.put(descendant,
+                        Reason.locked(PermissionLockKind.IMPLIED_BY_PERMISSION, granted, true));
+            }
+        }
     }
 
     /**
@@ -274,42 +286,48 @@ public final class RoleModel {
         }
 
         List<RoleWarning> warnings = new ArrayList<>();
+        addDuplicateTargetWarnings(warnings, role);
+        addShadowedTargetWarnings(warnings, roleName, role);
+        getUnknownPermissionNames(roleName).forEach(
+                name -> warnings.add(new RoleWarning(RoleWarningCode.UNKNOWN_PERMISSION, name)));
+        return warnings;
+    }
 
-        // Two targets of this role on one path both create an access control entry on that node, and
-        // what applies there is the union of the two.
+    /**
+     * Two targets of one role on one path.
+     * <p>
+     * Both create an access control entry on that node, and what applies there is the union of the two.
+     */
+    private void addDuplicateTargetWarnings(List<RoleWarning> warnings, RoleView role) {
         Map<String, String> nameByPath = new LinkedHashMap<>();
         for (RoleGrant grant : role.getGrants()) {
-            if (grant.getPath() == null) {
-                continue;
-            }
-            String previous = nameByPath.putIfAbsent(grant.getPath(), grant.getNodeName());
-            if (previous != null) {
+            if (grant.getPath() != null
+                    && nameByPath.putIfAbsent(grant.getPath(), grant.getNodeName()) != null) {
                 warnings.add(new RoleWarning(RoleWarningCode.DUPLICATE_TARGET_PATH, grant.getPath()));
             }
         }
+    }
 
-        // A target this role and an ancestor both declare, on two different paths. Inheritance matches
-        // the name, so both sets of permissions apply, and only this role's path is used.
+    /**
+     * A target this role and an ancestor role both declare, on two different paths.
+     * <p>
+     * Inheritance matches the target NAME, so both sets of permissions apply, and only this role's
+     * path is used.
+     */
+    private void addShadowedTargetWarnings(List<RoleWarning> warnings, String roleName, RoleView role) {
         for (RoleGrant grant : role.getGrants()) {
-            if (grant.getNodeName() == null) {
-                continue;
-            }
-            for (RoleView ancestor : chainOf(roleName)) {
-                if (ancestor == role) {
-                    continue;
-                }
-                RoleGrant shadowed = ancestor.getGrant(grant.getId());
-                if (shadowed != null && !Objects.equals(shadowed.getPath(), grant.getPath())) {
-                    warnings.add(new RoleWarning(RoleWarningCode.SHADOWED_TARGET_PATH, grant.getNodeName()));
-                    break;
-                }
+            if (grant.getNodeName() != null && isShadowedByAncestor(roleName, role, grant)) {
+                warnings.add(new RoleWarning(RoleWarningCode.SHADOWED_TARGET_PATH, grant.getNodeName()));
             }
         }
+    }
 
-        getUnknownPermissionNames(roleName).forEach(
-                name -> warnings.add(new RoleWarning(RoleWarningCode.UNKNOWN_PERMISSION, name)));
-
-        return warnings;
+    private boolean isShadowedByAncestor(String roleName, RoleView role, RoleGrant grant) {
+        return chainOf(roleName).stream()
+                .filter(ancestor -> ancestor != role)
+                .map(ancestor -> ancestor.getGrant(grant.getId()))
+                .anyMatch(shadowed -> shadowed != null
+                        && !Objects.equals(shadowed.getPath(), grant.getPath()));
     }
 
     /**

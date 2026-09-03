@@ -65,7 +65,8 @@ public final class TargetResetDiff {
         return addedNames.isEmpty() && removedNames.isEmpty();
     }
 
-    void record(SortedSet<String> added, SortedSet<String> removed, SortedSet<String> gained, SortedSet<String> lost) {
+    void recordDiff(SortedSet<String> added, SortedSet<String> removed, SortedSet<String> gained,
+                    SortedSet<String> lost) {
         addedNames.addAll(added);
         removedNames.addAll(removed);
         gainedPermissions.addAll(gained);

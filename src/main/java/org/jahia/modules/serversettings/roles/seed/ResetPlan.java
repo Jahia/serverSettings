@@ -159,7 +159,7 @@ public final class ResetPlan {
         lost.removeAll(afterClosure);
 
         TargetResetDiff diff = new TargetResetDiff(id, path == null && live != null ? live.getPath() : path, kind);
-        diff.record(added, removed, gained, lost);
+        diff.recordDiff(added, removed, gained, lost);
         targets.add(diff);
     }
 

@@ -32,7 +32,6 @@ import org.jahia.services.templates.JahiaTemplateManagerService;
 import org.jahia.utils.LanguageCodeConverters;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.jahia.modules.serversettings.roles.seed.TargetKind;
 import org.jahia.modules.serversettings.roles.seed.SeedTarget;
 import org.jahia.modules.serversettings.roles.seed.RoleSeedCatalog;
 import org.jahia.modules.serversettings.roles.seed.RoleSeed;
@@ -53,6 +52,10 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
     private static final String EXTERNAL_PATH_PROPERTY = "j:path";
 
     private static final String EXTERNAL_PERMISSIONS_TYPE = "jnt:externalPermissions";
+
+    /** Everything a jnt:translation child of a role carries. */
+    private static final String[] TRANSLATION_PROPERTIES =
+            {Constants.JCR_LANGUAGE, Constants.JCR_TITLE, Constants.JCR_DESCRIPTION};
 
     private static final String ROLES_ROOT = "/roles";
 
@@ -639,25 +642,38 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
         while (children.hasNext()) {
             JCRNodeWrapper child = (JCRNodeWrapper) children.nextNode();
             if (child.isNodeType(EXTERNAL_PERMISSIONS_TYPE)) {
-                JCRNodeWrapper copy = to.addNode(child.getName(), EXTERNAL_PERMISSIONS_TYPE);
-                if (child.hasProperty(EXTERNAL_PATH_PROPERTY)) {
-                    copy.setProperty(EXTERNAL_PATH_PROPERTY, child.getProperty(EXTERNAL_PATH_PROPERTY).getString());
-                }
-                setPermissionNames(session, copy, multipleValues(child, PERMISSION_NAMES_PROPERTY));
+                copyTarget(session, child, to);
             } else if (child.isNodeType(Constants.JAHIANT_TRANSLATION)) {
-                JCRNodeWrapper copy = to.addNode(child.getName(), Constants.JAHIANT_TRANSLATION);
-                for (String property : new String[]{Constants.JCR_LANGUAGE, Constants.JCR_TITLE,
-                        Constants.JCR_DESCRIPTION}) {
-                    if (child.hasProperty(property)) {
-                        copy.setProperty(property, child.getProperty(property).getString());
-                    }
-                }
+                copyTranslation(child, to);
             } else if (withSubRoles && child.isNodeType(Constants.JAHIANT_ROLE)) {
-                JCRNodeWrapper copy = to.addNode(child.getName(), Constants.JAHIANT_ROLE);
-                copyRoleProperties(session, child, copy);
-                copyRoleChildren(session, child, copy, true);
+                copySubRole(session, child, to);
             }
         }
+    }
+
+    private void copyTarget(JCRSessionWrapper session, JCRNodeWrapper child, JCRNodeWrapper to)
+            throws RepositoryException {
+        JCRNodeWrapper copy = to.addNode(child.getName(), EXTERNAL_PERMISSIONS_TYPE);
+        if (child.hasProperty(EXTERNAL_PATH_PROPERTY)) {
+            copy.setProperty(EXTERNAL_PATH_PROPERTY, child.getProperty(EXTERNAL_PATH_PROPERTY).getString());
+        }
+        setPermissionNames(session, copy, multipleValues(child, PERMISSION_NAMES_PROPERTY));
+    }
+
+    private void copyTranslation(JCRNodeWrapper child, JCRNodeWrapper to) throws RepositoryException {
+        JCRNodeWrapper copy = to.addNode(child.getName(), Constants.JAHIANT_TRANSLATION);
+        for (String property : TRANSLATION_PROPERTIES) {
+            if (child.hasProperty(property)) {
+                copy.setProperty(property, child.getProperty(property).getString());
+            }
+        }
+    }
+
+    private void copySubRole(JCRSessionWrapper session, JCRNodeWrapper child, JCRNodeWrapper to)
+            throws RepositoryException {
+        JCRNodeWrapper copy = to.addNode(child.getName(), Constants.JAHIANT_ROLE);
+        copyRoleProperties(session, child, copy);
+        copyRoleChildren(session, child, copy, true);
     }
 
     @Override
@@ -763,13 +779,7 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
         while (entries.hasNext()) {
             JCRNodeWrapper entry = (JCRNodeWrapper) entries.nextNode();
 
-            // An external entry is derived from a source entry by AclListener, so counting it would
-            // count one grant twice.
-            if (EXTERNAL_ACE_TYPE.equals(entry.getPrimaryNodeTypeName())) {
-                continue;
-            }
-            if (entry.hasProperty(ACE_TYPE_PROPERTY)
-                    && !"GRANT".equals(entry.getProperty(ACE_TYPE_PROPERTY).getString())) {
+            if (!grantsTheRole(entry)) {
                 continue;
             }
 
@@ -788,6 +798,20 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
         }
 
         return new RoleUsage(entryCount, principals, truncated);
+    }
+
+    /**
+     * True when the access control entry is one this role's usage counts.
+     * <p>
+     * An external entry is derived from a source entry by AclListener, so counting it would count one
+     * grant twice. An entry that is not a GRANT takes nothing away when the role goes.
+     */
+    private static boolean grantsTheRole(JCRNodeWrapper entry) throws RepositoryException {
+        if (EXTERNAL_ACE_TYPE.equals(entry.getPrimaryNodeTypeName())) {
+            return false;
+        }
+        return !entry.hasProperty(ACE_TYPE_PROPERTY)
+                || "GRANT".equals(entry.getProperty(ACE_TYPE_PROPERTY).getString());
     }
 
     /**

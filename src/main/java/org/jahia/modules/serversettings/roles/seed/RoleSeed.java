@@ -113,12 +113,8 @@ public final class RoleSeed {
     }
 
     void mergeTarget(String nodeName, String path, Collection<String> permissions) {
-        SeedTarget target = targetsByName.get(nodeName);
-        if (target == null) {
-            target = new SeedTarget(nodeName, path);
-            targetsByName.put(nodeName, target);
-        }
-        target.addPermissionNames(permissions);
+        targetsByName.computeIfAbsent(nodeName, name -> new SeedTarget(name, path))
+                .addPermissionNames(permissions);
     }
 
     void mergeText(String language, String title, String description) {
