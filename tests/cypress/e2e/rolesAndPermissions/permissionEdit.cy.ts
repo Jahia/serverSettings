@@ -312,4 +312,14 @@ describe('Roles and permissions - editing what a role grants', () => {
         // The rail is a Moonstone TreeView, so which area is selected is the tree's own aria state.
         page.getSelectedArea().should('have.attr', 'data-testid', 'role-area-admin')
     })
+
+    it('gives every permission checkbox an accessible name', () => {
+        const page = RoleDetailPage.visit('editor').openPermissionsTab()
+        page.searchPermission('clearLock')
+
+        // Moonstone's Field renders a label with no htmlFor, and the row's own label is a sibling
+        // span, so the input has no accessible name of its own. A checkbox that decides a permission
+        // announced as "checkbox" alone is unusable without sight of the row.
+        page.getPermissionCheckbox('clearLock').should('have.attr', 'aria-label').and('not.be.empty')
+    })
 })

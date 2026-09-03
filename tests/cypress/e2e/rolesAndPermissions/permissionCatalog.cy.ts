@@ -168,4 +168,67 @@ describe('Roles and permissions - the permission catalog', () => {
             'no label may split a prefix',
         ).to.deep.eq([])
     })
+
+    it('keeps an acronym whole in the fallback label', () => {
+        // A space before EVERY capital splits a run of capitals letter by letter, and the lowercasing
+        // then flattened what was left, so adminDBSettings read as "Admin d b settings".
+        expect(byName.get('adminDBSettings').label).to.eq('Admin DB settings')
+
+        // The invariant behind that case, over every name carrying a run of capitals: no label may
+        // contain a lone capital between two spaces, which is the shape the letter-by-letter split
+        // produces. A name with no such run cannot produce it, so it is not examined.
+        const flattened = catalog.entries.filter(
+            (entry) => /[A-Z]{2}/.test(entry.name) && /(^|\s)[A-Za-z](\s|$)/.test(entry.label),
+        )
+        expect(
+            flattened.map((entry) => `${entry.name} -> ${entry.label}`),
+            'no label may split an acronym',
+        ).to.deep.eq([])
+    })
+
+    it('excludes a top-level node whose name merely opens with the permissions root', () => {
+        // The test for a logical path had no separator, so /permissionsArchive passed as one. The read
+        // of the segment after "/permissions/" then found nothing and walked off an empty array, which
+        // took the whole namespace down on one stray node. Nothing declares such a node, which is
+        // exactly why it would be found the hard way.
+        const strayNode = 'permissionsArchive'
+
+        cy.apolloClient()
+            .apollo({
+                mutation: gql`
+                    mutation AddStray($name: String!) {
+                        jcr(workspace: EDIT) {
+                            addNode(parentPathOrId: "/", name: $name, primaryNodeType: "jnt:permission") {
+                                uuid
+                            }
+                        }
+                    }
+                `,
+                variables: { name: strayNode },
+            })
+            .then(() => {
+                cy.apolloClient()
+                    .apollo({ query: CATALOG, variables: { language: 'en' }, fetchPolicy: 'no-cache' })
+                    .then((result) => {
+                        const answered = result.data.admin.rolesAndPermissions.permissionCatalog
+                        expect(answered.totalCount, 'the catalog still answers').to.be.greaterThan(0)
+                        expect(
+                            answered.entries.map((entry: Entry) => entry.name),
+                            'and the stray node is not a permission',
+                        ).to.not.include(strayNode)
+                    })
+            })
+            .then(() => {
+                cy.apolloClient().apollo({
+                    mutation: gql`
+                        mutation RemoveStray($path: String!) {
+                            jcr(workspace: EDIT) {
+                                deleteNode(pathOrId: $path)
+                            }
+                        }
+                    `,
+                    variables: { path: `/${strayNode}` },
+                })
+            })
+    })
 })

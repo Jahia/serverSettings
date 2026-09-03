@@ -183,6 +183,21 @@ describe('Roles and permissions - nothing irreversible happens on one click', ()
             dialog.consequences().should('contain', '…')
             dialog.cancel().click()
         })
+
+        // The list and the role page both offer the deletion, and both have to say the same thing.
+        // Written twice they parted: the list appended the ellipsis and the page did not, so the same
+        // role read as held by exactly twenty principals here and by more than twenty there. The
+        // assertion is on the PAGE, because the page is the half that was wrong.
+        it('says the same thing on the role page as on the list', () => {
+            const page = RoleDetailPage.visit(overLimit)
+            page.chooseAction('delete')
+            dialog.consequences().should('contain', '…')
+            dialog.cancel().click()
+
+            RoleDetailPage.visit(atLimit).chooseAction('delete')
+            dialog.consequences().should('not.contain', '…')
+            dialog.cancel().click()
+        })
     })
 
     it('does not delete a seeded role on one click, and says who would lose access', () => {

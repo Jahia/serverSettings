@@ -128,4 +128,13 @@ describe('Roles and permissions - the role list', () => {
             })
         })
     })
+
+    it('gives every icon-only control an accessible name', () => {
+        RoleListPage.visit()
+
+        // An icon with no text announces "button" and nothing else, and a pointer user gets no
+        // tooltip either. This is the screen that administers access, so the name is not optional.
+        cy.get('[data-testid="role-duplicate-editor"]').should('have.attr', 'aria-label').and('not.be.empty')
+        cy.get('[data-testid="role-delete-editor"]').should('have.attr', 'aria-label').and('not.be.empty')
+    })
 })
