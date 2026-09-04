@@ -249,11 +249,13 @@ describe('Roles and permissions - editing what a role grants', () => {
         const page = RoleDetailPage.visit(name).openPermissionsTab()
         page.searchPermission('api-access')
 
+        // Both facts are on the row, and neither is written in the caption any more. That the role
+        // names it is the DIRECT state and the enabled checkbox; that the parent holds it too is the
+        // chip beside the label. The caption is the technical name, on every row.
         page.getPermissionState('api-access').should('eq', 'DIRECT')
         page.getPermissionCheckbox('api-access').should('not.be.disabled')
-        // Crediting only the parent would state something the repository does not say.
-        page.getPermissionRow('api-access').should('contain', 'editor')
-        page.getPermissionRow('api-access').should('contain', 'directly')
+        cy.get('[data-testid="role-permission-inherited-api-access"]').should('contain', 'editor')
+        cy.get('[data-testid="role-permission-name-api-access"]').should('have.text', 'api-access')
 
         page.togglePermission('api-access')
 
@@ -311,6 +313,48 @@ describe('Roles and permissions - editing what a role grants', () => {
 
         // The rail is a Moonstone TreeView, so which area is selected is the tree's own aria state.
         page.getSelectedArea().should('have.attr', 'data-testid', 'role-area-admin')
+    })
+
+    // The caption under a label used to be shared: a reason when there was one, the technical name
+    // otherwise. So the rows that carried the most information were the ones that hid the name, and
+    // jcr:write_default was unreadable on exactly the rows an administrator was investigating.
+    it('states the technical name of every permission, whatever holds it', () => {
+        const page = RoleDetailPage.visit('editor').openPermissionsTab()
+        page.searchPermission('jcr:write_default')
+
+        cy.get('[data-testid="role-permission-name-jcr:write_default"]').should(
+            'have.text',
+            'jcr:write_default',
+        )
+    })
+
+    // A row locked by a parent role cannot be unticked from this role, so the reason for the disabled
+    // checkbox stays. It sits beside the label and no longer takes the caption the name needs.
+    it('names the parent role that locks a row, beside the label and not instead of the name', () => {
+        // editor-in-chief is nested inside editor, and editor grants api-access, so the row is locked
+        // on the child and no edit on the child frees it.
+        const page = RoleDetailPage.visit('editor-in-chief').openPermissionsTab()
+        page.searchPermission('api-access')
+
+        cy.get('[data-testid="role-permission-inherited-api-access"]').should('contain', 'editor')
+        cy.get('[data-testid="role-permission-name-api-access"]').should('have.text', 'api-access')
+        page.getPermissionCheckbox('api-access').should('be.disabled')
+    })
+
+    // A tab says where the role reaches. `/` and `/modules` say nothing to an administrator, and the
+    // granted node of a server role is the whole server rather than a piece of content, so one kind
+    // reads differently depending on the scope.
+    it('names a grant target in words rather than as a path', () => {
+        RoleDetailPage.visit('system-administrator').openPermissionsTab()
+        cy.get('[data-testid="role-target-currentNode"]').should('contain', 'On the system tools')
+        cy.get('[data-testid="role-target-root-access"]').should('contain', 'On the whole server')
+
+        RoleDetailPage.visit('server-administrator').openPermissionsTab()
+        cy.get('[data-testid="role-target-currentNode"]').should('contain', 'On the whole server')
+        cy.get('[data-testid="role-target-currentSite-access"]').should('contain', 'On the system site')
+
+        RoleDetailPage.visit('editor').openPermissionsTab()
+        cy.get('[data-testid="role-target-currentNode"]').should('contain', 'On the granted node')
     })
 
     it('gives every permission checkbox an accessible name', () => {

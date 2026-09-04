@@ -260,6 +260,13 @@
     flex: 1;
 }
 
+.permissionEditTitle {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-nano);
+    min-width: 0;
+}
+
 .permissionReason {
     color: var(--color-gray_dark);
 }

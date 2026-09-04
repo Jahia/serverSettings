@@ -195,7 +195,11 @@
     "target": {
       "currentNode": "On the granted node",
       "currentSite": "On the site of the granted node",
-      "absolutePath": "On {{path}}"
+      "absolutePath": "On {{path}}",
+      "wholeServer": "On the whole server",
+      "studio": "On the studio",
+      "systemTools": "On the system tools",
+      "systemSite": "On the system site"
     },
     "reason": {
       "direct": "Granted directly",

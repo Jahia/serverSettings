@@ -195,7 +195,11 @@
     "target": {
       "currentNode": "Sur le nœud où le rôle est accordé",
       "currentSite": "Sur le site du nœud où le rôle est accordé",
-      "absolutePath": "Sur {{path}}"
+      "absolutePath": "Sur {{path}}",
+      "wholeServer": "Sur l'ensemble du serveur",
+      "studio": "Sur le studio",
+      "systemTools": "Sur les outils système",
+      "systemSite": "Sur le site système"
     },
     "reason": {
       "direct": "Accordée directement",

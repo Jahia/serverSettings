@@ -6,6 +6,14 @@ import {Chip, EmptyData, Field, Loader, Pill, Typography} from '@jahia/moonstone
 import {GET_PERMISSION_DETAIL} from './RolesAndPermissions.gql-queries';
 import classes from './styles.css';
 
+// The paths the product itself grants on, named. The role list names its own tabs the same way, and
+// a path that nobody named is shown as the path.
+const ABSOLUTE_PATH_LABELS = {
+    '/': 'rolesAndPermissions.target.wholeServer',
+    '/modules': 'rolesAndPermissions.target.studio',
+    '/sites/systemsite': 'rolesAndPermissions.target.systemSite'
+};
+
 /** Where a target applies, said in words rather than in the j:path value. */
 const targetLabel = (usage, t) => {
     if (usage.targetKind === 'CURRENT_NODE') {
@@ -16,7 +24,8 @@ const targetLabel = (usage, t) => {
         return t('rolesAndPermissions.target.currentSite');
     }
 
-    return t('rolesAndPermissions.target.absolutePath', {path: usage.targetPath});
+    const named = ABSOLUTE_PATH_LABELS[usage.targetPath];
+    return named ? t(named) : t('rolesAndPermissions.target.absolutePath', {path: usage.targetPath});
 };
 
 /** Why the permission is granted there. A locked row names what holds it. */

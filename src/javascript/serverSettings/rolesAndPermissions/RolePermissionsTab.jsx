@@ -2,7 +2,7 @@ import React, {useMemo, useState} from 'react';
 import PropTypes from 'prop-types';
 import {useApolloClient, useMutation} from 'react-apollo';
 import {useTranslation} from 'react-i18next';
-import {Button, Checkbox, EmptyData, SearchInput, Tab, TabItem, TreeView, Typography} from '@jahia/moonstone';
+import {Button, Checkbox, Chip, EmptyData, SearchInput, Tab, TabItem, TreeView, Typography} from '@jahia/moonstone';
 import {
     COLLAPSE_PERMISSION,
     GET_COLLAPSE_PLAN,
@@ -199,38 +199,51 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
         applyResult(answer, kind);
     });
 
-    // Removing a target drops the whole permission set it holds, and nothing brings it back. So the
-    // confirmation lists what goes rather than asking whether the administrator is sure.
+    /*
+     * A tab names where the role reaches, in words.
+     *
+     * A path is not that. `/` and `/modules` say nothing to an administrator choosing where to grant a
+     * permission, and the granted node of a server role is the whole server rather than a piece of
+     * content, so one kind reads differently depending on the scope the role belongs to. The label
+     * therefore comes from the pair, and falls back to the path when the pair is one nobody named.
+     */
+    const ABSOLUTE_PATH_LABELS = {
+        '/': 'rolesAndPermissions.target.wholeServer',
+        '/modules': 'rolesAndPermissions.target.studio',
+        '/sites/systemsite': 'rolesAndPermissions.target.systemSite'
+    };
+
+    const CURRENT_NODE_LABELS = {
+        'server-role': 'rolesAndPermissions.target.wholeServer',
+        'system-role': 'rolesAndPermissions.target.systemTools',
+        'site-role': 'rolesAndPermissions.target.currentSite'
+    };
+
     const targetLabel = candidate => {
         if (candidate.kind === 'CURRENT_NODE') {
-            return t('rolesAndPermissions.target.currentNode');
+            return t(CURRENT_NODE_LABELS[role.roleGroup] || 'rolesAndPermissions.target.currentNode');
         }
 
         if (candidate.kind === 'CURRENT_SITE') {
             return t('rolesAndPermissions.target.currentSite');
         }
 
-        return candidate.path;
+        const named = ABSOLUTE_PATH_LABELS[candidate.path];
+        return named ? t(named) : t('rolesAndPermissions.target.absolutePath', {path: candidate.path});
     };
 
-    const reasonOf = (entry, state) => {
+    /*
+     * Why a checkbox is ticked and cannot be unticked.
+     *
+     * Only the parent-role lock is stated, because it is the one an administrator cannot act on from
+     * this role and the one that greys the checkbox. A permission granted through an ancestor
+     * permission is not stated: the caption slot under the label carries the technical name, which is
+     * what an administrator matches against a log line or a piece of documentation.
+     */
+    const inheritedFrom = (entry, state) => {
         const effective = effectiveByName.get(entry.name);
-        if (state === 'INHERITED') {
-            return t('rolesAndPermissions.reason.inheritedFromRole', {role: effective.lockedBy});
-        }
-
-        if (state === 'IMPLIED') {
-            return t('rolesAndPermissions.reason.impliedByPermission', {permission: effective.lockedBy});
-        }
-
-        // The role names it and something else holds it too. Both facts belong on the line, because
-        // stating one of the two is what makes a redundant name invisible.
-        if (state === 'DIRECT' && effective.lockKind === 'INHERITED_FROM_ROLE') {
-            return t('rolesAndPermissions.reason.directAndInherited', {role: effective.lockedBy});
-        }
-
-        if (state === 'DIRECT' && effective.lockKind === 'IMPLIED_BY_PERMISSION') {
-            return t('rolesAndPermissions.reason.directAndImplied', {permission: effective.lockedBy});
+        if (state === 'INHERITED' || (state === 'DIRECT' && effective?.lockKind === 'INHERITED_FROM_ROLE')) {
+            return effective.lockedBy;
         }
 
         return null;
@@ -338,7 +351,7 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
                         rows.map(entry => {
                             const state = rowStateOf(effectiveByName.get(entry.name));
                             const locked = state === 'INHERITED';
-                            const reason = reasonOf(entry, state);
+                            const inherited = inheritedFrom(entry, state);
                             const canCollapse = target.collapsablePermissions.includes(entry.name);
 
                             return (
@@ -365,9 +378,25 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
                                             onRevokeClicked(entry.name))}/>
 
                                     <span className={classes.permissionEditLabel}>
-                                        <Typography variant="body">{entry.label}</Typography>
-                                        <Typography variant="caption" className={classes.permissionReason}>
-                                            {reason || entry.name}
+                                        <span className={classes.permissionEditTitle}>
+                                            <Typography variant="body">{entry.label}</Typography>
+                                            {inherited ?
+                                                <Chip
+                                                    label={t('rolesAndPermissions.reason.inheritedFromRole', {role: inherited})}
+                                                    data-testid={`role-permission-inherited-${entry.name}`}/> :
+                                                null}
+                                        </span>
+                                        {/*
+                                          * The technical name, always. It is what an administrator
+                                          * matches against a log line, a piece of documentation or a
+                                          * Groovy script, and the label alone cannot be searched for.
+                                          */}
+                                        <Typography
+                                            variant="caption"
+                                            className={classes.permissionReason}
+                                            data-testid={`role-permission-name-${entry.name}`}
+                                        >
+                                            {entry.name}
                                         </Typography>
                                     </span>
 
@@ -399,6 +428,8 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
 RolePermissionsTab.propTypes = {
     role: PropTypes.shape({
         name: PropTypes.string.isRequired,
+        /** The scope decides what the granted node IS, so it decides how the tab names it. */
+        roleGroup: PropTypes.string,
         grants: PropTypes.array.isRequired
     }).isRequired,
     catalog: PropTypes.shape({
