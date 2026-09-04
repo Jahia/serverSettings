@@ -53,6 +53,14 @@ public class GqlRolesAndPermissions {
 
     @GraphQLField
     @GraphQLNonNull
+    @GraphQLDescription("The languages a role's title and description can be written in. A role belongs "
+            + "to no site, so the list is the system site's, and adding a language there adds it here")
+    public List<String> getTextLanguages() throws RepositoryException {
+        return rolesAndPermissionsService.getTextLanguages();
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
     @GraphQLDescription("Every permission this instance declares, merged by logical path")
     public GqlPermissionCatalog getPermissionCatalog() throws RepositoryException {
         return new GqlPermissionCatalog(catalog(), rolesAndPermissionsService, this::usagesOf);

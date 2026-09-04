@@ -179,11 +179,24 @@ export class RoleDetailPage extends BasePage {
         return cy.get('[data-testid="role-title-input"]')
     }
 
+    getDescriptionInput() {
+        return cy.get('[data-testid="role-description-input"]')
+    }
+
+    /** Switch the language the title and the description are written in. */
+    chooseTextLanguage(code: string) {
+        cy.get('[data-testid="role-language-select"]').click()
+        cy.get(`[data-testid="role-language-option-${code}"]`).click()
+        return this
+    }
+
     /** Open the node type multi-select and narrow it. Pass an empty string to list everything. */
     searchNodeTypes(text: string) {
         cy.get('[data-testid="role-nodetypes-select"]').click()
         if (text !== '') {
-            cy.get('[data-testid="role-nodetypes-select"] input[type="text"]').type(text)
+            // Moonstone renders the menu in a portal, so the search box is not inside the select, and
+            // the permission search on the page behind is a searchbox too.
+            cy.get('.moonstone-menu_searchInput [role="searchbox"]').type(text)
         }
 
         return this

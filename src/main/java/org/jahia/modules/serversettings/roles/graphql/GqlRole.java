@@ -130,6 +130,17 @@ public class GqlRole {
 
     @GraphQLField
     @GraphQLNonNull
+    @GraphQLDescription("The title and the description in every language the role carries one in, "
+            + "sorted by language. A form that edits several languages reads them in one call")
+    public List<GqlRoleText> getTexts() {
+        return getTranslatedLanguages().stream()
+                .map(language -> new GqlRoleText(language, role.getTitles().get(language),
+                        role.getDescriptions().get(language)))
+                .collect(Collectors.toList());
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
     @GraphQLDescription("The language codes the role carries a title or a description in, sorted")
     public List<String> getTranslatedLanguages() {
         SortedSet<String> languages = new TreeSet<>(role.getTitles().keySet());

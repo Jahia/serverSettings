@@ -50,6 +50,9 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
     private static final String HIDDEN_PROPERTY = "j:hidden";
     private static final String PRIVILEGED_ACCESS_PROPERTY = "j:privilegedAccess";
     private static final String EXTERNAL_PATH_PROPERTY = "j:path";
+    private static final String SYSTEM_SITE_PATH = "/sites/systemsite";
+    private static final String LANGUAGES_PROPERTY = "j:languages";
+    private static final String INACTIVE_LANGUAGES_PROPERTY = "j:inactiveLanguages";
 
     private static final String EXTERNAL_PERMISSIONS_TYPE = "jnt:externalPermissions";
 
@@ -94,6 +97,16 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
             }
         }
         return new ArrayList<>(groups);
+    }
+
+    @Override
+    public List<String> getTextLanguages() throws RepositoryException {
+        JCRNodeWrapper site = currentSession().getNode(SYSTEM_SITE_PATH);
+        SortedSet<String> languages = new TreeSet<>(multipleValues(site, LANGUAGES_PROPERTY));
+        // An inactive language is not offered anywhere else either, so a title written in one would be
+        // text nobody reads.
+        languages.removeAll(multipleValues(site, INACTIVE_LANGUAGES_PROPERTY));
+        return new ArrayList<>(languages);
     }
 
     @Override

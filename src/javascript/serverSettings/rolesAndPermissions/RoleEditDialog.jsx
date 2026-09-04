@@ -10,7 +10,7 @@ import classes from './styles.css';
 // It is a dialog and not a second page, for the same reason creating a role is a dialog. Editing a
 // role is a detour from the thing the page is for, which is deciding what the role grants, and a
 // detour that keeps its subject on screen behind it is easier to come back from.
-export const RoleEditDialog = ({role, language, onSaved, onClose}) => {
+export const RoleEditDialog = ({role, textLanguages, language, onSaved, onClose}) => {
     const {t} = useTranslation('serverSettings');
     const form = useRef(null);
     const [isSaved, setSaved] = useState(false);
@@ -29,6 +29,7 @@ export const RoleEditDialog = ({role, language, onSaved, onClose}) => {
                     <div className={classes.editBody}>
                         <RoleIdentityTab
                             role={role}
+                            textLanguages={textLanguages}
                             language={language}
                             saveRef={form}
                             onSaved={onSaved}/>
@@ -85,6 +86,7 @@ export const RoleEditDialog = ({role, language, onSaved, onClose}) => {
 
 RoleEditDialog.propTypes = {
     role: PropTypes.object.isRequired,
+    textLanguages: PropTypes.arrayOf(PropTypes.string).isRequired,
     language: PropTypes.string.isRequired,
     onSaved: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired

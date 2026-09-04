@@ -2,7 +2,7 @@ import React, {useImperativeHandle, useState} from 'react';
 import PropTypes from 'prop-types';
 import {useMutation} from 'react-apollo';
 import {useTranslation} from 'react-i18next';
-import {Button, Chip, Field, Input, Switch, Textarea, Typography} from '@jahia/moonstone';
+import {Button, Chip, Dropdown, Field, Input, Switch, Textarea, Typography} from '@jahia/moonstone';
 import {SAVE_ROLE_METADATA, SAVE_ROLE_TEXT} from './RolesAndPermissions.gql-queries';
 import NodeTypeSelect from './NodeTypeSelect';
 import classes from './styles.css';
@@ -18,11 +18,31 @@ const NODE_TYPE_SCOPES = ['edit-role', 'live-role'];
 
 export const grantableOnApplies = role => NODE_TYPE_SCOPES.includes(role.roleGroup);
 
-export const RoleIdentityTab = ({role, language, saveRef, onSaved}) => {
+/**
+ * The title and the description the role carries, per language, seeded from what it already has.
+ *
+ * Every offered language gets an entry, so a language the role has no text in is an empty field rather
+ * than a missing one, and filling it is the same gesture as changing an existing one.
+ */
+const textsByLanguage = (role, languages) => {
+    const carried = new Map((role.texts || []).map(text => [text.language, text]));
+    return languages.reduce((all, code) => ({
+        ...all,
+        [code]: {
+            title: carried.get(code)?.title || '',
+            description: carried.get(code)?.description || ''
+        }
+    }), {});
+};
+
+export const RoleIdentityTab = ({role, textLanguages, language, saveRef, onSaved}) => {
     const {t} = useTranslation('serverSettings');
 
-    const [title, setTitle] = useState(role.title || '');
-    const [description, setDescription] = useState(role.description || '');
+    // The interface language is where an administrator starts, when the role can be written in it.
+    const [editedLanguage, setEditedLanguage] = useState(
+        textLanguages.includes(language) ? language : textLanguages[0]
+    );
+    const [texts, setTexts] = useState(() => textsByLanguage(role, textLanguages));
     const [nodeTypes, setNodeTypes] = useState(role.nodeTypes || []);
     const [hidden, setHidden] = useState(role.isHidden);
     const [saving, setSaving] = useState(false);
@@ -56,14 +76,29 @@ export const RoleIdentityTab = ({role, language, saveRef, onSaved}) => {
                 }
             });
 
-            await saveText({
-                variables: {
-                    role: role.name,
-                    language,
-                    title: title.trim() === '' ? null : title,
-                    description: description.trim() === '' ? null : description
-                }
-            });
+            // SetRoleText writes one language, because the text is i18n on the role and each language
+            // is its own translation node. Only the languages that changed are written, so a save does
+            // not touch a translation the administrator never opened.
+            const initial = textsByLanguage(role, textLanguages);
+            const changed = textLanguages.filter(code =>
+                texts[code].title !== initial[code].title ||
+                texts[code].description !== initial[code].description);
+
+            for (const code of changed) {
+                // Sequential on purpose: each call opens its own per-language session on the same node,
+                // and Promise.all would have them save over one another.
+                // eslint-disable-next-line no-await-in-loop
+                await saveText({
+                    variables: {
+                        role: role.name,
+                        language: code,
+                        title: texts[code].title.trim() === '' ? null : texts[code].title,
+                        description: texts[code].description.trim() === '' ? null :
+                            texts[code].description
+                    }
+                });
+            }
+
             setSaved(true);
             onSaved();
         } catch (mutationError) {
@@ -80,36 +115,78 @@ export const RoleIdentityTab = ({role, language, saveRef, onSaved}) => {
     // render is asked not to leave behind. This says the same thing where React expects it.
     useImperativeHandle(saveRef, () => ({save}));
 
+    const setText = (field, value) => setTexts({
+        ...texts,
+        [editedLanguage]: {...texts[editedLanguage], [field]: value}
+    });
+
+    // Intl names the language in the language of the interface, so a French administrator reads
+    // "allemand" and not "Deutsch". A code Intl does not know is shown as the code.
+    const languageLabel = code => {
+        const names = new Intl.DisplayNames([language], {type: 'language'});
+        return names.of(code) || code;
+    };
+
+    const filled = code => texts[code].title !== '' || texts[code].description !== '';
+
     return (
         <div className={classes.form} data-testid="role-identity-tab">
+            {/*
+              * One switcher for both fields. The title and the description of a language are written by
+              * one call and read from one translation node, so splitting them across two switchers
+              * would let an administrator leave a language half open.
+              */}
+            <Field
+                id="role-language-field"
+                data-testid="role-language-field"
+                label={t('rolesAndPermissions.detail.textLanguage')}
+                helper={t('rolesAndPermissions.detail.textLanguageHint')}
+            >
+                <Dropdown
+                    variant="outlined"
+                    size="small"
+                    className={classes.textInput}
+                    value={editedLanguage}
+                    label={languageLabel(editedLanguage)}
+                    data-testid="role-language-select"
+                    data={textLanguages.map(code => ({
+                        label: filled(code) ?
+                            languageLabel(code) :
+                            t('rolesAndPermissions.detail.languageEmpty', {language: languageLabel(code)}),
+                        value: code,
+                        attributes: {'data-testid': `role-language-option-${code}`}
+                    }))}
+                    onChange={(event, item) => setEditedLanguage(item.value)}/>
+            </Field>
+
             <Field
                 id="role-title-field"
                 data-testid="role-title-field"
-                label={t('rolesAndPermissions.detail.title', {language})}
+                label={t('rolesAndPermissions.detail.title', {language: editedLanguage})}
                 helper={t('rolesAndPermissions.detail.titleHint')}
             >
                 <Input
                     className={classes.textInput}
-                    value={title}
+                    value={texts[editedLanguage].title}
                     data-testid="role-title-input"
                     onChange={event => {
                         setSaved(false);
-                        setTitle(event.target.value);
+                        setText('title', event.target.value);
                     }}/>
             </Field>
 
             <Field
                 id="role-description-field"
                 data-testid="role-description-field"
-                label={t('rolesAndPermissions.detail.description', {language})}
+                label={t('rolesAndPermissions.detail.description', {language: editedLanguage})}
             >
                 <Textarea
                     className={classes.textInput}
-                    value={description}
+                    value={texts[editedLanguage].description}
                     data-testid="role-description-input"
                     onChange={event => {
                         setSaved(false);
-                        setDescription(event.target.value);
+                        setText('description', event.target.value);
                     }}/>
             </Field>
 
@@ -200,8 +277,15 @@ RoleIdentityTab.propTypes = {
         dependencies: PropTypes.arrayOf(PropTypes.string).isRequired,
         subRoleNames: PropTypes.arrayOf(PropTypes.string).isRequired,
         isHidden: PropTypes.bool.isRequired,
-        hasPrivilegedAccess: PropTypes.bool.isRequired
+        hasPrivilegedAccess: PropTypes.bool.isRequired,
+        texts: PropTypes.arrayOf(PropTypes.shape({
+            language: PropTypes.string.isRequired,
+            title: PropTypes.string,
+            description: PropTypes.string
+        })).isRequired
     }).isRequired,
+    /** The languages a role's text can be written in, from the system site. */
+    textLanguages: PropTypes.arrayOf(PropTypes.string).isRequired,
     /** When given, the form writes its save handler here and draws no button of its own. */
     saveRef: PropTypes.object,
     language: PropTypes.string.isRequired,

@@ -28,6 +28,19 @@ public interface RolesAndPermissionsService {
     List<String> getRoleGroups() throws RepositoryException;
 
     /**
+     * The languages a role's title and description can be written in.
+     * <p>
+     * A role lives under {@code /roles} and belongs to no site, so it has no language list of its own.
+     * The system site is the one every instance has, and its languages are the ones the administration
+     * itself is read in, so its list is the one a role's text follows. Adding a language to the system
+     * site therefore makes it available here, with no change to this module.
+     *
+     * @return the language codes, sorted, never null and never empty
+     * @throws RepositoryException when the system site cannot be read
+     */
+    List<String> getTextLanguages() throws RepositoryException;
+
+    /**
      * The logical permission graph of this instance.
      * <p>
      * The catalog is built from every {@code jnt:permission} node the caller can read, which is core's

@@ -118,6 +118,7 @@ export const GET_ROLE = gql`
         admin {
             rolesAndPermissions {
                 roleGroups
+                textLanguages
                 role(name: $name) {
                     name
                     path
@@ -132,6 +133,11 @@ export const GET_ROLE = gql`
                     title(language: $language)
                     description(language: $language)
                     translatedLanguages
+                    texts {
+                        language
+                        title
+                        description
+                    }
                     unknownPermissionNames
                     directPermissionNames
                     usage {

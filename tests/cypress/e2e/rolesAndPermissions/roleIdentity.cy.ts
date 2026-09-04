@@ -41,7 +41,29 @@ const READ = gql`
                     translatedLanguages
                     en: title(language: "en")
                     fr: title(language: "fr")
+                    de: title(language: "de")
+                    frDescription: description(language: "fr")
                 }
+            }
+        }
+    }
+`
+
+const SET_TEXT = gql`
+    mutation SetText($role: String!, $language: String!, $title: String) {
+        admin {
+            rolesAndPermissions {
+                setRoleText(role: $role, language: $language, title: $title)
+            }
+        }
+    }
+`
+
+const LANGUAGES = gql`
+    query Languages {
+        admin {
+            rolesAndPermissions {
+                textLanguages
             }
         }
     }
@@ -85,6 +107,65 @@ describe('Roles and permissions - the identity tab', () => {
             expect(saved.translatedLanguages, 'and the language must be listed').to.include('en')
             expect(saved.fr, 'another language keeps its own value, which is none here').to.be.null
         })
+    })
+
+    // The form wrote the interface language and nothing else, so a role could only ever be named in
+    // the language the administrator happened to be using. The system site decides which languages are
+    // offered, and every one of them is writable here.
+    it('writes the title and the description in a language other than the interface one', () => {
+        const page = RoleDetailPage.visit(role).openIdentityTab()
+
+        page.chooseTextLanguage('fr')
+        page.getTitleInput().clear()
+        page.getTitleInput().type('Relecteur')
+        page.getDescriptionInput().clear()
+        page.getDescriptionInput().type('Relit le contenu avant publication')
+        page.saveIdentity()
+
+        read().then((saved) => {
+            expect(saved.fr, 'the French title is written').to.eq('Relecteur')
+            expect(saved.frDescription, 'and so is the French description').to.eq(
+                'Relit le contenu avant publication',
+            )
+            expect(saved.translatedLanguages, 'both languages are listed').to.include.members(['en', 'fr'])
+        })
+    })
+
+    // A save used to write the one language on screen. It now writes only the languages that changed,
+    // so opening the form in one language must not empty the others.
+    it('leaves a language the administrator did not open alone', () => {
+        cy.apolloClient().apollo({
+            mutation: SET_TEXT,
+            variables: { role, language: 'de', title: 'Prüfer' },
+        })
+
+        const page = RoleDetailPage.visit(role).openIdentityTab()
+        page.getTitleInput().clear()
+        page.getTitleInput().type('Reviewer of content')
+        page.saveIdentity()
+
+        read().then((saved) => {
+            expect(saved.en, 'the opened language is written').to.eq('Reviewer of content')
+            expect(saved.de, 'and the untouched one is still there').to.eq('Prüfer')
+        })
+    })
+
+    // The language list is the system site's, so adding a language there adds it here. Hard-coding it
+    // would make this screen the one place a new language does not reach.
+    it('offers the languages the system site declares', () => {
+        RoleDetailPage.visit(role).openIdentityTab()
+
+        cy.apolloClient()
+            .apollo({ query: LANGUAGES })
+            .then((result) => {
+                const languages = result.data.admin.rolesAndPermissions.textLanguages
+                expect(languages, 'the system site declares more than one').to.have.length.greaterThan(1)
+
+                cy.get('[data-testid="role-language-select"]').click()
+                languages.forEach((code: string) => {
+                    cy.get(`[data-testid="role-language-option-${code}"]`).should('exist')
+                })
+            })
     })
 
     // The field was a comma-separated text box, so a typo was a node type and the administrator had to
