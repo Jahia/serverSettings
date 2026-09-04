@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {useTranslation} from 'react-i18next';
 import {Chip, Typography} from '@jahia/moonstone';
-import {grantableOnApplies} from './RoleIdentityTab';
+import {grantableOnApplies} from './roleScopes';
 import classes from './styles.css';
 
 // One fact per entry, stated in words. A value that is a set is a row of chips, and a value that is a

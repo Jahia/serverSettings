@@ -192,7 +192,11 @@ export class RoleDetailPage extends BasePage {
 
     /** Open the node type multi-select and narrow it. Pass an empty string to list everything. */
     searchNodeTypes(text: string) {
+        // The field carries a query of its own, and Moonstone disables the dropdown while it loads, so
+        // a click sent too early lands on nothing and the menu never appears.
+        cy.get('[data-testid="role-nodetypes-select-state"]').should('have.attr', 'data-loading', 'false')
         cy.get('[data-testid="role-nodetypes-select"]').click()
+        cy.get('.moonstone-menu_searchInput [role="searchbox"]').should('be.visible')
         if (text !== '') {
             // Moonstone renders the menu in a portal, so the search box is not inside the select, and
             // the permission search on the page behind is a searchbox too.

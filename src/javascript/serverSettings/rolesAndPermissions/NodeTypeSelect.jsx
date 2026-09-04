@@ -47,26 +47,30 @@ const NodeTypeSelect = ({values, language, onChange}) => {
         );
     }
 
+    // Moonstone disables the dropdown while it loads, so a click lands on nothing until the types are
+    // in. The wrapper states that, which is what a test has to wait for and what a person sees.
     return (
-        <Dropdown
-            hasSearch
-            isLoading={loading}
-            variant="outlined"
-            size="small"
-            className={classes.textInput}
-            placeholder={t('rolesAndPermissions.detail.anyNodeType')}
-            searchEmptyText={t('rolesAndPermissions.detail.nodeTypeNoMatch')}
-            label={values.length === 0 ?
-                t('rolesAndPermissions.detail.anyNodeType') :
-                t('rolesAndPermissions.detail.nodeTypeCount', {count: values.length})}
-            values={values}
-            data={options}
-            data-testid="role-nodetypes-select"
-            onChange={(event, item) => onChange(
-                values.includes(item.value) ?
-                    values.filter(value => value !== item.value) :
-                    [...values, item.value]
-            )}/>
+        <span data-testid="role-nodetypes-select-state" data-loading={String(loading)}>
+            <Dropdown
+                hasSearch
+                isLoading={loading}
+                variant="outlined"
+                size="small"
+                className={classes.textInput}
+                placeholder={t('rolesAndPermissions.detail.anyNodeType')}
+                searchEmptyText={t('rolesAndPermissions.detail.nodeTypeNoMatch')}
+                label={values.length === 0 ?
+                    t('rolesAndPermissions.detail.anyNodeType') :
+                    t('rolesAndPermissions.detail.nodeTypeCount', {count: values.length})}
+                values={values}
+                data={options}
+                data-testid="role-nodetypes-select"
+                onChange={(event, item) => onChange(
+                    values.includes(item.value) ?
+                        values.filter(value => value !== item.value) :
+                        [...values, item.value]
+                )}/>
+        </span>
     );
 };
 

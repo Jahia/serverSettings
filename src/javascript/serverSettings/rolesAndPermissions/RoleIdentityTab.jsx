@@ -5,18 +5,8 @@ import {useTranslation} from 'react-i18next';
 import {Button, Chip, Dropdown, Field, Input, Switch, Textarea, Typography} from '@jahia/moonstone';
 import {SAVE_ROLE_METADATA, SAVE_ROLE_TEXT} from './RolesAndPermissions.gql-queries';
 import NodeTypeSelect from './NodeTypeSelect';
+import {grantableOnApplies} from './roleScopes';
 import classes from './styles.css';
-
-/**
- * The scopes on which a node type restriction means something.
- *
- * j:nodeTypes narrows the content a role can be granted on. A server, system or site role is granted
- * on the server, the system tools or the site itself, never on a piece of content, so the restriction
- * has nothing to act on there.
- */
-const NODE_TYPE_SCOPES = ['edit-role', 'live-role'];
-
-export const grantableOnApplies = role => NODE_TYPE_SCOPES.includes(role.roleGroup);
 
 /**
  * The title and the description the role carries, per language, seeded from what it already has.

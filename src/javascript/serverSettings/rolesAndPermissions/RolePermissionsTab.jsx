@@ -11,6 +11,7 @@ import {
     REVOKE_PERMISSION
 } from './RolesAndPermissions.gql-queries';
 import PermissionChangeDialog from './PermissionChangeDialog';
+import {ABSOLUTE_PATH_LABELS, CURRENT_NODE_LABELS} from './roleScopes';
 import classes from './styles.css';
 
 /**
@@ -207,18 +208,6 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
      * content, so one kind reads differently depending on the scope the role belongs to. The label
      * therefore comes from the pair, and falls back to the path when the pair is one nobody named.
      */
-    const ABSOLUTE_PATH_LABELS = {
-        '/': 'rolesAndPermissions.target.wholeServer',
-        '/modules': 'rolesAndPermissions.target.studio',
-        '/sites/systemsite': 'rolesAndPermissions.target.systemSite'
-    };
-
-    const CURRENT_NODE_LABELS = {
-        'server-role': 'rolesAndPermissions.target.wholeServer',
-        'system-role': 'rolesAndPermissions.target.systemTools',
-        'site-role': 'rolesAndPermissions.target.currentSite'
-    };
-
     const targetLabel = candidate => {
         if (candidate.kind === 'CURRENT_NODE') {
             return t(CURRENT_NODE_LABELS[role.roleGroup] || 'rolesAndPermissions.target.currentNode');

@@ -4,15 +4,8 @@ import {useQuery} from 'react-apollo';
 import {useTranslation} from 'react-i18next';
 import {Chip, EmptyData, Field, Loader, Pill, Typography} from '@jahia/moonstone';
 import {GET_PERMISSION_DETAIL} from './RolesAndPermissions.gql-queries';
+import {ABSOLUTE_PATH_LABELS} from './roleScopes';
 import classes from './styles.css';
-
-// The paths the product itself grants on, named. The role list names its own tabs the same way, and
-// a path that nobody named is shown as the path.
-const ABSOLUTE_PATH_LABELS = {
-    '/': 'rolesAndPermissions.target.wholeServer',
-    '/modules': 'rolesAndPermissions.target.studio',
-    '/sites/systemsite': 'rolesAndPermissions.target.systemSite'
-};
 
 /** Where a target applies, said in words rather than in the j:path value. */
 const targetLabel = (usage, t) => {
