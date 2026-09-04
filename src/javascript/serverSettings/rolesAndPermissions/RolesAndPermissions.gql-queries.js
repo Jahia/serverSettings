@@ -399,19 +399,27 @@ export const RESET_ROLE = gql`
     }
 `;
 
-// Every type a role can be restricted to.
+// The types a role can be restricted to.
 //
-// Core matches j:nodeTypes with isNodeType, which answers true for the primary type, for every
-// supertype and for every mixin the node carries. So a mixin and an abstract type are both meaningful
-// here, and the list asks for everything under nt:base rather than for concrete primary types only.
+// This is the set the rolesmanager module offered, declared per role type in its Spring configuration
+// as `jnt:content/*`, `jnt:page`, `jnt:virtualsite` and `rep:root`. Only jnt:content carried the `/*`,
+// so the other three are themselves and not their subtypes.
+//
+// Core matches j:nodeTypes with isNodeType, so a mixin or an abstract supertype would match too, and
+// everything under nt:base is three times this list. Offering all of it would be a longer list of
+// mostly structural types nobody grants a role on, so the set stays the one the product chose.
 export const GET_NODE_TYPES = gql`
     query GetNodeTypes($language: String!) {
         jcr {
-            nodeTypes(filter: {includeTypes: ["nt:base"], considerSubTypes: true}) {
+            contentTypes: nodeTypes(filter: {includeTypes: ["jnt:content"], considerSubTypes: true}) {
                 nodes {
                     name
                     displayName(language: $language)
                 }
+            }
+            namedTypes: nodeTypesByNames(names: ["jnt:page", "jnt:virtualsite", "rep:root"]) {
+                name
+                displayName(language: $language)
             }
         }
     }

@@ -181,13 +181,23 @@ describe('Roles and permissions - the identity tab', () => {
         })
     })
 
-    // Core matches j:nodeTypes with isNodeType, which answers true for a mixin and for an abstract
-    // supertype as well as for a primary type. A list of concrete types only would hide valid choices.
-    it('offers mixins and abstract types, not primary types only', () => {
+    // The set is the one rolesmanager offered, declared in its Spring configuration as jnt:content/*,
+    // jnt:page, jnt:virtualsite and rep:root. Core matches j:nodeTypes with isNodeType, so a mixin
+    // would match too, but offering every type under nt:base is three times this list of mostly
+    // structural types nobody grants a role on.
+    it('offers the content types, and not every type under nt:base', () => {
         const page = RoleDetailPage.visit(role).openIdentityTab()
 
-        page.searchNodeTypes('jmix:editorialContent')
-        cy.get('[data-testid="role-nodetype-option-jmix:editorialContent"]').should('be.visible')
+        page.searchNodeTypes('')
+        cy.get('[data-testid="role-nodetype-option-jnt:content"]').should('exist')
+        cy.get('[data-testid="role-nodetype-option-jnt:page"]').should('exist')
+        cy.get('[data-testid="role-nodetype-option-jnt:virtualsite"]').should('exist')
+        cy.get('[data-testid="role-nodetype-option-rep:root"]').should('exist')
+
+        // A mixin matches at runtime but was never offered, and neither was the structural half of
+        // the repository.
+        cy.get('[data-testid="role-nodetype-option-jmix:editorialContent"]').should('not.exist')
+        cy.get('[data-testid="role-nodetype-option-jnt:user"]').should('not.exist')
     })
 
     it('writes the visibility, and leaves the privileged access as it found it', () => {

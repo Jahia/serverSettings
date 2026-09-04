@@ -108,7 +108,7 @@
       "scopeHint": "The scope family this role belongs to, from j:roleGroup.",
       "nodeTypes": "Grantable on",
       "nodeTypesHint": "The content a role granted here can act on. Choose none to allow any node type.",
-      "nodeTypeUnknown": "{{name}} (no module declares it)",
+      "nodeTypeOutsideList": "{{name}} (outside the usual list)",
       "nodeTypeNoMatch": "No node type matches",
       "nodeTypeCount": "{{count}} node type",
       "nodeTypeCount_plural": "{{count}} node types",

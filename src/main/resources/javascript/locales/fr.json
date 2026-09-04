@@ -108,7 +108,7 @@
       "scopeHint": "La famille de portée de ce rôle, depuis j:roleGroup.",
       "nodeTypes": "Accordable sur",
       "nodeTypesHint": "Le contenu sur lequel ce rôle peut agir. N'en choisissez aucun pour autoriser tous les types.",
-      "nodeTypeUnknown": "{{name}} (aucun module ne le déclare)",
+      "nodeTypeOutsideList": "{{name}} (hors de la liste habituelle)",
       "nodeTypeNoMatch": "Aucun type de contenu ne correspond",
       "nodeTypeCount": "{{count}} type de contenu",
       "nodeTypeCount_plural": "{{count}} types de contenu",
