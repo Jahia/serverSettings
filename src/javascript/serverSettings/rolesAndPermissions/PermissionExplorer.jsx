@@ -3,6 +3,7 @@ import {useQuery} from 'react-apollo';
 import {useTranslation} from 'react-i18next';
 import {Banner, EmptyData, Header, LayoutContent, Loader, Paper, TreeView} from '@jahia/moonstone';
 import {GET_PERMISSION_CATALOG} from './RolesAndPermissions.gql-queries';
+import {areaLabels} from './permissionAreas';
 import {applyFilters, asTreeData, emptyFilters, isUnfiltered, modulesOf} from './permissionFilters';
 import PermissionFilterBar from './PermissionFilterBar';
 import PermissionDetail from './PermissionDetail';
@@ -25,6 +26,7 @@ export const PermissionExplorer = () => {
     const catalog = data?.admin?.rolesAndPermissions?.permissionCatalog;
     // A fresh empty array on every render would re-run both memos, so the fallback is memoised too.
     const entries = useMemo(() => catalog?.entries || [], [catalog]);
+    const areaNames = useMemo(() => areaLabels(catalog), [catalog]);
     const modules = useMemo(() => modulesOf(entries), [entries]);
     const matches = useMemo(() => applyFilters(entries, filters), [entries, filters]);
 
@@ -91,6 +93,7 @@ export const PermissionExplorer = () => {
                         filters={filters}
                         setFilters={setFilters}
                         areas={catalog?.areas || []}
+                        areaNames={areaNames}
                         modules={modules}
                         matchCount={matches.length}
                         totalCount={catalog?.totalCount || 0}/>

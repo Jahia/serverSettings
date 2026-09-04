@@ -11,6 +11,7 @@ import {
     REVOKE_PERMISSION
 } from './RolesAndPermissions.gql-queries';
 import PermissionChangeDialog from './PermissionChangeDialog';
+import {areaLabels, labelOf} from './permissionAreas';
 import {ABSOLUTE_PATH_LABELS, CURRENT_NODE_LABELS} from './roleScopes';
 import classes from './styles.css';
 
@@ -65,6 +66,8 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
     }, [target]);
 
     // A count per area, so an administrator sees where a role actually grants before opening an area.
+    const areaNames = useMemo(() => areaLabels(catalog), [catalog]);
+
     const grantedByArea = useMemo(() => {
         const counts = new Map();
         catalog.entries.forEach(entry => {
@@ -303,7 +306,7 @@ export const RolePermissionsTab = ({role, catalog, onChanged}) => {
                             return {
                                 id: candidate,
                                 label: t('rolesAndPermissions.detail.areaWithCount', {
-                                    area: candidate,
+                                    area: labelOf(areaNames, candidate),
                                     ...counts
                                 }),
                                 // An area the role already grants something in is marked, so the areas

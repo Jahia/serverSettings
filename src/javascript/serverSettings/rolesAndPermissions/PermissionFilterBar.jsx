@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {useTranslation} from 'react-i18next';
 import {Button, Dropdown, SearchInput} from '@jahia/moonstone';
 import {ANY, emptyFilters} from './permissionFilters';
+import {labelOf} from './permissionAreas';
 import classes from './styles.css';
 
 // Each option carries its own test attribute. Moonstone renders the option list itself, so a test
@@ -15,12 +16,12 @@ const option = (label, value, group) => ({
 
 // A dropdown option list that always opens with "any", so clearing one filter never needs a second
 // control.
-const withAnyOption = (values, anyLabel, group) => [
+const withAnyOption = (values, anyLabel, group, labelFor = value => value) => [
     option(anyLabel, ANY, group),
-    ...values.map(value => option(value, value, group))
+    ...values.map(value => option(labelFor(value), value, group))
 ];
 
-export const PermissionFilterBar = ({filters, setFilters, areas, modules, matchCount, totalCount}) => {
+export const PermissionFilterBar = ({filters, setFilters, areas, areaNames, modules, matchCount, totalCount}) => {
     const {t} = useTranslation('serverSettings');
 
     const update = change => setFilters({...filters, ...change});
@@ -57,7 +58,12 @@ export const PermissionFilterBar = ({filters, setFilters, areas, modules, matchC
                 placeholder={t('rolesAndPermissions.explorer.anyArea')}
                 value={filters.area}
                 data-testid="permission-filter-area"
-                data={withAnyOption(areas, t('rolesAndPermissions.explorer.anyArea'), 'area')}
+                data={withAnyOption(
+                    areas,
+                    t('rolesAndPermissions.explorer.anyArea'),
+                    'area',
+                    area => labelOf(areaNames, area)
+                )}
                 onChange={(event, item) => update({area: item.value})}
             />
 
@@ -93,6 +99,8 @@ PermissionFilterBar.propTypes = {
     }).isRequired,
     setFilters: PropTypes.func.isRequired,
     areas: PropTypes.arrayOf(PropTypes.string).isRequired,
+    /** Area name to the label it is shown under, from the catalog. */
+    areaNames: PropTypes.instanceOf(Map).isRequired,
     modules: PropTypes.arrayOf(PropTypes.string).isRequired,
     matchCount: PropTypes.number.isRequired,
     totalCount: PropTypes.number.isRequired

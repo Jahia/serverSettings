@@ -307,6 +307,24 @@ describe('Roles and permissions - editing what a role grants', () => {
         page.getAreaCount('admin').should('contain', '0 of')
     })
 
+    // An area is itself a permission, the one at the root of its subtree, so it carries a label like
+    // any other. The rail showed the raw node name, which made the areas the only permissions on
+    // screen written as `repository-permissions` rather than as words.
+    it('names an area with its label rather than with its node name', () => {
+        const page = RoleDetailPage.visit('editor').openPermissionsTab()
+
+        page.getAreaCount('repository-permissions').should('contain', 'Basic permissions')
+        page.getAreaCount('repository-permissions').should('not.contain', 'repository-permissions')
+        page.getAreaCount('site-admin').should('contain', 'Site admin')
+        page.getAreaCount('workflow-tasks').should('contain', 'Workflow tasks')
+
+        // A label the bundle gives verbatim is shown verbatim, casing included.
+        page.getAreaCount('jContent').should('contain', 'jContent')
+
+        // The count still rides in the label, so the rail did not lose what it stated.
+        page.getAreaCount('repository-permissions').should('contain', ' of ')
+    })
+
     it('marks the selected area in the rail', () => {
         const page = RoleDetailPage.visit('editor').openPermissionsTab()
         page.selectArea('admin')

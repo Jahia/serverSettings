@@ -135,4 +135,26 @@ describe('Roles and permissions - the permission explorer', () => {
         // screen now states which workspace the permission decides in.
         page.getWorkspace().should('have.text', 'Live')
     })
+
+    // The filter names the areas the same way the rail does. The value it filters on is still the node
+    // name, so what an administrator reads and what the screen queries are allowed to differ.
+    it('names an area with its label in the filter too', () => {
+        PermissionExplorerPage.visit()
+
+        cy.get('[data-testid="permission-filter-area"]').click()
+        cy.get('[data-testid="permission-option-area-repository-permissions"]').should('exist')
+
+        // Every option is read from one snapshot of the open menu. Asking for them one at a time
+        // reopens the question of whether the menu is still open between assertions, and that is not
+        // what this test is about.
+        cy.get('body').then((body) => {
+            const textOf = (area: string) => body.find(`[data-testid="permission-option-area-${area}"]`).text()
+
+            expect(textOf('repository-permissions'), 'the area carries its label').to.contain('Basic permissions')
+            expect(textOf('site-admin')).to.contain('Site admin')
+            expect(textOf('workflow-tasks')).to.contain('Workflow tasks')
+            // A label a bundle gives verbatim keeps its casing.
+            expect(textOf('jContent')).to.contain('jContent')
+        })
+    })
 })
