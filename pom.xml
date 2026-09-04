@@ -68,7 +68,8 @@
     </scm>
 
     <properties>
-        <jahia-depends>default,siteSettings</jahia-depends>
+        <jahia-depends>default,siteSettings,graphql-dxm-provider</jahia-depends>
+        <graphql-dxm-provider.version>3.6.0</graphql-dxm-provider.version>  <!-- should match https://github.com/Jahia/jahia-pack/blob/main/core-modules/pom.xml -->
         <export-package>org.jahia.modules.serversettings.forge</export-package>
         <jahia-module-type>system</jahia-module-type>
         <jahia-deploy-on-site>system</jahia-deploy-on-site>
@@ -104,6 +105,18 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.osgi.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jahia.modules</groupId>
+            <artifactId>graphql-dxm-provider</artifactId>
+            <version>${graphql-dxm-provider.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.graphql-java</groupId>
+            <artifactId>graphql-java-annotations</artifactId>
+            <version>${graphql-java-annotations.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
