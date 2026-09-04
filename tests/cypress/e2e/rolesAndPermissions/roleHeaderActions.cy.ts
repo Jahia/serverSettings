@@ -6,7 +6,6 @@
 // the page is about cannot leave the page showing the old thing.
 import gql from 'graphql-tag'
 import { RoleDetailPage } from '../page-object/RoleDetailPage'
-import { RoleListPage } from '../page-object/RoleListPage'
 
 const CREATE = gql`
     mutation Create($name: String!) {

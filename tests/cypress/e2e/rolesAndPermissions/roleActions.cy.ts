@@ -200,10 +200,8 @@ describe('Roles and permissions - creating, copying and deleting a role', () => 
         cy.apolloClient()
             .apollo({ query: READ, variables: { role: 'editor-in-chief' } })
             .then((result) => {
-                expect(
-                    result.data.admin.rolesAndPermissions.role,
-                    'and the source sub-role is untouched',
-                ).to.not.be.null
+                expect(result.data.admin.rolesAndPermissions.role, 'and the source sub-role is untouched').to.not.be
+                    .null
             })
     })
 

@@ -13,9 +13,9 @@
  * on the server, the system tools or the site itself, never on a piece of content, so the restriction
  * has nothing to act on there.
  */
-const NODE_TYPE_SCOPES = ['edit-role', 'live-role'];
+const NODE_TYPE_SCOPES = new Set(['edit-role', 'live-role']);
 
-export const grantableOnApplies = role => NODE_TYPE_SCOPES.includes(role.roleGroup);
+export const grantableOnApplies = role => NODE_TYPE_SCOPES.has(role.roleGroup);
 
 /**
  * What the granted node is, per scope.

@@ -124,9 +124,7 @@ describe('Roles and permissions - the identity tab', () => {
 
         read().then((saved) => {
             expect(saved.fr, 'the French title is written').to.eq('Relecteur')
-            expect(saved.frDescription, 'and so is the French description').to.eq(
-                'Relit le contenu avant publication',
-            )
+            expect(saved.frDescription, 'and so is the French description').to.eq('Relit le contenu avant publication')
             expect(saved.translatedLanguages, 'both languages are listed').to.include.members(['en', 'fr'])
         })
     })
@@ -202,8 +200,7 @@ describe('Roles and permissions - the identity tab', () => {
             expect(saved.isHidden, 'the role is hidden from the access control picker').to.be.true
             // The privileged access is stated on the facts band and is not on this form. The write
             // replaces every property it names, so a save has to carry the value back unchanged.
-            expect(saved.hasPrivilegedAccess, 'and the property the form no longer offers is intact').to
-                .be.false
+            expect(saved.hasPrivilegedAccess, 'and the property the form no longer offers is intact').to.be.false
         })
     })
 

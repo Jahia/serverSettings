@@ -322,10 +322,7 @@ describe('Roles and permissions - editing what a role grants', () => {
         const page = RoleDetailPage.visit('editor').openPermissionsTab()
         page.searchPermission('jcr:write_default')
 
-        cy.get('[data-testid="role-permission-name-jcr:write_default"]').should(
-            'have.text',
-            'jcr:write_default',
-        )
+        cy.get('[data-testid="role-permission-name-jcr:write_default"]').should('have.text', 'jcr:write_default')
     })
 
     // A row locked by a parent role cannot be unticked from this role, so the reason for the disabled
