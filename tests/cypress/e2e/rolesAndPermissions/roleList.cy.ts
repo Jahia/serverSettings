@@ -73,6 +73,25 @@ describe('Roles and permissions - the role list', () => {
         page.getRoleName('translator').should('be.visible')
     })
 
+    // Jahia writes and removes `privileged` itself, from the j:privilegedAccess mechanism. An
+    // administrator who edits it fights the product, so the list leaves it out. It is the only role
+    // treated this way: `translator` also sets j:hidden and stays listed.
+    it('leaves the privileged role out of the list', () => {
+        const page = RoleListPage.visit()
+
+        page.getRoleName('editor').should('be.visible')
+        cy.get('[data-testid="role-name-privileged"]').should('not.exist')
+
+        // The scope tab it would belong to does not bring it back either.
+        page.filterByScope('edit-role')
+        cy.get('[data-testid="role-name-privileged"]').should('not.exist')
+
+        // Nor does a search that names it.
+        page.filterByScope('any')
+        page.search('privileged')
+        cy.get('[data-testid="role-name-privileged"]').should('not.exist')
+    })
+
     it('states the scope of a role', () => {
         const page = RoleListPage.visit()
 

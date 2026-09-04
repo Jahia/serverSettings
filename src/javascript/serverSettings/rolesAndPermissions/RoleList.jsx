@@ -13,6 +13,12 @@ import classes from './styles.css';
 const ANY_SCOPE = '';
 
 /**
+ * The role the product manages on its own. Jahia writes and removes it from the j:privilegedAccess
+ * mechanism, so an administrator who edits it fights the product rather than configuring it.
+ */
+const UNLISTED_ROLE = 'privileged';
+
+/**
  * True when deleting the role takes something away, so the name has to be typed.
  *
  * A role nobody holds and that nothing is nested inside can be deleted with one confirmation. A role
@@ -23,6 +29,10 @@ const ANY_SCOPE = '';
 const filterRoles = (roles, search, scope) => {
     const needle = search.trim().toLowerCase();
     return roles.filter(role => {
+        if (role.name === UNLISTED_ROLE) {
+            return false;
+        }
+
         if (scope !== ANY_SCOPE && role.roleGroup !== scope) {
             return false;
         }
