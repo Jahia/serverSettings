@@ -87,19 +87,28 @@ describe('Roles and permissions - the identity tab', () => {
         })
     })
 
-    it('writes the node types the role can be granted on', () => {
+    // The field was a comma-separated text box, so a typo was a node type and the administrator had to
+    // know the names by heart. It is a multi-select over what the instance actually declares.
+    it('writes the node types picked from the list', () => {
         const page = RoleDetailPage.visit(role).openIdentityTab()
 
-        page.getNodeTypesInput().clear()
-        page.getNodeTypesInput().type('rep:root, jnt:virtualsite')
+        page.searchNodeTypes('jnt:virtualsite')
+        page.toggleNodeType('jnt:virtualsite')
+        page.closeNodeTypes()
         page.saveIdentity()
 
         read().then((saved) => {
-            expect(saved.nodeTypes, 'both node types are stored, and the spaces are trimmed').to.deep.eq([
-                'rep:root',
-                'jnt:virtualsite',
-            ])
+            expect(saved.nodeTypes, 'the picked type is stored').to.deep.eq(['jnt:virtualsite'])
         })
+    })
+
+    // Core matches j:nodeTypes with isNodeType, which answers true for a mixin and for an abstract
+    // supertype as well as for a primary type. A list of concrete types only would hide valid choices.
+    it('offers mixins and abstract types, not primary types only', () => {
+        const page = RoleDetailPage.visit(role).openIdentityTab()
+
+        page.searchNodeTypes('jmix:editorialContent')
+        cy.get('[data-testid="role-nodetype-option-jmix:editorialContent"]').should('be.visible')
     })
 
     it('writes the visibility, and leaves the privileged access as it found it', () => {

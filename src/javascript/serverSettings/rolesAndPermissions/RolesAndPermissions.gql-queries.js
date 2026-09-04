@@ -392,3 +392,21 @@ export const RESET_ROLE = gql`
         }
     }
 `;
+
+// Every type a role can be restricted to.
+//
+// Core matches j:nodeTypes with isNodeType, which answers true for the primary type, for every
+// supertype and for every mixin the node carries. So a mixin and an abstract type are both meaningful
+// here, and the list asks for everything under nt:base rather than for concrete primary types only.
+export const GET_NODE_TYPES = gql`
+    query GetNodeTypes($language: String!) {
+        jcr {
+            nodeTypes(filter: {includeTypes: ["nt:base"], considerSubTypes: true}) {
+                nodes {
+                    name
+                    displayName(language: $language)
+                }
+            }
+        }
+    }
+`;

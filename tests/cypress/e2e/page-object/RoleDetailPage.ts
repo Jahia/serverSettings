@@ -179,8 +179,25 @@ export class RoleDetailPage extends BasePage {
         return cy.get('[data-testid="role-title-input"]')
     }
 
-    getNodeTypesInput() {
-        return cy.get('[data-testid="role-nodetypes-input"]')
+    /** Open the node type multi-select and narrow it. Pass an empty string to list everything. */
+    searchNodeTypes(text: string) {
+        cy.get('[data-testid="role-nodetypes-select"]').click()
+        if (text !== '') {
+            cy.get('[data-testid="role-nodetypes-select"] input[type="text"]').type(text)
+        }
+
+        return this
+    }
+
+    /** Tick or untick one node type. The menu has to be open already. */
+    toggleNodeType(name: string) {
+        cy.get(`[data-testid="role-nodetype-option-${name}"]`).click()
+        return this
+    }
+
+    closeNodeTypes() {
+        cy.get('[data-testid="role-nodetypes-select"]').click()
+        return this
     }
 
     /**

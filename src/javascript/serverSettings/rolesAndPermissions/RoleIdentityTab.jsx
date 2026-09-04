@@ -4,6 +4,7 @@ import {useMutation} from 'react-apollo';
 import {useTranslation} from 'react-i18next';
 import {Button, Chip, Field, Input, Switch, Textarea, Typography} from '@jahia/moonstone';
 import {SAVE_ROLE_METADATA, SAVE_ROLE_TEXT} from './RolesAndPermissions.gql-queries';
+import NodeTypeSelect from './NodeTypeSelect';
 import classes from './styles.css';
 
 /**
@@ -22,7 +23,7 @@ export const RoleIdentityTab = ({role, language, saveRef, onSaved}) => {
 
     const [title, setTitle] = useState(role.title || '');
     const [description, setDescription] = useState(role.description || '');
-    const [nodeTypes, setNodeTypes] = useState((role.nodeTypes || []).join(', '));
+    const [nodeTypes, setNodeTypes] = useState(role.nodeTypes || []);
     const [hidden, setHidden] = useState(role.isHidden);
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
@@ -49,9 +50,7 @@ export const RoleIdentityTab = ({role, language, saveRef, onSaved}) => {
             await saveMetadata({
                 variables: {
                     path: role.path,
-                    nodeTypes: showNodeTypes ?
-                        nodeTypes.split(',').map(value => value.trim()).filter(Boolean) :
-                        (role.nodeTypes || []),
+                    nodeTypes: showNodeTypes ? nodeTypes : (role.nodeTypes || []),
                     hidden: String(hidden),
                     privileged: String(role.hasPrivilegedAccess)
                 }
@@ -121,14 +120,12 @@ export const RoleIdentityTab = ({role, language, saveRef, onSaved}) => {
                     label={t('rolesAndPermissions.detail.nodeTypes')}
                     helper={t('rolesAndPermissions.detail.nodeTypesHint')}
                 >
-                    <Input
-                        className={classes.textInput}
-                        value={nodeTypes}
-                        placeholder="rep:root, jnt:virtualsite"
-                        data-testid="role-nodetypes-input"
-                        onChange={event => {
+                    <NodeTypeSelect
+                        values={nodeTypes}
+                        language={language}
+                        onChange={next => {
                             setSaved(false);
-                            setNodeTypes(event.target.value);
+                            setNodeTypes(next);
                         }}/>
                 </Field> :
                 null}
