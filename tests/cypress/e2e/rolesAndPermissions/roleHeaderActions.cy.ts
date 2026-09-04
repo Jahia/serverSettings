@@ -18,6 +18,16 @@ const CREATE = gql`
     }
 `
 
+const ADD_TARGET = gql`
+    mutation AddTarget($role: String!, $path: String!) {
+        admin {
+            rolesAndPermissions {
+                addTarget(role: $role, path: $path)
+            }
+        }
+    }
+`
+
 const GRANT = gql`
     mutation Grant($role: String!, $permissions: [String!]!) {
         admin {
@@ -150,15 +160,19 @@ describe('Roles and permissions - the actions on a role page', () => {
         read(doomed).should('be.null')
     })
 
-    it('adds a target from the role settings, and the permissions view then offers it as a tab', () => {
-        const page = RoleDetailPage.visit(source)
-        page.addTarget('currentSite')
+    // Where a role reaches is declared by the module that seeds it, and the old UI never offered to
+    // change it either. The screen reads targets and creates none, so the settings form does not
+    // carry a target editor at all.
+    it('reads a target the role carries, and offers no way to add one', () => {
+        cy.apolloClient().apollo({ mutation: ADD_TARGET, variables: { role: source, path: 'currentSite' } })
 
-        // Where the role reaches is a property of the role, so it is edited in the settings. The
-        // screen that grants permissions reads targets and never creates one.
-        RoleListPage.visit()
-        const again = RoleDetailPage.visit(source)
-        again.openPermissionsTab()
+        const page = RoleDetailPage.visit(source)
+        page.openPermissionsTab()
         cy.get('[data-testid="role-target-currentSite-access"]').should('be.visible')
+
+        page.openIdentityTab()
+        cy.get('[data-testid="role-targets-field"]').should('not.exist')
+        cy.get('[data-testid="role-new-target-path"]').should('not.exist')
+        cy.get('[data-testid="role-add-target"]').should('not.exist')
     })
 })

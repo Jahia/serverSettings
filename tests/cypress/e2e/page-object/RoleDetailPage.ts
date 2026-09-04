@@ -83,14 +83,6 @@ export class RoleDetailPage extends BasePage {
      * A target is where the role reaches, which is a property of the role, so it is added from the
      * edit dialog and no longer from the screen that grants permissions.
      */
-    addTarget(path: string) {
-        this.openIdentityTab()
-        cy.get('[data-testid="role-new-target-path"]').clear()
-        cy.get('[data-testid="role-new-target-path"]').type(path)
-        cy.get('[data-testid="role-add-target"]').click()
-        this.closeEdit()
-        return this
-    }
 
     selectArea(area: string) {
         cy.get(`[data-testid="role-area-${area}"]`).click()

@@ -282,7 +282,6 @@ export const RoleDetail = ({roleName, onClose, onOpenRole}) => {
                     {dialog === 'edit' ?
                         <RoleEditDialog
                             role={role}
-                            roleGroups={answer.roleGroups}
                             language={language}
                             onSaved={reload}
                             onClose={() => setDialog(null)}/> :

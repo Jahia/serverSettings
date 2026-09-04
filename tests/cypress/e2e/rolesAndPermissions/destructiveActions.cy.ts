@@ -259,41 +259,20 @@ describe('Roles and permissions - nothing irreversible happens on one click', ()
         page.getRoleName(unused).should('be.visible')
     })
 
-    it('does not remove a target on one click, and lists the permissions that would go', () => {
-        // A target is where the role reaches, so it is removed from the role's own settings and no
-        // longer from the screen that grants permissions.
+    // A target is where the role reaches, and it is declared by the module that seeds the role. The
+    // screen used to remove one behind a typed confirmation; it now offers no removal at all, which is
+    // the strongest form of the rule this file is about.
+    it('offers no way to remove a target, so none can be removed by mistake', () => {
         RoleDetailPage.visit(withTarget).openIdentityTab()
 
-        cy.get('[data-testid="role-remove-target-currentSite-access"]').click()
-
-        dialog.root().should('be.visible')
-        dialog.message().should('contain', 'currentSite')
-        dialog.consequences().should('contain', 'jContentAccess')
-        // The target names a permission, so the path has to be typed.
-        dialog.confirm().should('be.disabled')
-
-        dialog.cancel().click()
+        cy.get('[data-testid="role-title-field"]').should('be.visible')
+        cy.get('[data-testid="role-remove-target-currentSite-access"]').should('not.exist')
+        cy.get('[data-testid="role-targets-field"]').should('not.exist')
 
         readRole(withTarget).then((role) => {
             const target = role.grants.find((grant) => grant.id === 'currentSite-access')
             expect(target, 'the target is still there').to.not.be.undefined
             expect(target.directPermissions, 'with its permission').to.deep.eq(['jContentAccess'])
-        })
-    })
-
-    it('removes the target once the path is typed, and only then', () => {
-        RoleDetailPage.visit(withTarget).openIdentityTab()
-
-        cy.get('[data-testid="role-remove-target-currentSite-access"]').click()
-        dialog.word().type('currentSite')
-        dialog.confirm().click()
-        dialog.root().should('not.exist')
-
-        readRole(withTarget).then((role) => {
-            expect(
-                role.grants.find((grant) => grant.id === 'currentSite-access'),
-                'the target is gone',
-            ).to.be.undefined
         })
     })
 })

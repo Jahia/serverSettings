@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {useTranslation} from 'react-i18next';
 import {Chip, Typography} from '@jahia/moonstone';
+import {grantableOnApplies} from './RoleIdentityTab';
 import classes from './styles.css';
 
 // One fact per entry, stated in words. A value that is a set is a row of chips, and a value that is a
@@ -69,14 +70,20 @@ export const RoleFacts = ({role}) => {
             {/*
               * No node type means the role can be granted on anything, so the empty case is a fact
               * and not a blank. It was readable only from the edit form until now.
+              *
+              * The fact is absent on a scope the restriction cannot act on. A server, system or site
+              * role is granted on the server, the system tools or the site itself, never on a piece of
+              * content, and "Any node type" there states a freedom the role never had.
               */}
-            <Fact testId="role-facts-nodetypes" label={t('rolesAndPermissions.detail.nodeTypes')}>
-                {role.nodeTypes.length > 0 ?
-                    <div className={classes.chipRow}>
-                        {role.nodeTypes.map(nodeType => <Chip key={nodeType} label={nodeType}/>)}
-                    </div> :
-                    <Typography variant="body">{t('rolesAndPermissions.detail.anyNodeType')}</Typography>}
-            </Fact>
+            {grantableOnApplies(role) ?
+                <Fact testId="role-facts-nodetypes" label={t('rolesAndPermissions.detail.nodeTypes')}>
+                    {role.nodeTypes.length > 0 ?
+                        <div className={classes.chipRow}>
+                            {role.nodeTypes.map(nodeType => <Chip key={nodeType} label={nodeType}/>)}
+                        </div> :
+                        <Typography variant="body">{t('rolesAndPermissions.detail.anyNodeType')}</Typography>}
+                </Fact> :
+                null}
 
             {/* The value answers the label, so it does not repeat it. */}
             <Fact testId="role-facts-privileged" label={t('rolesAndPermissions.detail.privileged')}>

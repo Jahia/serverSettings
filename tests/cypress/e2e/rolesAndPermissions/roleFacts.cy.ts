@@ -20,6 +20,23 @@ const ADD_ROLE = gql`
     }
 `
 
+// A role's scope is its own j:roleGroup and is not inherited from the role it sits inside, so a
+// fixture added straight to the JCR has to declare one.
+const SET_SCOPE_AND_NODE_TYPES = gql`
+    mutation SetScopeAndNodeTypes($path: String!, $scope: String!, $values: [String!]!) {
+        jcr(workspace: EDIT) {
+            mutateNode(pathOrId: $path) {
+                scope: mutateProperty(name: "j:roleGroup") {
+                    setValue(value: $scope, type: STRING)
+                }
+                nodeTypes: mutateProperty(name: "j:nodeTypes") {
+                    setValues(values: $values, type: STRING)
+                }
+            }
+        }
+    }
+`
+
 const DELETE_NODE = gql`
     mutation DeleteNode($path: String!) {
         jcr(workspace: EDIT) {
@@ -40,6 +57,12 @@ describe('Roles and permissions - the facts of a role, on its own page', () => {
         // Nested inside editor and setting no j:privilegedAccess of its own, which is the case the
         // list used to state with a chip.
         cy.apolloClient().apollo({ mutation: ADD_ROLE, variables: { parentPath: '/roles/editor', name: nested } })
+        // edit-role is where a node type restriction applies, and the stock instance carries the
+        // restriction only on server roles, so the non-empty case needs a fixture of its own.
+        cy.apolloClient().apollo({
+            mutation: SET_SCOPE_AND_NODE_TYPES,
+            variables: { path: nestedPath, scope: 'edit-role', values: ['jnt:page', 'jnt:virtualsite'] },
+        })
     })
 
     after(() => {
@@ -72,11 +95,20 @@ describe('Roles and permissions - the facts of a role, on its own page', () => {
     })
 
     it('names the node types a role is restricted to', () => {
+        RoleDetailPage.visit(nested)
+
+        fact('nodetypes').should('contain', 'jnt:page')
+        fact('nodetypes').should('contain', 'jnt:virtualsite')
+        fact('nodetypes').should('not.contain', 'Any node type')
+    })
+
+    // A server role is granted on the server, never on a piece of content, so a node type restriction
+    // has nothing to act on. Stating "Any node type" there would name a freedom the role never had.
+    it('states no node type fact on a scope the restriction cannot act on', () => {
         RoleDetailPage.visit('server-administrator')
 
-        // The core seed restricts this one to rep:root, so the non-empty case is covered too.
-        fact('nodetypes').should('contain', 'rep:root')
-        fact('nodetypes').should('not.contain', 'Any node type')
+        cy.get('[data-testid="role-facts"]').should('be.visible')
+        cy.get('[data-testid="role-facts-nodetypes"]').should('not.exist')
     })
 
     it('names the parent when a role is privileged only through it', () => {

@@ -102,42 +102,43 @@ describe('Roles and permissions - the identity tab', () => {
         })
     })
 
-    it('writes the visibility and the privileged access', () => {
+    it('writes the visibility, and leaves the privileged access as it found it', () => {
         const page = RoleDetailPage.visit(role).openIdentityTab()
 
         cy.get('[data-testid="role-hidden-switch"]').click()
-        cy.get('[data-testid="role-privileged-switch"]').click()
         page.saveIdentity()
 
         read().then((saved) => {
             expect(saved.isHidden, 'the role is hidden from the access control picker').to.be.true
-            expect(saved.hasPrivilegedAccess, 'and granting it makes the principal privileged').to.be.true
+            // The privileged access is stated on the facts band and is not on this form. The write
+            // replaces every property it names, so a save has to carry the value back unchanged.
+            expect(saved.hasPrivilegedAccess, 'and the property the form no longer offers is intact').to
+                .be.false
         })
     })
 
-    it('states that a role is privileged through its parent, whatever its own switch says', () => {
-        const child = `rpIdentityChild${uniq}`
-        cy.apolloClient().apollo({
-            mutation: gql`
-                mutation CreateChild($name: String!) {
-                    admin {
-                        rolesAndPermissions {
-                            createRole(name: $name, parentRole: "editor", roleGroup: "edit-role")
-                        }
-                    }
-                }
-            `,
-            variables: { name: child },
-        })
+    // Scope, privileged access and the targets are facts of the role, not settings. Each was editable
+    // here and each was a way to break a role from a form that looked like a preferences panel.
+    it('offers only what a role may safely change', () => {
+        RoleDetailPage.visit(role).openIdentityTab()
 
-        RoleDetailPage.visit(child).openIdentityTab()
+        cy.get('[data-testid="role-title-field"]').should('be.visible')
+        cy.get('[data-testid="role-description-field"]').should('be.visible')
+        cy.get('[data-testid="role-hidden-field"]').should('be.visible')
 
-        // editor sets j:privilegedAccess and this role does not. AclListener reads the whole chain, so
-        // the switch being off would mislead an administrator on its own.
-        cy.get('[data-testid="role-privileged-switch"]').should('not.be.checked')
-        cy.get('[data-testid="role-privileged-field"]').should('contain', 'privileged through editor')
+        cy.get('[data-testid="role-scope-field"]').should('not.exist')
+        cy.get('[data-testid="role-privileged-field"]').should('not.exist')
+        cy.get('[data-testid="role-targets-field"]').should('not.exist')
+    })
 
-        cy.apolloClient().apollo({ mutation: DELETE, variables: { role: child } })
+    // j:nodeTypes narrows the content a role can be granted on. A server role is granted on the server
+    // and never on a piece of content, so the restriction has nothing to act on.
+    it('offers the node types on an edit role and not on a server role', () => {
+        RoleDetailPage.visit(role).openIdentityTab()
+        cy.get('[data-testid="role-nodetypes-field"]').should('be.visible')
+
+        RoleDetailPage.visit('server-administrator').openIdentityTab()
+        cy.get('[data-testid="role-nodetypes-field"]').should('not.exist')
     })
 
     it('goes back to the list, and the list is the one the route rendered before', () => {
