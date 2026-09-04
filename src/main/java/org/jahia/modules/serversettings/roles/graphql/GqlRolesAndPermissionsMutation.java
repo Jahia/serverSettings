@@ -113,7 +113,7 @@ public class GqlRolesAndPermissionsMutation {
     public String duplicateRole(
             @GraphQLName("role") @GraphQLNonNull @GraphQLDescription("The role to copy") String role,
             @GraphQLName("newName") @GraphQLNonNull @GraphQLDescription("The name of the copy") String newName,
-            @GraphQLName("withSubRoles") @GraphQLDescription("Copy the roles nested inside it. Default false")
+            @GraphQLName("withSubRoles") @GraphQLDescription("Copy the roles nested inside it, each named after its new parent. Default false")
             Boolean withSubRoles) throws RepositoryException {
         try {
             return rolesAndPermissionsService.duplicateRole(role, newName, Boolean.TRUE.equals(withSubRoles));

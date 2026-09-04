@@ -592,7 +592,7 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
         JCRSessionWrapper session = currentSession();
         JCRNodeWrapper sourceNode = session.getNode(source.getPath());
         if (withSubRoles) {
-            validateSubRoleNames(model, sourceNode);
+            validateSubRoleNames(model, sourceNode, newName);
         }
         JCRNodeWrapper parent = sourceNode.getParent();
         JCRNodeWrapper copy = parent.addNode(newName, Constants.JAHIANT_ROLE);
@@ -603,16 +603,22 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
         return copy.getPath();
     }
 
-    // A sub-role is copied under its own name, so a source that has one always collides with it. The
-    // name is what an access control entry holds, so a second role of that name makes the applied
-    // permissions undefined, and validateRoleName refuses that name everywhere else.
-    private void validateSubRoleNames(RoleModel model, JCRNodeWrapper roleNode) throws RepositoryException {
+    // A role name is global, because an access control entry holds the name and nothing else. Two roles
+    // of one name therefore make the applied permissions undefined, which is why a sub-role copy is
+    // named after its new parent instead of keeping its own name.
+    private static String subRoleCopyName(String newParentName, String childName) {
+        return newParentName + "-" + childName;
+    }
+
+    private void validateSubRoleNames(RoleModel model, JCRNodeWrapper roleNode, String newParentName)
+            throws RepositoryException {
         NodeIterator children = roleNode.getNodes();
         while (children.hasNext()) {
             JCRNodeWrapper child = (JCRNodeWrapper) children.nextNode();
             if (child.isNodeType(Constants.JAHIANT_ROLE)) {
-                validateRoleName(model, child.getName());
-                validateSubRoleNames(model, child);
+                String copyName = subRoleCopyName(newParentName, child.getName());
+                validateRoleName(model, copyName);
+                validateSubRoleNames(model, child, copyName);
             }
         }
     }
@@ -671,7 +677,8 @@ public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsServic
 
     private void copySubRole(JCRSessionWrapper session, JCRNodeWrapper child, JCRNodeWrapper to)
             throws RepositoryException {
-        JCRNodeWrapper copy = to.addNode(child.getName(), Constants.JAHIANT_ROLE);
+        // `to` is the copy, already carrying its new name, so the prefix chains down each level.
+        JCRNodeWrapper copy = to.addNode(subRoleCopyName(to.getName(), child.getName()), Constants.JAHIANT_ROLE);
         copyRoleProperties(session, child, copy);
         copyRoleChildren(session, child, copy, true);
     }

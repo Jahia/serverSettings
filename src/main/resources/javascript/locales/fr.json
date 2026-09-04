@@ -47,6 +47,7 @@
       "noParentRole": "Non imbriqué",
       "parentRoleHint": "Un rôle imbriqué ajoute au rôle qui le contient, et ne peut jamais lui retirer une permission. Une copie est indépendante, et démarre simplement avec les mêmes noms de permissions.",
       "withSubRoles": "Copier les rôles imbriqués",
+      "withSubRolesHint": "Un nom de rôle est unique, donc chaque copie imbriquée prend le nouveau nom en préfixe.",
       "searchPlaceholder": "Chercher un rôle par nom ou titre",
       "anyScope": "Toutes les portées",
       "noScope": "Aucune portée",

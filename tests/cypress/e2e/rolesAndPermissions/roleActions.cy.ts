@@ -78,6 +78,7 @@ describe('Roles and permissions - creating, copying and deleting a role', () => 
     const copy = `rpNew${uniq}-copy`
     const nested = `rpNested${uniq}`
     const seededCopy = `rpReviewer${uniq}`
+    const subRoleCopy = `rpSubs${uniq}`
 
     beforeEach(() => {
         cy.login()
@@ -85,7 +86,7 @@ describe('Roles and permissions - creating, copying and deleting a role', () => 
 
     after(() => {
         cy.login()
-        ;[copy, nested, seededCopy, created].forEach((role) => {
+        ;[copy, nested, seededCopy, `${subRoleCopy}-editor-in-chief`, subRoleCopy, created].forEach((role) => {
             cy.apolloClient().apollo({ mutation: DELETE, variables: { role } })
         })
     })
@@ -164,25 +165,45 @@ describe('Roles and permissions - creating, copying and deleting a role', () => 
             })
     })
 
-    // A sub-role is copied under its own name, and a role name is what an access control entry holds,
-    // so copying the sub-roles of `editor` would leave two roles named editor-in-chief. The server
-    // refuses it and names the collision.
-    it('refuses to copy the sub-roles when a sub-role name is already taken', () => {
+    // A role name is what an access control entry holds, so two roles of one name make the applied
+    // permissions undefined. A sub-role copy is therefore named after its new parent, which is what
+    // lets a role with sub-roles be copied at all.
+    it('copies the sub-roles under a name derived from the new parent', () => {
         cy.apolloClient()
             .apollo({
                 mutation: DUPLICATE,
-                variables: { role: 'editor', newName: `${seededCopy}-subs`, withSubRoles: true },
+                variables: { role: 'editor', newName: subRoleCopy, withSubRoles: true },
                 errorPolicy: 'all',
             })
             .then((result) => {
-                expect(result.errors, 'the copy is refused').to.not.be.empty
-                expect(result.errors[0].message).to.contain('editor-in-chief')
+                expect(result.errors, 'the copy is accepted').to.be.undefined
             })
 
         cy.apolloClient()
-            .apollo({ query: READ, variables: { role: `${seededCopy}-subs` } })
+            .apollo({ query: READ, variables: { role: subRoleCopy } })
             .then((result) => {
-                expect(result.data.admin.rolesAndPermissions.role, 'and nothing was created').to.be.null
+                const role = result.data.admin.rolesAndPermissions.role
+                expect(role, 'the copy was created').to.not.be.null
+                expect(role.subRoleNames, 'and its sub-role carries the new parent as a prefix').to.deep.eq([
+                    `${subRoleCopy}-editor-in-chief`,
+                ])
+            })
+
+        cy.apolloClient()
+            .apollo({ query: READ, variables: { role: `${subRoleCopy}-editor-in-chief` } })
+            .then((result) => {
+                const child = result.data.admin.rolesAndPermissions.role
+                expect(child, 'the sub-role copy is a role of its own').to.not.be.null
+                expect(child.parentRoleName, 'nested inside the copy').to.eq(subRoleCopy)
+            })
+
+        cy.apolloClient()
+            .apollo({ query: READ, variables: { role: 'editor-in-chief' } })
+            .then((result) => {
+                expect(
+                    result.data.admin.rolesAndPermissions.role,
+                    'and the source sub-role is untouched',
+                ).to.not.be.null
             })
     })
 

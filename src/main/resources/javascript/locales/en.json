@@ -47,6 +47,7 @@
       "noParentRole": "Not nested",
       "parentRoleHint": "A nested role adds to the role it sits in, and can never take a permission away from it. A copy is independent, and merely starts with the same permission names.",
       "withSubRoles": "Copy the roles nested inside it",
+      "withSubRolesHint": "A role name is unique, so each nested copy takes the new name as a prefix.",
       "searchPlaceholder": "Search a role by name or title",
       "anyScope": "All scopes",
       "noScope": "No scope",

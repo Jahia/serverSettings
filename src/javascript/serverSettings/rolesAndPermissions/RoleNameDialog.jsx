@@ -78,13 +78,18 @@ export const RoleNameDialog = ({mode, sourceRole, roleGroups, roleNames, error, 
                                     onChange={(event, item) => setParentRole(item.value)}/>
                             </Field>
                         </> :
-                        <div className={classes.switchRow}>
-                            <Checkbox
-                                checked={withSubRoles}
-                                data-testid="role-with-subroles"
-                                onChange={() => setWithSubRoles(!withSubRoles)}/>
-                            <Typography variant="body">{t('rolesAndPermissions.list.withSubRoles')}</Typography>
-                        </div>}
+                        <>
+                            <div className={classes.switchRow}>
+                                <Checkbox
+                                    checked={withSubRoles}
+                                    data-testid="role-with-subroles"
+                                    onChange={() => setWithSubRoles(!withSubRoles)}/>
+                                <Typography variant="body">{t('rolesAndPermissions.list.withSubRoles')}</Typography>
+                            </div>
+                            <Typography variant="caption" className={classes.fieldHint}>
+                                {t('rolesAndPermissions.list.withSubRolesHint')}
+                            </Typography>
+                        </>}
 
                     {error ?
                         <Typography variant="body" className={classes.formError} data-testid="role-name-error">
