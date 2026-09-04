@@ -79,10 +79,9 @@ const systemInfo: Screen = {
 }
 
 // Webflow-backed by this module's own flow, so placement decides on every instance carrying the module.
-const manageMemory: Screen = {
+// It carries no marker, because it is only rendered in the page area, where a refusal is an empty body.
+const manageMemory: Pick<Screen, 'nodeType'> = {
     nodeType: 'jnt:serverSettingsManageMemory',
-    // the button that submits the flow's thread-dump transition
-    marker: 'name="_eventId_showTD"',
 }
 
 // Webflow-backed through `serverSettings-ee`, so placement decides first and the permission only after.
@@ -104,7 +103,7 @@ describe('Server settings screens - render scope', () => {
     const lowPriv = 'srvscreenlow' + uniq // edits the hosting site, administers nothing
 
     const area = `/sites/${site}/home/pagecontent`
-    const placedName = (screen: Screen) => screen.nodeType.replace('jnt:', 'placed') + uniq
+    const placedName = (screen: Pick<Screen, 'nodeType'>) => screen.nodeType.replace('jnt:', 'placed') + uniq
 
     // Every render gets its own cache-buster: a repeated one would let the fragment cache answer, and a
     // fragment cached for another caller reads exactly like a decision this spec never made.
@@ -112,7 +111,7 @@ describe('Server settings screens - render scope', () => {
     const ec = () => `${uniq}-${probe++}`
 
     /** Render one placed screen in the ordinary page area, as the given caller. */
-    const fragment = (user: string, screen: Screen) => {
+    const fragment = (user: string, screen: Pick<Screen, 'nodeType'>) => {
         cy.login(user, 'password')
         return cy
             .request({
@@ -242,6 +241,11 @@ describe('Server settings screens - render scope', () => {
         // resolved. The caller holds everything the screen asks for, so a refusal here is about where the
         // component may render. The flow drives the JVM's thread and heap dumps, which is what makes the
         // route this screen is served on worth pinning.
+        //
+        // `TemplateOnlyComponentFilter` is what refuses here, and not the screen's own
+        // `requirePermissions`. `serverAdmin` holds `adminManageMemory` at the repository root, so it
+        // clears `TemplatePermissionCheckFilter` on either arm. The property is what states the
+        // requirement on the component, and it decides on a render path that placement allows.
         it('is served to nobody there, not even a server administrator', () => {
             fragment(serverAdmin, manageMemory).then((body) => {
                 expect(body.trim(), 'a webflow-backed screen must not render outside a template').to.eq('')
