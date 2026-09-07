@@ -27,7 +27,21 @@ export class ProjectsPage extends BasePage {
         return new ImportPage()
     }
 
+    /**
+     * Opens the create-web-project wizard.
+     *
+     * The button is an anchor, and the submit behind it runs from the `a.sitesAction` handler the screen
+     * binds in a document-ready callback. A click landing before that callback has run is a **lost
+     * one-shot event**: the retry that follows re-queries the DOM but never re-fires the click, so the
+     * wizard can never open however long the wait.
+     *
+     * The screen calls `dataTablesSettings.init` on the sites table from a *second* ready callback, and
+     * jQuery runs them in registration order — so the wrapper DataTables puts around the table is proof
+     * that the click already has a handler to run. Waiting on it also fails in the right direction: a
+     * screen whose scripts never run at all times out here instead of taking a click into the void.
+     */
     createSite() {
+        webProjectsFrame().find('#sitesTable_wrapper', { timeout: 30000 }).should('exist')
         webProjectsFrame().find('#createSite').click()
         return new CreateSitePage()
     }

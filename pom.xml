@@ -55,7 +55,7 @@
     </parent>
 
     <artifactId>serverSettings</artifactId>
-    <version>9.11.0-SNAPSHOT</version>
+    <version>10.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>Jahia Server Settings</name>
     <description>Server settings</description>
@@ -72,7 +72,7 @@
         <export-package>org.jahia.modules.serversettings.forge</export-package>
         <jahia-module-type>system</jahia-module-type>
         <jahia-deploy-on-site>system</jahia-deploy-on-site>
-        <jahia-module-signature>MCwCFELZgVKpaJ/XnvB4ZgfsBniniIZlAhQO121+heyrVAs+8POcF4te3cSg9Q==</jahia-module-signature>
+        <jahia-module-signature>MCwCFGyi99kCiFmWKRwUyIFw+ekMyBPAAhR6S+K+yiaUlq50YHrU3ruOFo40KQ==</jahia-module-signature>
         <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
         <yarn.arguments>build:production</yarn.arguments>
         <sonar.sources>src/javascript,src/main/resources/javascript</sonar.sources>
@@ -130,36 +130,36 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.15.0</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.6.3</version>
+                <!-- Map Yarn commands to corresponding Maven phases. Both bind to
+                     generate-resources, not compile: webpack writes the bundle into
+                     src/main/resources/javascript/apps, so it has to exist before
+                     process-resources copies it. -->
                 <executions>
-                    <execution>
-                        <id>npm install node and yarn</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>install-node-and-yarn</goal>
-                        </goals>
-                        <configuration>
-                            <nodeVersion>v18.18.0</nodeVersion>
-                            <yarnVersion>v1.22.21</yarnVersion>
-                        </configuration>
-                    </execution>
                     <execution>
                         <id>yarn install</id>
                         <phase>generate-resources</phase>
                         <goals>
-                            <goal>yarn</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>yarn post-install</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>yarn</goal>
+                            <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <arguments>${yarn.arguments}</arguments>
+                            <!-- bare `yarn` is `yarn install` -->
+                            <executable>yarn</executable>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>yarn build</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>yarn</executable>
+                            <arguments>
+                                <argument>${yarn.arguments}</argument>
+                            </arguments>
                         </configuration>
                     </execution>
                 </executions>

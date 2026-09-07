@@ -12,7 +12,12 @@ const {CycloneDxWebpackPlugin} = require('@cyclonedx/webpack-plugin');
 const cycloneDxWebpackPluginOptions = {
     specVersion: '1.4',
     rootComponentType: 'library',
-    outputLocation: './bom'
+    outputLocation: './bom',
+    // The validator is libxmljs2, whose newest prebuilt binary targets node 20 (ABI v115).
+    // On a newer node it falls back to a source compile that fails, and since it is an
+    // optional dependency the build stays green while quietly emitting an unvalidated BOM.
+    // Say so instead: the BOM ships either way, validation is what we are giving up.
+    validateResults: false
 };
 
 module.exports = (env, argv) => {
