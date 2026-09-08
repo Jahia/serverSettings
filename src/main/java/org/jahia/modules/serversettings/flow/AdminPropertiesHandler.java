@@ -67,15 +67,25 @@ public class AdminPropertiesHandler implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(AdminPropertiesHandler.class);
 
     /**
-     * Permission the caller must hold to write the root account's properties through this screen.
-     * <p>
-     * {@code admin} is a core permission granted by the {@code server-administrator} role, and it is
-     * deliberately not one of the finer per-screen permissions, which resolve to {@code false} where they are
-     * not registered on an instance and would therefore fail closed for administrators too.
+     * The container this is a screen of, as {@code j:applyOn} names it on the hosting content templates
+     * ({@code src/main/import/repository.xml}). It is the realm the screen administers.
      */
-    private static final String REQUIRED_PERMISSION = "admin";
+    private static final String REALM_NODE_TYPE = "jnt:globalSettings";
+
+    /**
+     * Permission the caller must hold in that realm, mirroring {@code j:requiredPermissionNames} on those
+     * same templates so the requirement is stated once. This module declares it
+     * ({@code src/main/import/permissions.xml}), so it is registered wherever this handler runs.
+     */
+    private static final String REQUIRED_PERMISSION = "adminRootUser";
 
     private AdminProperties adminProperties;
+
+    /**
+     * Whether the render this flow was minted for established the authority — held for the view, which is
+     * served from that one render. {@link #save(MessageContext, RenderContext)} asks again of its own.
+     */
+    private boolean administrationGranted;
 
     public AdminProperties getAdminProperties() {
         return adminProperties;
@@ -83,10 +93,17 @@ public class AdminPropertiesHandler implements Serializable {
 
     /**
      * first method call in the flow. It instantiates and populates the AdminProperties bean
+     * <p>
+     * The bean is filled on the same terms the form is submitted on, and left empty otherwise.
+     *
+     * @param renderContext the context of the render the flow is being minted for
      */
-    public void init() {
+    public void init(RenderContext renderContext) {
         adminProperties = new AdminProperties();
-        adminProperties.populate(JahiaUserManagerService.getInstance().lookupRootUser());
+        administrationGranted = isAdministrationGranted(renderContext);
+        if (administrationGranted) {
+            adminProperties.populate(JahiaUserManagerService.getInstance().lookupRootUser());
+        }
     }
 
     /**
@@ -142,26 +159,34 @@ public class AdminPropertiesHandler implements Serializable {
     }
 
     /**
-     * Whether the caller may write the root account's properties.
+     * Whether this render carries the authority for the administration properties.
      * <p>
-     * The requirement is evaluated on the render's <strong>main resource</strong> — the site or the global
-     * settings node the request is actually made against, which is what an administrator role is granted on.
-     * That target is load-bearing: the root user node this method writes is obtained through a system
-     * session, and {@code hasPermission} answers {@code true} for any caller on such a session, so it can
-     * express no requirement. The main resource is bound to the caller's own session and does.
-     * <p>
-     * Fails closed: without a main resource there is nothing to evaluate the requirement against, and this is
-     * an administration capability.
+     * Both halves are asked of the render's <strong>main resource</strong>: it is what says which realm the
+     * render is in, and it is the node the requirement is carried by, being bound to the caller's own
+     * session. Fails closed on each step.
      *
-     * @param renderContext the context of the render the transition was submitted from
-     * @return {@code true} when the caller holds {@link #REQUIRED_PERMISSION} on the main resource
+     * @param renderContext the context of the render this call serves
+     * @return {@code true} when the render is of {@link #REALM_NODE_TYPE} and the caller holds
+     *         {@link #REQUIRED_PERMISSION} on it
      */
     private boolean isAdministrationGranted(RenderContext renderContext) {
         Resource mainResource = renderContext != null ? renderContext.getMainResource() : null;
         JCRNodeWrapper contextNode = mainResource != null ? mainResource.getNode() : null;
         if (contextNode == null) {
-            logger.warn("No main resource to evaluate {} against; not saving the administration properties",
-                    REQUIRED_PERMISSION);
+            logger.warn("No main resource to establish the administration realm against; refusing");
+            return false;
+        }
+
+        try {
+            if (!contextNode.isNodeType(REALM_NODE_TYPE)) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Refusing the administration properties: {} is not {}",
+                            contextNode.getPath(), REALM_NODE_TYPE);
+                }
+                return false;
+            }
+        } catch (RepositoryException e) {
+            logger.error("Could not read the node type of the main resource; refusing", e);
             return false;
         }
 
@@ -170,15 +195,23 @@ public class AdminPropertiesHandler implements Serializable {
         }
 
         if (logger.isWarnEnabled()) {
-            logger.warn("Not saving the administration properties: {} does not hold {} on {}",
+            logger.warn("Refusing the administration properties: {} does not hold {} on {}",
                     renderContext.getUser() != null ? renderContext.getUser().getName() : "the current user",
                     REQUIRED_PERMISSION, contextNode.getPath());
         }
         return false;
     }
 
+    /**
+     * The groups the root account belongs to, for the view to list, on the same terms as the rest.
+     *
+     * @return root's groups, or an empty list when the render carries no authority
+     */
     public List<JCRGroupNode> getUserMembership() {
-        return new LinkedList<JCRGroupNode>(User.getUserMembership(JahiaUserManagerService.getInstance().lookupRootUser().getName()).values());
+        if (!administrationGranted) {
+            return new LinkedList<>();
+        }
+        return new LinkedList<>(User.getUserMembership(JahiaUserManagerService.getInstance().lookupRootUser().getName()).values());
     }
 
 }

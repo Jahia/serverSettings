@@ -6,7 +6,7 @@
 
     <var name="adminPropertiesHandler" class="org.jahia.modules.serversettings.flow.AdminPropertiesHandler"/>
     <on-start>
-        <evaluate expression="adminPropertiesHandler.init()" />
+        <evaluate expression="adminPropertiesHandler.init(externalContext.requestMap.renderContext)" />
         <evaluate expression="adminPropertiesHandler.adminProperties" result="flowScope.adminProperties"/>
     </on-start>
 
