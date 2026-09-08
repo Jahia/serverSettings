@@ -4,6 +4,7 @@ import {registerRoutes as registerConfigurationRoutes} from './configuration/reg
 import {registerRoutes as registerSystemComponentsRoutes} from './systemComponents/registerRoutes';
 import {registerRoutes as registerUsersAndRolesRoutes} from './usersAndRoles/registerRoutes';
 import {registerRoutes as registerWebProjectsRoutes} from './webProjects/registerRoutes';
+import {registerRoutes as registerRolesAndPermissionsRoutes} from './rolesAndPermissions/registerRoutes';
 
 export default function () {
     registerAboutRoutes();
@@ -12,4 +13,5 @@ export default function () {
     registerSystemComponentsRoutes();
     registerUsersAndRolesRoutes();
     registerWebProjectsRoutes();
+    registerRolesAndPermissionsRoutes();
 }

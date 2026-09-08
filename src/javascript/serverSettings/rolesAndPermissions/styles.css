@@ -1,0 +1,427 @@
+/* ---------- the explorer shell ---------- */
+
+.explorerPaper {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.filterBar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-small);
+    padding: var(--spacing-small);
+    border-bottom: 1px solid var(--color-gray_light);
+}
+
+.search {
+    min-width: 260px;
+}
+
+.matchCount {
+    margin-left: auto;
+    color: var(--color-gray_dark);
+    font-size: 0.85em;
+}
+
+/* The list and the detail sit side by side, and stack on a narrow viewport. */
+.explorerBody {
+    display: grid;
+    grid-template-columns: minmax(280px, 2fr) minmax(320px, 3fr);
+    min-height: 420px;
+}
+
+@media (max-width: 900px) {
+    .explorerBody {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ---------- the permission list ---------- */
+
+.permissionList {
+    overflow-y: auto;
+    max-height: 60vh;
+    border-right: 1px solid var(--color-gray_light);
+}
+
+/* ---------- the permission detail ---------- */
+
+.permissionDetailPane {
+    overflow-y: auto;
+    max-height: 60vh;
+}
+
+.detail {
+    padding: var(--spacing-medium);
+}
+
+.detailName {
+    color: var(--color-gray_dark);
+    overflow-wrap: anywhere;
+}
+
+.detailDescription {
+    margin-top: var(--spacing-small);
+}
+
+.detailEmpty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+    padding: var(--spacing-medium);
+}
+
+.fieldLabel {
+    color: var(--color-gray_dark);
+    letter-spacing: 0.06em;
+}
+
+.chipRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-nano);
+}
+
+.usageList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-nano);
+}
+
+.usage {
+    display: grid;
+    grid-template-columns: minmax(120px, auto) minmax(120px, auto) 1fr;
+    gap: var(--spacing-small);
+    align-items: baseline;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--color-gray_light);
+}
+
+@media (max-width: 700px) {
+    .usage {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+}
+
+.usageTarget,
+.usageReason {
+    color: var(--color-gray_dark);
+}
+
+/* ---------- the role list ---------- */
+
+.roleName,
+.subRoleName {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+/*
+ * A sub-role is indented, so the chain that decides what it adds to reads at a glance.
+ *
+ * The selector names both classes on purpose. The cell is a button, and `.roleNameButton` resets
+ * `padding` to 0 further down this file, which at equal specificity wins on source order and left
+ * every sub-role flush with its parent. Two classes outrank one wherever the reset sits.
+ */
+.roleNameButton.subRoleName {
+    padding-left: var(--spacing-medium);
+    border-left: 2px solid var(--color-gray);
+    margin-left: var(--spacing-nano);
+}
+
+.roleTechnicalName {
+    color: var(--color-gray_dark);
+}
+
+/*
+ * The role description. It is free text an administrator writes, so it has no length limit, and a
+ * long one would make its row several times taller than every other. Two lines, then an ellipsis.
+ */
+.roleDescription {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* A flags cell holds several chips, and they wrap inside the cell rather than overflowing it. */
+.warningRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-nano);
+    align-items: center;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.scopeChip {
+    cursor: pointer;
+}
+
+/* ---------- the role detail ---------- */
+
+/*
+ * The form spaces its own children. Moonstone's Field carries no outer margin, on purpose: what sits
+ * between two fields is the container's business, and a margin on the field would be a guess about a
+ * container it cannot see.
+ */
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-medium);
+    padding: var(--spacing-medium);
+    max-width: 720px;
+}
+
+.fieldHint {
+    display: block;
+    margin-top: var(--spacing-nano);
+    color: var(--color-gray_dark);
+}
+
+.textInput {
+    width: 100%;
+}
+
+.switchRow {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-small);
+}
+
+.formActions {
+    display: flex;
+    gap: var(--spacing-small);
+    margin-top: var(--spacing-medium);
+}
+
+.formError {
+    color: var(--color-danger);
+}
+
+.detailHeaderName {
+    color: var(--color-gray_dark);
+}
+
+/* ---------- the permissions tab ---------- */
+
+.targetBar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-small);
+    padding: var(--spacing-small);
+    border-bottom: 1px solid var(--color-gray_light);
+}
+
+.permissionsBody {
+    display: grid;
+    grid-template-columns: minmax(200px, 1fr) minmax(360px, 3fr);
+    min-height: 420px;
+}
+
+@media (max-width: 900px) {
+    .permissionsBody {
+        grid-template-columns: 1fr;
+    }
+}
+
+.areaRail {
+    overflow-y: auto;
+    max-height: 60vh;
+    border-right: 1px solid var(--color-gray_light);
+}
+
+.permissionPane {
+    overflow-y: auto;
+    max-height: 60vh;
+}
+
+.permissionEditRow {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-small);
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--color-gray_light);
+}
+
+.permissionEditLabel {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+
+.permissionEditTitle {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-nano);
+    min-width: 0;
+}
+
+.permissionReason {
+    color: var(--color-gray_dark);
+}
+
+.permissionUnknown {
+    color: var(--color-warning_dark);
+}
+
+.rowActions {
+    display: flex;
+    gap: var(--spacing-nano);
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+.dialogList {
+    margin: var(--spacing-small) 0 0;
+    padding-left: var(--spacing-medium);
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.roleNameButton {
+    background: none;
+    border: none;
+    padding: 0;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    width: 100%;
+    min-width: 0;
+}
+
+/*
+ * Each of the two lines ends in an ellipsis rather than being clipped mid-character. The column has a
+ * fixed width and the table gives every row the same height, so a line that wrapped lost its tail
+ * with nothing to show it had one. A name that does not fit is a name to read in full, and the button
+ * carries it as a tooltip.
+ */
+.roleNameButton > * {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.roleNameButton:hover {
+    text-decoration: underline;
+}
+
+/*
+ * The Moonstone modal overlay is position: fixed with z-index: auto, and the sticky head of the
+ * Moonstone data table is z-index: 5. So the table head paints across any dialog opened over the
+ * role list, and the band it covers hides whatever the dialog put there.
+ *
+ * The overlay is raised rather than the table head lowered, because a dialog belongs above the page
+ * whatever the page contains. The rule is global on purpose: the overlay is Moonstone's own element
+ * and this stylesheet is compiled as a CSS module, so a plain selector would be renamed and match
+ * nothing.
+ */
+:global(.moonstone-modal_overlay) {
+    z-index: 100;
+}
+
+.targetInput {
+    min-width: 200px;
+    margin-left: auto;
+}
+
+/* The word to type, in its own case and in a monospaced face so a trailing space is visible. */
+.confirmWord {
+    display: inline-block;
+    margin: var(--spacing-nano) 0;
+    padding: 2px 6px;
+    background: var(--color-gray_light);
+    border: 1px solid var(--color-gray);
+    border-radius: 3px;
+    font-family: monospace;
+}
+
+/* One side of a reset difference, and the target it applies to. */
+.diffTarget {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-small);
+    margin-top: var(--spacing-medium);
+}
+
+.diffSide {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-nano);
+}
+
+
+/*
+ * An area the role already grants something in. The mark is on the label rather than on the count,
+ * because the question a reader asks the rail is "where has this role got anything", and the answer
+ * has to survive a glance that never reaches the number.
+ */
+.areaWithGrants {
+    border-left: 3px solid var(--color-success);
+    padding-left: var(--spacing-nano);
+    font-weight: 600;
+}
+
+/* A target and the button that removes it, kept together. */
+.targetChip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-nano);
+}
+
+/*
+ * The edit form inside its dialog. The dialog grows with its content instead of capping itself, so a
+ * form taller than the window pushed the footer, and the Save button with it, off screen.
+ */
+.editBody {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+/*
+ * The role's own facts, above the subject of the page. A row that wraps, so a narrow window stacks
+ * the facts rather than compressing each one to nothing.
+ */
+.factsBar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-medium);
+    padding: var(--spacing-small) var(--spacing-medium);
+    border-bottom: 1px solid var(--color-gray_light);
+}
+
+.fact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-nano);
+    min-width: 0;
+}
+
+.factLabel {
+    color: var(--color-gray_dark);
+}
+
+.factValue {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-nano);
+}
+
+/* The name and the warning that belongs to it, kept together in one cell. */
+.roleNameCell {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-nano);
+    min-width: 0;
+}
