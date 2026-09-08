@@ -11,3 +11,5 @@
 - addMavenRepository: 'https://devtools.jahia.com/nexus/content/repositories/jahia-snapshots@id=jahia-snapshots@snapshots'
 - installOrUpgradeBundle: "mvn:org.jahia.qa/qa-templatesSet/1.0.0-SNAPSHOT"
   autoStart: true
+
+- include: 'provisioning.yml'
