@@ -47,6 +47,14 @@
 // route answering 403 and the screen's own marker being absent from the body — the status so that the
 // absence is a decision and not an accident, the marker because that is the requirement.
 //
+// THE MEMORY SCREEN — the placement rule again, and this module is what makes it apply. The flow for
+// `jnt:serverSettingsManageMemory` ships here, so the type is webflow-backed wherever this module is, and
+// the case below needs no other module installed. The screen states its own permission requirement the way
+// the system information screen does, and for the same reason. That requirement is not separately
+// observable either: the placement rule refuses the page area to every caller, before a permission could
+// tell two of them apart. So the assertion below claims only the outcome owed, which is that the screen and
+// the operations its flow drives are served to nobody in an ordinary page area.
+//
 // PRECONDITION for the About screen's page-area case: `serverSettings-ee` must be installed, because it
 // is the module that makes the type webflow-backed. Every CI lane for this module runs an EE
 // distribution, so it holds there. On a community-only instance no module ships the flow, the placement
@@ -70,6 +78,12 @@ const systemInfo: Screen = {
     marker: 'java.vendor',
 }
 
+// Webflow-backed by this module's own flow, so placement decides on every instance carrying the module.
+// It carries no marker, because it is only rendered in the page area, where a refusal is an empty body.
+const manageMemory: Pick<Screen, 'nodeType'> = {
+    nodeType: 'jnt:serverSettingsManageMemory',
+}
+
 // Webflow-backed through `serverSettings-ee`, so placement decides first and the permission only after.
 const about: Screen = {
     nodeType: 'jnt:serverSettingsAboutJahia',
@@ -89,7 +103,7 @@ describe('Server settings screens - render scope', () => {
     const lowPriv = 'srvscreenlow' + uniq // edits the hosting site, administers nothing
 
     const area = `/sites/${site}/home/pagecontent`
-    const placedName = (screen: Screen) => screen.nodeType.replace('jnt:', 'placed') + uniq
+    const placedName = (screen: Pick<Screen, 'nodeType'>) => screen.nodeType.replace('jnt:', 'placed') + uniq
 
     // Every render gets its own cache-buster: a repeated one would let the fragment cache answer, and a
     // fragment cached for another caller reads exactly like a decision this spec never made.
@@ -97,7 +111,7 @@ describe('Server settings screens - render scope', () => {
     const ec = () => `${uniq}-${probe++}`
 
     /** Render one placed screen in the ordinary page area, as the given caller. */
-    const fragment = (user: string, screen: Screen) => {
+    const fragment = (user: string, screen: Pick<Screen, 'nodeType'>) => {
         cy.login(user, 'password')
         return cy
             .request({
@@ -144,7 +158,7 @@ describe('Server settings screens - render scope', () => {
         grantRoles(`/sites/${site}`, ['editor'], serverAdmin, 'USER')
 
         addNode({ parentPathOrId: `/sites/${site}/home`, primaryNodeType: 'jnt:contentList', name: 'pagecontent' })
-        ;[systemInfo, about].forEach((screen) => {
+        ;[systemInfo, about, manageMemory].forEach((screen) => {
             addNode({ parentPathOrId: area, primaryNodeType: screen.nodeType, name: placedName(screen) })
         })
     })
@@ -216,6 +230,24 @@ describe('Server settings screens - render scope', () => {
         // Requires `serverSettings-ee` to be installed — see the precondition note in the header.
         it('is served to nobody there, not even a server administrator', () => {
             fragment(serverAdmin, about).then((body) => {
+                expect(body.trim(), 'a webflow-backed screen must not render outside a template').to.eq('')
+            })
+        })
+    })
+
+    describe('the memory screen, placed in an ordinary page area', () => {
+        // Placement again, and the same two facts carry it that carry the About case. `fragment` asserts
+        // 200, and a placed node that went missing answers 404 there, so the status proves the node
+        // resolved. The caller holds everything the screen asks for, so a refusal here is about where the
+        // component may render. The flow drives the JVM's thread and heap dumps, which is what makes the
+        // route this screen is served on worth pinning.
+        //
+        // `TemplateOnlyComponentFilter` is what refuses here, and not the screen's own
+        // `requirePermissions`. `serverAdmin` holds `adminManageMemory` at the repository root, so it
+        // clears `TemplatePermissionCheckFilter` on either arm. The property is what states the
+        // requirement on the component, and it decides on a render path that placement allows.
+        it('is served to nobody there, not even a server administrator', () => {
+            fragment(serverAdmin, manageMemory).then((body) => {
                 expect(body.trim(), 'a webflow-backed screen must not render outside a template').to.eq('')
             })
         })
