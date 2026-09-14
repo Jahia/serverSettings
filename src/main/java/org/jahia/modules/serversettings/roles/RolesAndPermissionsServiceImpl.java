@@ -1,0 +1,913 @@
+package org.jahia.modules.serversettings.roles;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.function.Function;
+
+import javax.jcr.ItemExistsException;
+import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.PropertyType;
+import javax.jcr.RepositoryException;
+import javax.jcr.Value;
+import javax.jcr.query.Query;
+
+import org.apache.jackrabbit.util.ISO9075;
+import org.jahia.api.Constants;
+import org.jahia.services.content.JCRContentUtils;
+import org.jahia.services.content.JCRNodeWrapper;
+import org.jahia.services.content.JCRSessionFactory;
+import org.jahia.services.content.JCRSessionWrapper;
+import org.jahia.services.templates.JahiaTemplateManagerService;
+import org.jahia.utils.LanguageCodeConverters;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.jahia.modules.serversettings.roles.seed.SeedTarget;
+import org.jahia.modules.serversettings.roles.seed.RoleSeedCatalog;
+import org.jahia.modules.serversettings.roles.seed.RoleSeed;
+import org.jahia.modules.serversettings.roles.seed.ResetPlan;
+import javax.jcr.nodetype.ConstraintViolationException;
+import java.util.regex.Pattern;
+
+@Component(service = RolesAndPermissionsService.class, immediate = true)
+public class RolesAndPermissionsServiceImpl implements RolesAndPermissionsService {
+
+    private static final String ROLE_GROUP_PROPERTY = "j:roleGroup";
+    private static final String IS_ABSTRACT_PROPERTY = "j:isAbstract";
+    private static final String DEPENDENCIES_PROPERTY = "j:dependencies";
+    private static final String PERMISSION_NAMES_PROPERTY = "j:permissionNames";
+    private static final String NODE_TYPES_PROPERTY = "j:nodeTypes";
+    private static final String HIDDEN_PROPERTY = "j:hidden";
+    private static final String PRIVILEGED_ACCESS_PROPERTY = "j:privilegedAccess";
+    private static final String EXTERNAL_PATH_PROPERTY = "j:path";
+    private static final String SYSTEM_SITE_PATH = "/sites/systemsite";
+    private static final String LANGUAGES_PROPERTY = "j:languages";
+    private static final String INACTIVE_LANGUAGES_PROPERTY = "j:inactiveLanguages";
+
+    private static final String EXTERNAL_PERMISSIONS_TYPE = "jnt:externalPermissions";
+
+    /** Everything a jnt:translation child of a role carries. */
+    private static final String[] TRANSLATION_PROPERTIES =
+            {Constants.JCR_LANGUAGE, Constants.JCR_TITLE, Constants.JCR_DESCRIPTION};
+
+    private static final String ROLES_ROOT = "/roles";
+
+    private static final String ACE_TYPE = "jnt:ace";
+    private static final String EXTERNAL_ACE_TYPE = "jnt:externalAce";
+    private static final String ACE_ROLES_PROPERTY = "j:roles";
+    private static final String ACE_TYPE_PROPERTY = "j:aceType";
+    private static final String ACE_PRINCIPAL_PROPERTY = "j:principal";
+
+    // Every role lives under /roles, so the query needs no parameter and carries no caller input.
+    private static final String ROLES_QUERY =
+            "select * from [" + Constants.JAHIANT_ROLE + "] as role where isdescendantnode(role, '/roles')";
+
+    // Permission nodes live in two places, so the query is unrestricted by path and the catalog decides
+    // what each result means.
+    private static final String PERMISSIONS_QUERY = "select * from [jnt:permission]";
+
+    // A sort key above every logical path, so a node outside a permissions subtree sorts last.
+    private static final String SORTS_LAST = "\uFFFF";
+
+    @Reference
+    private JahiaTemplateManagerService templateManagerService;
+
+    private PermissionLabelResolver labelResolver;
+
+    @Override
+    public List<String> getRoleGroups() throws RepositoryException {
+        NodeIterator roles = query(ROLES_QUERY);
+
+        // A TreeSet both deduplicates and sorts, and the role group of two roles is often the same value.
+        TreeSet<String> groups = new TreeSet<>();
+        while (roles.hasNext()) {
+            JCRNodeWrapper role = (JCRNodeWrapper) roles.nextNode();
+            if (role.hasProperty(ROLE_GROUP_PROPERTY)) {
+                groups.add(role.getProperty(ROLE_GROUP_PROPERTY).getString());
+            }
+        }
+        return new ArrayList<>(groups);
+    }
+
+    @Override
+    public List<String> getTextLanguages() throws RepositoryException {
+        JCRNodeWrapper site = currentSession().getNode(SYSTEM_SITE_PATH);
+        SortedSet<String> languages = new TreeSet<>(multipleValues(site, LANGUAGES_PROPERTY));
+        // An inactive language is not offered anywhere else either, so a title written in one would be
+        // text nobody reads.
+        languages.removeAll(multipleValues(site, INACTIVE_LANGUAGES_PROPERTY));
+        return new ArrayList<>(languages);
+    }
+
+    @Override
+    public PermissionCatalog getPermissionCatalog() throws RepositoryException {
+        JCRSessionWrapper session = currentSession();
+
+        // Pass 1 reads every node once and keeps only what the catalog needs. The nodes are sorted by
+        // logical path first, so a parent is always added before its children and the resulting entry
+        // order is the tree order the interface renders.
+        Map<String, JCRNodeWrapper> nodesByPath = new LinkedHashMap<>();
+        NodeIterator permissions = query(PERMISSIONS_QUERY);
+        while (permissions.hasNext()) {
+            JCRNodeWrapper node = (JCRNodeWrapper) permissions.nextNode();
+            nodesByPath.put(node.getPath(), node);
+        }
+
+        List<JCRNodeWrapper> sorted = new ArrayList<>(nodesByPath.values());
+        sorted.sort(Comparator.comparing(node -> {
+            String logicalPath = PermissionCatalog.toLogicalPath(node.getPath());
+            // A node outside a permissions subtree sorts last, and the catalog then drops it.
+            return logicalPath == null ? SORTS_LAST : logicalPath;
+        }));
+
+        PermissionCatalog catalog = new PermissionCatalog();
+        Map<String, String> nameByIdentifier = new HashMap<>();
+        Map<PermissionEntry, List<String>> dependencyIdentifiers = new LinkedHashMap<>();
+
+        for (JCRNodeWrapper node : sorted) {
+            PermissionEntry entry = catalog.addNode(node.getPath());
+            if (entry == null) {
+                continue;
+            }
+            nameByIdentifier.put(node.getIdentifier(), entry.getName());
+            if (node.hasProperty(IS_ABSTRACT_PROPERTY) && node.getProperty(IS_ABSTRACT_PROPERTY).getBoolean()) {
+                entry.markAbstract();
+            }
+            if (node.hasProperty(DEPENDENCIES_PROPERTY)) {
+                List<String> identifiers = new ArrayList<>();
+                for (Value value : node.getProperty(DEPENDENCIES_PROPERTY).getValues()) {
+                    identifiers.add(value.getString());
+                }
+                dependencyIdentifiers.computeIfAbsent(entry, key -> new ArrayList<>()).addAll(identifiers);
+            }
+        }
+
+        catalog.link();
+
+        // Pass 2 turns each dependency reference into a permission name. j:dependencies is a weak
+        // reference, so its value is an identifier and the map built in pass 1 resolves it without a
+        // second read. A dangling reference resolves to nothing and is dropped, because a name the
+        // instance does not declare cannot be granted either.
+        dependencyIdentifiers.forEach((entry, identifiers) -> {
+            List<String> names = new ArrayList<>();
+            identifiers.stream().map(nameByIdentifier::get).filter(Objects::nonNull).forEach(names::add);
+            entry.addDependencies(names);
+        });
+
+        catalog.orderAreas(readAreaOrder(session));
+        return catalog;
+    }
+
+    @Override
+    public RoleModel getRoleModel() throws RepositoryException {
+        return getRoleModel(getPermissionCatalog());
+    }
+
+    @Override
+    public RoleModel getRoleModel(PermissionCatalog catalog) throws RepositoryException {
+        // The roles are read in path order, so a parent role is always added before the roles nested
+        // inside it and the model needs no second ordering pass.
+        List<JCRNodeWrapper> roles = new ArrayList<>();
+        NodeIterator found = query(ROLES_QUERY);
+        while (found.hasNext()) {
+            roles.add((JCRNodeWrapper) found.nextNode());
+        }
+        roles.sort(Comparator.comparing(JCRNodeWrapper::getPath));
+
+        RoleModel model = new RoleModel(catalog);
+        Map<String, String> roleNameByIdentifier = new HashMap<>();
+        Map<RoleView, List<String>> dependencyIdentifiers = new LinkedHashMap<>();
+
+        for (JCRNodeWrapper node : roles) {
+            JCRNodeWrapper parent = node.getParent();
+            String parentRolePath = parent.isNodeType(Constants.JAHIANT_ROLE) ? parent.getPath() : null;
+
+            RoleView role = new RoleView(node.getName(), node.getPath(), parentRolePath,
+                    stringOrNull(node, ROLE_GROUP_PROPERTY),
+                    booleanValue(node, HIDDEN_PROPERTY),
+                    booleanValue(node, PRIVILEGED_ACCESS_PROPERTY));
+            role.addNodeTypes(multipleValues(node, NODE_TYPES_PROPERTY));
+
+            RoleGrant onCurrentNode = RoleGrant.onCurrentNode();
+            onCurrentNode.addPermissions(multipleValues(node, PERMISSION_NAMES_PROPERTY));
+            role.addGrant(onCurrentNode);
+
+            NodeIterator children = node.getNodes();
+            while (children.hasNext()) {
+                JCRNodeWrapper child = (JCRNodeWrapper) children.nextNode();
+                if (child.isNodeType(EXTERNAL_PERMISSIONS_TYPE)) {
+                    RoleGrant external = RoleGrant.onExternalPath(child.getName(),
+                            stringOrNull(child, EXTERNAL_PATH_PROPERTY));
+                    external.addPermissions(multipleValues(child, PERMISSION_NAMES_PROPERTY));
+                    role.addGrant(external);
+                } else if (child.isNodeType(Constants.JAHIANT_TRANSLATION)) {
+                    readTranslation(child, role);
+                }
+            }
+
+            roleNameByIdentifier.put(node.getIdentifier(), role.getName());
+            List<String> identifiers = multipleValues(node, DEPENDENCIES_PROPERTY);
+            if (!identifiers.isEmpty()) {
+                dependencyIdentifiers.put(role, identifiers);
+            }
+            model.add(role);
+        }
+
+        // j:dependencies is a weak reference to another role, so the value is an identifier. Every role
+        // was read above, so the map resolves it without a second read.
+        dependencyIdentifiers.forEach((role, identifiers) -> {
+            List<String> names = new ArrayList<>();
+            identifiers.stream().map(roleNameByIdentifier::get).filter(Objects::nonNull).forEach(names::add);
+            role.addDependencies(names);
+        });
+
+        model.link();
+        return model;
+    }
+
+    /**
+     * Read one {@code jnt:translation} child into the role's titles and descriptions.
+     * <p>
+     * {@code jcr:title} and {@code jcr:description} are i18n on {@code jnt:role}, so their values live
+     * on these children and not on the role node.
+     */
+    private void readTranslation(JCRNodeWrapper translation, RoleView role) throws RepositoryException {
+        if (!translation.hasProperty(Constants.JCR_LANGUAGE)) {
+            return;
+        }
+        String language = translation.getProperty(Constants.JCR_LANGUAGE).getString();
+        String title = stringOrNull(translation, Constants.JCR_TITLE);
+        if (title != null) {
+            role.putTitle(language, title);
+        }
+        String description = stringOrNull(translation, Constants.JCR_DESCRIPTION);
+        if (description != null) {
+            role.putDescription(language, description);
+        }
+    }
+
+    private static String stringOrNull(JCRNodeWrapper node, String propertyName) throws RepositoryException {
+        return node.hasProperty(propertyName) ? node.getProperty(propertyName).getString() : null;
+    }
+
+    private static boolean booleanValue(JCRNodeWrapper node, String propertyName) throws RepositoryException {
+        return node.hasProperty(propertyName) && node.getProperty(propertyName).getBoolean();
+    }
+
+    private static List<String> multipleValues(JCRNodeWrapper node, String propertyName)
+            throws RepositoryException {
+        if (!node.hasProperty(propertyName)) {
+            return Collections.emptyList();
+        }
+        List<String> values = new ArrayList<>();
+        for (Value value : node.getProperty(propertyName).getValues()) {
+            values.add(value.getString());
+        }
+        return values;
+    }
+
+    /**
+     * The child names of the {@code /permissions} node, in repository order.
+     * <p>
+     * Core seeds that order, and a module that declares a top-level permission adds to it at install
+     * time. The order reads better than an alphabetical one, so the catalog follows it and sorts only
+     * the areas no child of {@code /permissions} carries. A caller that cannot read
+     * {@code /permissions} gets an empty list, and every area is then sorted.
+     */
+    private List<String> readAreaOrder(JCRSessionWrapper session) throws RepositoryException {
+        List<String> order = new ArrayList<>();
+        try {
+            NodeIterator children = session.getNode(PermissionCatalog.PERMISSIONS_ROOT).getNodes();
+            while (children.hasNext()) {
+                order.add(children.nextNode().getName());
+            }
+        } catch (PathNotFoundException e) {
+            return order;
+        }
+        return order;
+    }
+
+    private NodeIterator query(String statement) throws RepositoryException {
+        return currentSession().getWorkspace().getQueryManager()
+                .createQuery(statement, Query.JCR_SQL2)
+                .execute().getNodes();
+    }
+
+    @Override
+    public String getPermissionLabel(PermissionEntry entry, Locale locale) {
+        return labelResolver().getLabel(entry, locale);
+    }
+
+    @Override
+    public String getPermissionDescription(PermissionEntry entry, Locale locale) {
+        return labelResolver().getDescription(entry, locale);
+    }
+
+    // The resolver only needs the template manager service, which DS binds before the component
+    // activates, so it is built on first use and reused.
+    private PermissionLabelResolver labelResolver() {
+        if (labelResolver == null) {
+            labelResolver = new PermissionLabelResolver(templateManagerService);
+        }
+        return labelResolver;
+    }
+
+
+    // ---------------------------------------------------------------------------------------------
+    // Writes
+    // ---------------------------------------------------------------------------------------------
+
+    @Override
+    public WriteResult grantPermissions(String roleName, String grantId, List<String> permissionNames,
+                                        String expectedRevision) throws RepositoryException {
+        return write(roleName, grantId, expectedRevision,
+                model -> model.planGrant(roleName, grantId, permissionNames));
+    }
+
+    @Override
+    public WriteResult revokePermission(String roleName, String grantId, String permissionName,
+                                        String expectedRevision) throws RepositoryException {
+        return write(roleName, grantId, expectedRevision,
+                model -> new TreeSet<>(model.planRevoke(roleName, grantId, permissionName)
+                        .getResultingPermissions()));
+    }
+
+    @Override
+    public WriteResult collapsePermission(String roleName, String grantId, String permissionName,
+                                          String expectedRevision) throws RepositoryException {
+        RoleModel model = getRoleModel();
+        CollapsePlan plan = model.planCollapse(roleName, grantId, permissionName);
+        if (!plan.isApplicable()) {
+            // Nothing is written, and the answer says so rather than reporting a write that changed
+            // nothing.
+            RoleGrant own = model.get(roleName) == null ? null : model.get(roleName).getGrant(grantId);
+            String revision = own == null ? RoleGrant.onCurrentNode().getRevision() : own.getRevision();
+            return new WriteResult(WriteOutcome.NOT_APPLICABLE, revision, plan.getResultingPermissions());
+        }
+        return write(roleName, grantId, expectedRevision,
+                unused -> new TreeSet<>(plan.getResultingPermissions()));
+    }
+
+    /**
+     * Apply one planned permission set to one target.
+     * <p>
+     * The revision is read from the same model the plan is computed on, so a plan and the check that
+     * guards it cannot disagree. A stale revision refuses the write and answers what the repository
+     * holds, which is what lets the interface reload rather than guess.
+     */
+    private WriteResult write(String roleName, String grantId, String expectedRevision,
+                              Function<RoleModel, SortedSet<String>> planner) throws RepositoryException {
+        RoleModel model = getRoleModel();
+        RoleView role = model.get(roleName);
+        if (role == null) {
+            throw new PathNotFoundException("No role is named " + roleName);
+        }
+
+        RoleGrant own = role.getGrant(grantId);
+        String currentRevision = own == null ? RoleGrant.onCurrentNode().getRevision() : own.getRevision();
+        if (expectedRevision != null && !expectedRevision.equals(currentRevision)) {
+            return new WriteResult(WriteOutcome.REFUSED_STALE_REVISION, currentRevision,
+                    own == null ? Collections.emptyList() : own.getDirectPermissions());
+        }
+
+        SortedSet<String> planned = planner.apply(model);
+
+        JCRSessionWrapper session = currentSession();
+        JCRNodeWrapper target = resolveTargetNode(session, model, role, grantId);
+        setPermissionNames(session, target, planned);
+        session.save();
+
+        RoleGrant written = RoleGrant.onCurrentNode();
+        written.addPermissions(planned);
+        return new WriteResult(WriteOutcome.APPLIED, written.getRevision(), planned);
+    }
+
+    /**
+     * The node whose {@code j:permissionNames} carries the target's set.
+     * <p>
+     * A target only an ancestor role declares has no node on this role. Writing to it creates one,
+     * with the path the ancestor's target declares, because that is the path the access control entry
+     * already uses.
+     */
+    private JCRNodeWrapper resolveTargetNode(JCRSessionWrapper session, RoleModel model, RoleView role,
+                                             String grantId) throws RepositoryException {
+        JCRNodeWrapper roleNode = session.getNode(role.getPath());
+        if (RoleGrant.CURRENT_NODE_ID.equals(grantId)) {
+            return roleNode;
+        }
+        if (roleNode.hasNode(grantId)) {
+            return roleNode.getNode(grantId);
+        }
+
+        RoleGrant inherited = model.getDecidingGrant(role.getName(), grantId);
+        if (inherited == null) {
+            throw new PathNotFoundException("The role " + role.getName() + " has no target named " + grantId);
+        }
+        JCRNodeWrapper created = roleNode.addNode(grantId, EXTERNAL_PERMISSIONS_TYPE);
+        created.setProperty(EXTERNAL_PATH_PROPERTY, inherited.getPath());
+        return created;
+    }
+
+    @Override
+    public RoleSeedCatalog getRoleSeedCatalog() {
+        // Read on every call. A module can be installed or upgraded while the screen is open, and a
+        // baseline cached across that would describe a module set the instance no longer has.
+        return RoleSeedCatalog.read(templateManagerService.getTemplatePackageRegistry().getRegisteredModules().values());
+    }
+
+    @Override
+    public ResetPlan planReset(String roleName) throws RepositoryException {
+        PermissionCatalog catalog = getPermissionCatalog();
+        RoleSeedCatalog seeds = getRoleSeedCatalog();
+        return ResetPlan.measure(roleName, getRoleModel(catalog).get(roleName), seeds.get(roleName), catalog,
+                seeds.getUnreadableSources());
+    }
+
+    @Override
+    public WriteResult resetRoleToDeclared(String roleName, String expectedRevision) throws RepositoryException {
+        PermissionCatalog catalog = getPermissionCatalog();
+        RoleSeedCatalog seeds = getRoleSeedCatalog();
+        RoleSeed seed = seeds.get(roleName);
+        RoleModel model = getRoleModel(catalog);
+        RoleView role = model.get(roleName);
+
+        if (seed == null) {
+            // No installed source declares this role, so there is no baseline to restore. Answering
+            // rather than throwing lets the interface state why the action does not apply.
+            return new WriteResult(WriteOutcome.NOT_APPLICABLE,
+                    role == null ? null : role.getRevision(),
+                    role == null ? Collections.emptyList() : model.getDirectPermissionNames(roleName));
+        }
+
+        String currentRevision = role == null ? null : role.getRevision();
+        if (expectedRevision != null && !expectedRevision.equals(currentRevision)) {
+            return new WriteResult(WriteOutcome.REFUSED_STALE_REVISION, currentRevision,
+                    role == null ? Collections.emptyList() : model.getDirectPermissionNames(roleName));
+        }
+
+        JCRSessionWrapper session = currentSession();
+        JCRNodeWrapper roleNode = role == null ? recreateFromSeed(session, model, seed) : session.getNode(role.getPath());
+
+        setPermissionNames(session, roleNode, seed.getPermissionNames());
+        applySeedProperties(roleNode, seed);
+
+        for (SeedTarget target : seed.getTargets()) {
+            JCRNodeWrapper targetNode = roleNode.hasNode(target.getNodeName()) ?
+                    roleNode.getNode(target.getNodeName()) :
+                    roleNode.addNode(target.getNodeName(), EXTERNAL_PERMISSIONS_TYPE);
+            targetNode.setProperty(EXTERNAL_PATH_PROPERTY, target.getPath());
+            setPermissionNames(session, targetNode, target.getPermissionNames());
+        }
+        // A target no source declares is left in place. A target is a scope somebody chose to reach,
+        // the sources never spoke about this one, and a baseline built from them carries nothing to
+        // restore here. The plan reports it so it can be removed by the action that already exists.
+
+        session.save();
+        applySeedText(roleNode.getPath(), seed);
+
+        RoleModel after = getRoleModel(catalog);
+        RoleView written = after.get(roleName);
+        return new WriteResult(WriteOutcome.APPLIED,
+                written == null ? null : written.getRevision(),
+                after.getDirectPermissionNames(roleName));
+    }
+
+    /**
+     * Creates a role the sources declare and the repository no longer has.
+     * <p>
+     * This is what recovers a deleted role. An access control entry stores the role NAME, so an entry
+     * left behind by the deletion starts granting again as soon as a role of that name is back at that
+     * path, and the access those entries carried returns with it.
+     */
+    private JCRNodeWrapper recreateFromSeed(JCRSessionWrapper session, RoleModel model, RoleSeed seed)
+            throws RepositoryException {
+        JCRNodeWrapper parent;
+        RoleView declaredParent = seed.getParentRoleName() == null ? null : model.get(seed.getParentRoleName());
+        if (declaredParent != null) {
+            parent = session.getNode(declaredParent.getPath());
+        } else {
+            // The sources nest it inside a role that is itself gone, so it lands at the top level
+            // rather than failing. Resetting the parent first puts the nesting back.
+            parent = session.getNode(ROLES_ROOT);
+        }
+        return parent.addNode(seed.getName(), Constants.JAHIANT_ROLE);
+    }
+
+    /**
+     * Writes the five properties the sources declare, and clears the ones they do not.
+     * <p>
+     * A seed that says nothing about a property means the property has no declared value, so the reset
+     * removes it and the node type's own default applies. {@code j:privilegedAccess} is the one that
+     * matters: it decides whether granting the role adds the principal to the site privileged group,
+     * and leaving an administrator's {@code true} in place would restore less than the action says.
+     */
+    private void applySeedProperties(JCRNodeWrapper roleNode, RoleSeed seed) throws RepositoryException {
+        setOrRemove(roleNode, ROLE_GROUP_PROPERTY, seed.getRoleGroup());
+        setOrRemoveBoolean(roleNode, PRIVILEGED_ACCESS_PROPERTY, seed.getPrivilegedAccess());
+        setOrRemoveBoolean(roleNode, HIDDEN_PROPERTY, seed.getHidden());
+        if (seed.getNodeTypes().isEmpty()) {
+            if (roleNode.hasProperty(NODE_TYPES_PROPERTY)) {
+                roleNode.getProperty(NODE_TYPES_PROPERTY).remove();
+            }
+        } else {
+            roleNode.setProperty(NODE_TYPES_PROPERTY, seed.getNodeTypes().toArray(new String[0]));
+        }
+    }
+
+    /**
+     * Writes the title and the description the sources declare, in every language they declare one in.
+     * <p>
+     * Jahia routes an i18n property to the translation child of the session's language, so a language
+     * needs its own session. The reset runs after the rest is saved, because a role the reset just
+     * recreated has to exist before a per-language session can open it.
+     */
+    private void applySeedText(String rolePath, RoleSeed seed) throws RepositoryException {
+        SortedSet<String> languages = new TreeSet<>(seed.getTitles().keySet());
+        languages.addAll(seed.getDescriptions().keySet());
+        for (String language : languages) {
+            Locale locale = LanguageCodeConverters.languageCodeToLocale(language);
+            JCRSessionWrapper session = JCRSessionFactory.getInstance()
+                    .getCurrentUserSession(Constants.EDIT_WORKSPACE, locale);
+            JCRNodeWrapper node = session.getNode(rolePath);
+            setOrRemove(node, Constants.JCR_TITLE, seed.getTitles().get(language));
+            setOrRemove(node, Constants.JCR_DESCRIPTION, seed.getDescriptions().get(language));
+            session.save();
+        }
+    }
+
+    private void setPermissionNames(JCRSessionWrapper session, JCRNodeWrapper node,
+                                    Collection<String> permissionNames) throws RepositoryException {
+        if (permissionNames.isEmpty()) {
+            if (node.hasProperty(PERMISSION_NAMES_PROPERTY)) {
+                node.getProperty(PERMISSION_NAMES_PROPERTY).remove();
+            }
+            return;
+        }
+        List<Value> values = new ArrayList<>(permissionNames.size());
+        for (String name : permissionNames) {
+            values.add(session.getValueFactory().createValue(name, PropertyType.STRING));
+        }
+        node.setProperty(PERMISSION_NAMES_PROPERTY, values.toArray(new Value[0]));
+    }
+
+    @Override
+    public CollapsePlan planCollapse(String roleName, String grantId, String permissionName)
+            throws RepositoryException {
+        return getRoleModel().planCollapse(roleName, grantId, permissionName);
+    }
+
+    @Override
+    public String createRole(String name, String parentRoleName, String roleGroup) throws RepositoryException {
+        RoleModel model = getRoleModel();
+        validateRoleName(model, name);
+        validateRoleGroup(roleGroup);
+
+        JCRSessionWrapper session = currentSession();
+        JCRNodeWrapper parent;
+        if (parentRoleName == null) {
+            parent = session.getNode(ROLES_ROOT);
+        } else {
+            RoleView parentRole = model.get(parentRoleName);
+            if (parentRole == null) {
+                throw new PathNotFoundException("No role is named " + parentRoleName);
+            }
+            parent = session.getNode(parentRole.getPath());
+        }
+
+        JCRNodeWrapper created = parent.addNode(name, Constants.JAHIANT_ROLE);
+        if (roleGroup != null) {
+            created.setProperty(ROLE_GROUP_PROPERTY, roleGroup);
+        }
+        session.save();
+        return created.getPath();
+    }
+
+    @Override
+    public String duplicateRole(String roleName, String newName, boolean withSubRoles)
+            throws RepositoryException {
+        RoleModel model = getRoleModel();
+        RoleView source = model.get(roleName);
+        if (source == null) {
+            throw new PathNotFoundException("No role is named " + roleName);
+        }
+        validateRoleName(model, newName);
+
+        JCRSessionWrapper session = currentSession();
+        JCRNodeWrapper sourceNode = session.getNode(source.getPath());
+        if (withSubRoles) {
+            validateSubRoleNames(model, sourceNode, newName);
+        }
+        JCRNodeWrapper parent = sourceNode.getParent();
+        JCRNodeWrapper copy = parent.addNode(newName, Constants.JAHIANT_ROLE);
+
+        copyRoleProperties(session, sourceNode, copy);
+        copyRoleChildren(session, sourceNode, copy, withSubRoles);
+        session.save();
+        return copy.getPath();
+    }
+
+    // A role name is global, because an access control entry holds the name and nothing else. Two roles
+    // of one name therefore make the applied permissions undefined, which is why a sub-role copy is
+    // named after its new parent instead of keeping its own name.
+    private static String subRoleCopyName(String newParentName, String childName) {
+        return newParentName + "-" + childName;
+    }
+
+    private void validateSubRoleNames(RoleModel model, JCRNodeWrapper roleNode, String newParentName)
+            throws RepositoryException {
+        NodeIterator children = roleNode.getNodes();
+        while (children.hasNext()) {
+            JCRNodeWrapper child = (JCRNodeWrapper) children.nextNode();
+            if (child.isNodeType(Constants.JAHIANT_ROLE)) {
+                String copyName = subRoleCopyName(newParentName, child.getName());
+                validateRoleName(model, copyName);
+                validateSubRoleNames(model, child, copyName);
+            }
+        }
+    }
+
+    private void copyRoleProperties(JCRSessionWrapper session, JCRNodeWrapper from, JCRNodeWrapper to)
+            throws RepositoryException {
+        for (String property : new String[]{ROLE_GROUP_PROPERTY, HIDDEN_PROPERTY, PRIVILEGED_ACCESS_PROPERTY}) {
+            if (from.hasProperty(property)) {
+                to.setProperty(property, from.getProperty(property).getValue());
+            }
+        }
+        for (String property : new String[]{NODE_TYPES_PROPERTY, PERMISSION_NAMES_PROPERTY}) {
+            List<String> values = multipleValues(from, property);
+            if (property.equals(PERMISSION_NAMES_PROPERTY)) {
+                setPermissionNames(session, to, values);
+            } else if (!values.isEmpty()) {
+                to.setProperty(property, values.toArray(new String[0]));
+            }
+        }
+    }
+
+    // `to` was added to the session by the caller and is still transient, so every child is added the
+    // same way. Workspace.copy reads the persistent workspace, which does not yet hold `to`.
+    private void copyRoleChildren(JCRSessionWrapper session, JCRNodeWrapper from, JCRNodeWrapper to,
+                                  boolean withSubRoles) throws RepositoryException {
+        NodeIterator children = from.getNodes();
+        while (children.hasNext()) {
+            JCRNodeWrapper child = (JCRNodeWrapper) children.nextNode();
+            if (child.isNodeType(EXTERNAL_PERMISSIONS_TYPE)) {
+                copyTarget(session, child, to);
+            } else if (child.isNodeType(Constants.JAHIANT_TRANSLATION)) {
+                copyTranslation(child, to);
+            } else if (withSubRoles && child.isNodeType(Constants.JAHIANT_ROLE)) {
+                copySubRole(session, child, to);
+            }
+        }
+    }
+
+    private void copyTarget(JCRSessionWrapper session, JCRNodeWrapper child, JCRNodeWrapper to)
+            throws RepositoryException {
+        JCRNodeWrapper copy = to.addNode(child.getName(), EXTERNAL_PERMISSIONS_TYPE);
+        if (child.hasProperty(EXTERNAL_PATH_PROPERTY)) {
+            copy.setProperty(EXTERNAL_PATH_PROPERTY, child.getProperty(EXTERNAL_PATH_PROPERTY).getString());
+        }
+        setPermissionNames(session, copy, multipleValues(child, PERMISSION_NAMES_PROPERTY));
+    }
+
+    private void copyTranslation(JCRNodeWrapper child, JCRNodeWrapper to) throws RepositoryException {
+        JCRNodeWrapper copy = to.addNode(child.getName(), Constants.JAHIANT_TRANSLATION);
+        for (String property : TRANSLATION_PROPERTIES) {
+            if (child.hasProperty(property)) {
+                copy.setProperty(property, child.getProperty(property).getString());
+            }
+        }
+    }
+
+    private void copySubRole(JCRSessionWrapper session, JCRNodeWrapper child, JCRNodeWrapper to)
+            throws RepositoryException {
+        // `to` is the copy, already carrying its new name, so the prefix chains down each level.
+        JCRNodeWrapper copy = to.addNode(subRoleCopyName(to.getName(), child.getName()), Constants.JAHIANT_ROLE);
+        copyRoleProperties(session, child, copy);
+        copyRoleChildren(session, child, copy, true);
+    }
+
+    @Override
+    public boolean deleteRole(String roleName) throws RepositoryException {
+        RoleView role = getRoleModel().get(roleName);
+        if (role == null) {
+            return false;
+        }
+        JCRSessionWrapper session = currentSession();
+        session.getNode(role.getPath()).remove();
+        session.save();
+        return true;
+    }
+
+    @Override
+    public String addTarget(String roleName, String path) throws RepositoryException {
+        RoleView role = getRoleModel().get(roleName);
+        if (role == null) {
+            throw new PathNotFoundException("No role is named " + roleName);
+        }
+
+        JCRSessionWrapper session = currentSession();
+        JCRNodeWrapper roleNode = session.getNode(role.getPath());
+        String nodeName = toTargetNodeName(path);
+        if (!roleNode.hasNode(nodeName)) {
+            JCRNodeWrapper created = roleNode.addNode(nodeName, EXTERNAL_PERMISSIONS_TYPE);
+            created.setProperty(EXTERNAL_PATH_PROPERTY, path);
+            session.save();
+        }
+        return nodeName;
+    }
+
+    @Override
+    public boolean removeTarget(String roleName, String grantId) throws RepositoryException {
+        RoleView role = getRoleModel().get(roleName);
+        if (role == null || RoleGrant.CURRENT_NODE_ID.equals(grantId)) {
+            return false;
+        }
+
+        JCRSessionWrapper session = currentSession();
+        JCRNodeWrapper roleNode = session.getNode(role.getPath());
+        if (!roleNode.hasNode(grantId)) {
+            return false;
+        }
+        roleNode.getNode(grantId).remove();
+        session.save();
+        return true;
+    }
+
+    @Override
+    public void setRoleText(String roleName, String language, String title, String description)
+            throws RepositoryException {
+        RoleView role = getRoleModel().get(roleName);
+        if (role == null) {
+            throw new PathNotFoundException("No role is named " + roleName);
+        }
+
+        // The session carries the language, and Jahia routes an i18n property to the translation child
+        // of that language. A session with no language would write a value no per-language read finds.
+        Locale locale = LanguageCodeConverters.languageCodeToLocale(language);
+        JCRSessionWrapper session = JCRSessionFactory.getInstance()
+                .getCurrentUserSession(Constants.EDIT_WORKSPACE, locale);
+        JCRNodeWrapper node = session.getNode(role.getPath());
+
+        setOrRemove(node, Constants.JCR_TITLE, title);
+        setOrRemove(node, Constants.JCR_DESCRIPTION, description);
+        session.save();
+    }
+
+    /** A boolean property, written as a boolean or removed when the sources declare no value. */
+    private static void setOrRemoveBoolean(JCRNodeWrapper node, String propertyName, Boolean value)
+            throws RepositoryException {
+        if (value == null) {
+            if (node.hasProperty(propertyName)) {
+                node.getProperty(propertyName).remove();
+            }
+            return;
+        }
+        node.setProperty(propertyName, value);
+    }
+
+    private static void setOrRemove(JCRNodeWrapper node, String propertyName, String value)
+            throws RepositoryException {
+        if (value == null || value.trim().isEmpty()) {
+            if (node.hasProperty(propertyName)) {
+                node.getProperty(propertyName).remove();
+            }
+            return;
+        }
+        node.setProperty(propertyName, value);
+    }
+
+    @Override
+    public RoleUsage getRoleUsage(String roleName) throws RepositoryException {
+        // An access control entry names the role, so the role name reaches a JCR-SQL2 string literal
+        // and is encoded for that context. j:roles is multi-valued, and = matches when any value does.
+        String statement = "select * from [" + ACE_TYPE + "] as ace where ace.[" + ACE_ROLES_PROPERTY
+                + "] = '" + JCRContentUtils.sqlEncode(roleName) + "'";
+
+        SortedSet<String> principals = new TreeSet<>();
+        int entryCount = 0;
+        NodeIterator entries = query(statement);
+        while (entries.hasNext()) {
+            JCRNodeWrapper entry = (JCRNodeWrapper) entries.nextNode();
+
+            if (!grantsTheRole(entry)) {
+                continue;
+            }
+
+            entryCount++;
+            // One past the limit, so a role held by exactly the limit is told apart from one held by
+            // more. Stopping at the limit reports both as truncated, and the confirmation then adds
+            // an ellipsis to a list that is in fact complete.
+            if (entry.hasProperty(ACE_PRINCIPAL_PROPERTY) && principals.size() <= RoleUsage.PRINCIPAL_LIMIT) {
+                principals.add(entry.getProperty(ACE_PRINCIPAL_PROPERTY).getString());
+            }
+        }
+
+        boolean truncated = principals.size() > RoleUsage.PRINCIPAL_LIMIT;
+        if (truncated) {
+            principals.remove(principals.last());
+        }
+
+        return new RoleUsage(entryCount, principals, truncated);
+    }
+
+    /**
+     * True when the access control entry is one this role's usage counts.
+     * <p>
+     * An external entry is derived from a source entry by AclListener, so counting it would count one
+     * grant twice. An entry that is not a GRANT takes nothing away when the role goes.
+     */
+    private static boolean grantsTheRole(JCRNodeWrapper entry) throws RepositoryException {
+        if (EXTERNAL_ACE_TYPE.equals(entry.getPrimaryNodeTypeName())) {
+            return false;
+        }
+        return !entry.hasProperty(ACE_TYPE_PROPERTY)
+                || "GRANT".equals(entry.getProperty(ACE_TYPE_PROPERTY).getString());
+    }
+
+    /**
+     * The node name a target of the given path takes.
+     * <p>
+     * The name is derived the way the previous screen derives it, so a target this screen creates and
+     * a target that screen created carry the same name. Role inheritance matches a target by name, so
+     * two names for one path would make a sub-role inherit from neither.
+     */
+    static String toTargetNodeName(String path) {
+        if ("/".equals(path)) {
+            return "root-access";
+        }
+        String relative = path.startsWith("/") ? path.substring(1) : path;
+        return ISO9075.encode(relative.replace("/", "-")) + "-access";
+    }
+
+    /**
+     * Characters a role name cannot carry.
+     * <p>
+     * A colon opens a namespace prefix, a slash separates path segments, a star and a pipe are query
+     * syntax, and brackets index a same-name sibling. A role name reaches the repository as a node
+     * name, so a name carrying one of these does not become the role the caller asked for.
+     * <p>
+     * A comma is here for a different reason. The repository accepts it, but every screen that lists
+     * role names joins them with a comma, so a name carrying one cannot be told from two names.
+     */
+    private static final Pattern ILLEGAL_NAME_CHARACTERS = Pattern.compile("[/:\\[\\]|*,]");
+
+    /**
+     * Refuses a role name the repository or this model could not carry.
+     * <p>
+     * The check is here and not only in the browser, because two administrators can pick one name at
+     * the same time, and because the mutation is a public API that any client can call.
+     */
+    private void validateRoleName(RoleModel model, String name) throws RepositoryException {
+        if (name == null || name.trim().isEmpty()) {
+            throw new ConstraintViolationException("A role name is required");
+        }
+        if (!name.equals(name.trim())) {
+            throw new ConstraintViolationException(
+                    "A role name cannot open or close with a space: '" + name + "'");
+        }
+        if (ILLEGAL_NAME_CHARACTERS.matcher(name).find()) {
+            throw new ConstraintViolationException(
+                    "A role name cannot carry any of / : [ ] | * , and '" + name + "' does");
+        }
+        if (".".equals(name) || "..".equals(name)) {
+            throw new ConstraintViolationException("A role cannot be named '" + name + "'");
+        }
+        if (model.get(name) != null) {
+            // An access control entry holds a role NAME, so two roles of one name make the applied
+            // permissions undefined. The screen refuses to create the second one.
+            throw new ItemExistsException("A role is already named " + name);
+        }
+    }
+
+    /**
+     * Refuses a role group no role currently carries.
+     * <p>
+     * A role group is a scope the platform defines, and a typo in one produces a scope that exists
+     * only on that role and that no screen or seed knows. The set is read from the repository rather
+     * than configured, so a group a module introduces is accepted as soon as one role carries it.
+     */
+    private void validateRoleGroup(String roleGroup) throws RepositoryException {
+        if (roleGroup == null || roleGroup.trim().isEmpty()) {
+            return;
+        }
+        List<String> known = getRoleGroups();
+        if (!known.contains(roleGroup)) {
+            throw new ConstraintViolationException("No role carries the scope '" + roleGroup
+                    + "'. This instance uses: " + String.join(", ", known));
+        }
+    }
+
+    private JCRSessionWrapper currentSession() throws RepositoryException {
+        return JCRSessionFactory.getInstance().getCurrentUserSession(Constants.EDIT_WORKSPACE);
+    }
+}
