@@ -47,22 +47,23 @@
             <div class="panel panel-default">
                 <div class="panel-body">
                     <jsp:useBean id="validationErrors" class="java.util.HashMap" scope="request"/>
-                    <c:forEach items="${webprojectHandler.importsInfos}" var="importInfoMap">
+                    <c:forEach items="${webprojectHandler.importsInfos}" var="importInfoMap" varStatus="importRow">
+                        <%-- the entry name is display text only; DOM ids come from the row index --%>
+                        <c:set var="rowId" value="importEntry${importRow.index}"/>
                         <div class="form-group">
                             <div class="checkbox">
-                                <label for="${importInfoMap.key}">
-                                    <input type="checkbox" id="${importInfoMap.key}"
+                                <label for="${rowId}">
+                                    <input type="checkbox" id="${rowId}"
                                            class="importCheckbox${importInfoMap.value.validationResult.blocking ? ' importBlocking' : ''}"
-                                           id="${importInfoMap.key}"
-                                           name="importsInfos['${importInfoMap.key}'].selected" value="true"
+                                           name="importsInfos['${fn:escapeXml(importInfoMap.key)}'].selected" value="true"
                                            <c:if test="${importInfoMap.value.selected}">checked="checked"</c:if>/>
                                         ${fn:escapeXml(importInfoMap.key)}
                                 </label>
                             </div>
-                            <input type="hidden" id="${importInfoMap.key}" name="_importsInfos['${importInfoMap.key}'].selected"/>
+                            <input type="hidden" id="${rowId}Selected" name="_importsInfos['${fn:escapeXml(importInfoMap.key)}'].selected"/>
                             <c:if test="${importInfoMap.value.validationResult.blocking}">
                                 <div class="checkbox"
-                                     onchange="switchClass($(this).prev().prev().children().children([id='${importInfoMap.key}']))">
+                                     onchange="switchClass($(this).prev().prev().children().children())">
                                     <label>
                                         <input type="checkbox"/>
                                         <fmt:message key="serverSettings.manageWebProjects.import.ignore.errors"/>
@@ -75,46 +76,46 @@
 
                         <c:if test="${importInfoMap.value.site}">
                             <div class="form-group label-floating">
-                                <label class="control-label" for="${importInfoMap.value.siteKey}siteTitle">
+                                <label class="control-label" for="${fn:escapeXml(importInfoMap.value.siteKey)}siteTitle">
                                     <fmt:message key="label.name"/> <strong class="text-danger">*</strong>
                                 </label>
-                                <input class="form-control" type="text" id="${importInfoMap.value.siteKey}siteTitle"
-                                       name="importsInfos['${importInfoMap.key}'].siteTitle"
+                                <input class="form-control" type="text" id="${fn:escapeXml(importInfoMap.value.siteKey)}siteTitle"
+                                       name="importsInfos['${fn:escapeXml(importInfoMap.key)}'].siteTitle"
                                        value="${fn:escapeXml(importInfoMap.value.siteTitle)}"/>
                             </div>
 
                             <div class="form-group label-floating">
-                                <label class="control-label" for="${importInfoMap.value.siteKey}siteKey">
+                                <label class="control-label" for="${fn:escapeXml(importInfoMap.value.siteKey)}siteKey">
                                     <fmt:message key="serverSettings.manageWebProjects.webProject.siteKey"/> <strong class="text-danger">*</strong>
                                 </label>
-                                <input class="form-control" type="text" id="${importInfoMap.value.siteKey}siteKey"
-                                       name="importsInfos['${importInfoMap.key}'].siteKey"
+                                <input class="form-control" type="text" id="${fn:escapeXml(importInfoMap.value.siteKey)}siteKey"
+                                       name="importsInfos['${fn:escapeXml(importInfoMap.key)}'].siteKey"
                                        value="${fn:escapeXml(importInfoMap.value.siteKey)}"/>
                             </div>
 
                             <div class="form-group label-floating">
-                                <label class="control-label" for="${importInfoMap.value.siteKey}siteServerName">
+                                <label class="control-label" for="${fn:escapeXml(importInfoMap.value.siteKey)}siteServerName">
                                     <fmt:message key="serverSettings.manageWebProjects.webProject.serverName"/> <strong class="text-danger">*</strong>
                                 </label>
-                                <input class="form-control" type="text" id="${importInfoMap.value.siteKey}siteServerName"
-                                       name="importsInfos['${importInfoMap.key}'].siteServername"
+                                <input class="form-control" type="text" id="${fn:escapeXml(importInfoMap.value.siteKey)}siteServerName"
+                                       name="importsInfos['${fn:escapeXml(importInfoMap.key)}'].siteServername"
                                        value="${fn:escapeXml(importInfoMap.value.siteServername)}"/>
                             </div>
 
                             <div class="form-group label-floating">
-                                <label class="control-label" for="${importInfoMap.value.siteKey}siteServerNameAliases">
+                                <label class="control-label" for="${fn:escapeXml(importInfoMap.value.siteKey)}siteServerNameAliases">
                                     <fmt:message key="serverSettings.manageWebProjects.webProject.serverNameAliases"/>
                                 </label>
-                                <input class="form-control" type="text" id="${importInfoMap.value.siteKey}siteServerNameAliases"
-                                       name="importsInfos['${importInfoMap.key}'].siteServernameAliases"
+                                <input class="form-control" type="text" id="${fn:escapeXml(importInfoMap.value.siteKey)}siteServerNameAliases"
+                                       name="importsInfos['${fn:escapeXml(importInfoMap.key)}'].siteServernameAliases"
                                        value="${fn:escapeXml(importInfoMap.value.siteServernameAliases)}"/>
                             </div>
 
                             <div class="form-group label-floating">
-                                <label class="control-label" for="${importInfoMap.value.siteKey}templates">
+                                <label class="control-label" for="${fn:escapeXml(importInfoMap.value.siteKey)}templates">
                                     <fmt:message key="serverSettings.webProjectSettings.pleaseChooseTemplateSet"/>
                                 </label>
-                                <select class="form-control" id="${importInfoMap.value.siteKey}templates" name="importsInfos['${importInfoMap.key}'].templates">
+                                <select class="form-control" id="${fn:escapeXml(importInfoMap.value.siteKey)}templates" name="importsInfos['${fn:escapeXml(importInfoMap.key)}'].templates">
                                     <c:forEach items="${requestScope.templateSets}" var="module">
                                         <option value="${module}" <c:if test="${importInfoMap.value.templates eq module}"> selected="selected"</c:if>>${module}</option>
                                     </c:forEach>
@@ -123,11 +124,11 @@
 
                             <c:if test="${importInfoMap.value.legacyImport}">
                                 <div class="form-group label-floating">
-                                    <label class="control-label" for="${importInfoMap.value.siteKey}legacyMapping">
+                                    <label class="control-label" for="${fn:escapeXml(importInfoMap.value.siteKey)}legacyMapping">
                                         <fmt:message key="serverSettings.manageWebProjects.selectDefinitionMapping"/>
                                     </label>
-                                    <select class="form-control" id="${importInfoMap.value.siteKey}legacyMapping"
-                                            name="importsInfos['${importInfoMap.key}'].selectedLegacyMapping">
+                                    <select class="form-control" id="${fn:escapeXml(importInfoMap.value.siteKey)}legacyMapping"
+                                            name="importsInfos['${fn:escapeXml(importInfoMap.key)}'].selectedLegacyMapping">
                                         <c:forEach items="${importInfoMap.value.legacyMappings}" var="module">
                                             <option value="${module}" <c:if
                                                     test="${importInfoMap.value.selectedLegacyMapping eq module}"> selected="selected"</c:if>>${module}</option>
@@ -135,11 +136,11 @@
                                     </select>
                                 </div>
                                 <div class="form-group label-floating">
-                                    <label class="control-label" for="${importInfoMap.value.siteKey}legacyDefinitions">
+                                    <label class="control-label" for="${fn:escapeXml(importInfoMap.value.siteKey)}legacyDefinitions">
                                         <fmt:message key="serverSettings.manageWebProjects.selectLegacyDefinitions"/>
                                     </label>
-                                    <select class="form-control" id="${importInfoMap.value.siteKey}legacyDefinitions"
-                                            name="importsInfos['${importInfoMap.key}'].selectedLegacyDefinitions">
+                                    <select class="form-control" id="${fn:escapeXml(importInfoMap.value.siteKey)}legacyDefinitions"
+                                            name="importsInfos['${fn:escapeXml(importInfoMap.key)}'].selectedLegacyDefinitions">
                                         <c:forEach items="${importInfoMap.value.legacyDefinitions}" var="module">
                                             <option value="${module}" <c:if
                                                     test="${importInfoMap.value.selectedLegacyDefinitions eq module}"> selected="selected"</c:if>>${module}</option>
