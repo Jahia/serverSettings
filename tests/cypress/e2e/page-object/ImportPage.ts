@@ -80,12 +80,17 @@ export class ImportPage extends BasePage {
      * Reading the attribute back and requiring its closing statement is what tells the two apart,
      * because a truncated handler loses its tail.
      */
-    expectShowAllHandlerIntact() {
+    expectShowAllHandlerIntact(pathFragment: string) {
         webProjectsFrame()
             .find('a[onclick*="alert("]')
             .should('have.length.at.least', 1)
-            .each(($a) => {
-                expect($a.attr('onclick')).to.match(/return false;$/)
+            .then(($anchors) => {
+                const handlers = $anchors.toArray().map((el) => el.getAttribute('onclick') ?? '')
+                expect(
+                    handlers.some((h) => h.indexOf(pathFragment) !== -1),
+                    'a handler carries the node paths',
+                ).to.equal(true)
+                handlers.forEach((h) => expect(h).to.match(/return false;$/))
             })
         return this
     }
@@ -99,7 +104,7 @@ export class ImportPage extends BasePage {
      * the difference shows.
      */
     expectConstraintsPanelRendersPathsAsText(elementName: string) {
-        webProjectsFrame().find('[id^="validationErrorsDetailsConstraints"]').should('exist')
+        webProjectsFrame().find('[id^="validationErrorsDetailsConstraints"]').should('contain.text', `<${elementName}>`)
         webProjectsFrame().find(elementName).should('not.exist')
         return this
     }
