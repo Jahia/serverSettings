@@ -41,7 +41,7 @@
         <div class="box-1">
             <jsp:useBean id="validationErrors" class="java.util.HashMap" scope="request"/>
             <c:forEach items="${webprojectHandler.importsInfos}" var="importInfoMap" varStatus="importRow">
-                    <%-- the entry name is display text only; DOM ids come from the row index --%>
+                    <%-- DOM ids come from the row index; the entry name stays the binding key --%>
                     <c:set var="rowId" value="importEntry${importRow.index}"/>
                     <label for="${rowId}">
                         <input type="checkbox" class="importCheckbox${importInfoMap.value.validationResult.blocking ? ' importBlocking' : ''}" id="${rowId}" name="importsInfos['${fn:escapeXml(importInfoMap.key)}'].selected" value="true"

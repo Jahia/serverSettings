@@ -36,7 +36,7 @@ describe('Import preview, for an archive the validator rejects', () => {
     })
 
     it('keeps the show-all handler whole', function () {
-        previewRejectedArchive().expectShowAllHandlerIntact('quote')
+        previewRejectedArchive().expectShowAllHandlerIntact("'quote")
     })
 
     it('renders a constraint path as text', function () {

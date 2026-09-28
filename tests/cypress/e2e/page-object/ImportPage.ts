@@ -44,9 +44,8 @@ export class ImportPage extends BasePage {
      * bearing that same id.
      *
      * The ids are generated from the row's position, `importEntry0` upward, rather than taken
-     * from the entry name. An entry name cannot serve as an id: two entries may share one, and a
-     * name is free to hold characters that no id or selector accepts. A label keyed on the name
-     * can therefore end up addressing another row's checkbox, or nothing at all.
+     * from the entry name. An entry name cannot serve as an id, because it is free to hold
+     * characters that no id or selector accepts. A label keyed on such a name addresses nothing.
      */
     expectRowLabelsBoundToGeneratedIds(rowCount: number) {
         for (let row = 0; row < rowCount; row++) {

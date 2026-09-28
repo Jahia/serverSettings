@@ -48,7 +48,7 @@
                 <div class="panel-body">
                     <jsp:useBean id="validationErrors" class="java.util.HashMap" scope="request"/>
                     <c:forEach items="${webprojectHandler.importsInfos}" var="importInfoMap" varStatus="importRow">
-                        <%-- the entry name is display text only; DOM ids come from the row index --%>
+                        <%-- DOM ids come from the row index; the entry name stays the binding key --%>
                         <c:set var="rowId" value="importEntry${importRow.index}"/>
                         <div class="form-group">
                             <div class="checkbox">
