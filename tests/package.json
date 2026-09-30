@@ -20,6 +20,7 @@
     "@typescript-eslint/parser": "^5.27.0",
     "cypress": "^15.19.0",
     "cypress-iframe": "^1.0.1",
+    "cypress-mailpit": "^1.4.0",
     "cypress-multi-reporters": "^1.6.0",
     "cypress-terminal-report": "^3.5.2",
     "cypress-wait-until": "^1.7.2",
