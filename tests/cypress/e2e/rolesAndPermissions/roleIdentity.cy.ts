@@ -1,0 +1,251 @@
+// The identity tab, and the one write on it that the generic JCR mutation cannot carry.
+//
+// `jcr:title` and `jcr:description` are i18n on `jnt:role`, so their values live on a
+// `jnt:translation` child and not on the role node. The generic mutation of `graphql-dxm-provider`
+// takes no language: a write through it answers success and leaves nothing a per-language read finds.
+// So the title goes through a mutation that opens a session in the language, and the assertion below
+// reads it back per language rather than trusting the write.
+//
+// The node types and the two switches are plain properties, and the generic mutation carries those.
+import gql from 'graphql-tag'
+import { RoleDetailPage } from '../page-object/RoleDetailPage'
+
+const CREATE = gql`
+    mutation Create($name: String!) {
+        admin {
+            rolesAndPermissions {
+                createRole(name: $name, roleGroup: "edit-role")
+            }
+        }
+    }
+`
+
+const DELETE = gql`
+    mutation Delete($role: String!) {
+        admin {
+            rolesAndPermissions {
+                deleteRole(role: $role)
+            }
+        }
+    }
+`
+
+const READ = gql`
+    query Read($role: String!) {
+        admin {
+            rolesAndPermissions {
+                role(name: $role) {
+                    nodeTypes
+                    isHidden
+                    hasPrivilegedAccess
+                    translatedLanguages
+                    en: title(language: "en")
+                    fr: title(language: "fr")
+                    de: title(language: "de")
+                    frDescription: description(language: "fr")
+                }
+            }
+        }
+    }
+`
+
+const SET_TEXT = gql`
+    mutation SetText($role: String!, $language: String!, $title: String) {
+        admin {
+            rolesAndPermissions {
+                setRoleText(role: $role, language: $language, title: $title)
+            }
+        }
+    }
+`
+
+const LANGUAGES = gql`
+    query Languages {
+        admin {
+            rolesAndPermissions {
+                textLanguages
+            }
+        }
+    }
+`
+
+describe('Roles and permissions - the identity tab', () => {
+    const uniq = Date.now().toString(36)
+    const role = `rpIdentity${uniq}`
+
+    const read = () =>
+        cy
+            .apolloClient()
+            .apollo({ query: READ, variables: { role } })
+            .then((result) => result.data.admin.rolesAndPermissions.role)
+
+    before(() => {
+        cy.login()
+        cy.apolloClient().apollo({ mutation: CREATE, variables: { name: role } })
+    })
+
+    after(() => {
+        cy.login()
+        cy.apolloClient().apollo({ mutation: DELETE, variables: { role } })
+    })
+
+    beforeEach(() => {
+        cy.login()
+    })
+
+    it('writes the title in the interface language, where a per-language read finds it', () => {
+        const page = RoleDetailPage.visit(role).openIdentityTab()
+
+        page.getTitleInput().clear()
+        page.getTitleInput().type('Content reviewer')
+        page.saveIdentity()
+
+        // The read asks for the title per language. A write that landed on the role node rather than
+        // on the translation child would answer null here, which is the defect this test exists for.
+        read().then((saved) => {
+            expect(saved.en, 'the English title must be readable').to.eq('Content reviewer')
+            expect(saved.translatedLanguages, 'and the language must be listed').to.include('en')
+            expect(saved.fr, 'another language keeps its own value, which is none here').to.be.null
+        })
+    })
+
+    // The form wrote the interface language and nothing else, so a role could only ever be named in
+    // the language the administrator happened to be using. The system site decides which languages are
+    // offered, and every one of them is writable here.
+    it('writes the title and the description in a language other than the interface one', () => {
+        const page = RoleDetailPage.visit(role).openIdentityTab()
+
+        page.chooseTextLanguage('fr')
+        page.getTitleInput().clear()
+        page.getTitleInput().type('Relecteur')
+        page.getDescriptionInput().clear()
+        page.getDescriptionInput().type('Relit le contenu avant publication')
+        page.saveIdentity()
+
+        read().then((saved) => {
+            expect(saved.fr, 'the French title is written').to.eq('Relecteur')
+            expect(saved.frDescription, 'and so is the French description').to.eq('Relit le contenu avant publication')
+            expect(saved.translatedLanguages, 'both languages are listed').to.include.members(['en', 'fr'])
+        })
+    })
+
+    // A save used to write the one language on screen. It now writes only the languages that changed,
+    // so opening the form in one language must not empty the others.
+    it('leaves a language the administrator did not open alone', () => {
+        cy.apolloClient().apollo({
+            mutation: SET_TEXT,
+            variables: { role, language: 'de', title: 'Prüfer' },
+        })
+
+        const page = RoleDetailPage.visit(role).openIdentityTab()
+        page.getTitleInput().clear()
+        page.getTitleInput().type('Reviewer of content')
+        page.saveIdentity()
+
+        read().then((saved) => {
+            expect(saved.en, 'the opened language is written').to.eq('Reviewer of content')
+            expect(saved.de, 'and the untouched one is still there').to.eq('Prüfer')
+        })
+    })
+
+    // The language list is the system site's, so adding a language there adds it here. Hard-coding it
+    // would make this screen the one place a new language does not reach.
+    it('offers the languages the system site declares', () => {
+        RoleDetailPage.visit(role).openIdentityTab()
+
+        cy.apolloClient()
+            .apollo({ query: LANGUAGES })
+            .then((result) => {
+                const languages = result.data.admin.rolesAndPermissions.textLanguages
+                expect(languages, 'the system site declares more than one').to.have.length.greaterThan(1)
+
+                cy.get('[data-testid="role-language-select"]').click()
+                languages.forEach((code: string) => {
+                    cy.get(`[data-testid="role-language-option-${code}"]`).should('exist')
+                })
+            })
+    })
+
+    // The field was a comma-separated text box, so a typo was a node type and the administrator had to
+    // know the names by heart. It is a multi-select over what the instance actually declares.
+    it('writes the node types picked from the list', () => {
+        const page = RoleDetailPage.visit(role).openIdentityTab()
+
+        page.searchNodeTypes('jnt:virtualsite')
+        page.toggleNodeType('jnt:virtualsite')
+        page.closeNodeTypes()
+        page.saveIdentity()
+
+        read().then((saved) => {
+            expect(saved.nodeTypes, 'the picked type is stored').to.deep.eq(['jnt:virtualsite'])
+        })
+    })
+
+    // The set is the one rolesmanager offered, declared in its Spring configuration as jnt:content/*,
+    // jnt:page, jnt:virtualsite and rep:root. Core matches j:nodeTypes with isNodeType, so a mixin
+    // would match too, but offering every type under nt:base is three times this list of mostly
+    // structural types nobody grants a role on.
+    it('offers the content types, and not every type under nt:base', () => {
+        const page = RoleDetailPage.visit(role).openIdentityTab()
+
+        page.searchNodeTypes('')
+        cy.get('[data-testid="role-nodetype-option-jnt:content"]').should('exist')
+        cy.get('[data-testid="role-nodetype-option-jnt:page"]').should('exist')
+        cy.get('[data-testid="role-nodetype-option-jnt:virtualsite"]').should('exist')
+        cy.get('[data-testid="role-nodetype-option-rep:root"]').should('exist')
+
+        // A mixin matches at runtime but was never offered, and neither was the structural half of
+        // the repository.
+        cy.get('[data-testid="role-nodetype-option-jmix:editorialContent"]').should('not.exist')
+        cy.get('[data-testid="role-nodetype-option-jnt:user"]').should('not.exist')
+    })
+
+    it('writes the visibility, and leaves the privileged access as it found it', () => {
+        const page = RoleDetailPage.visit(role).openIdentityTab()
+
+        cy.get('[data-testid="role-hidden-switch"]').click()
+        page.saveIdentity()
+
+        read().then((saved) => {
+            expect(saved.isHidden, 'the role is hidden from the access control picker').to.be.true
+            // The privileged access is stated on the facts band and is not on this form. The write
+            // replaces every property it names, so a save has to carry the value back unchanged.
+            expect(saved.hasPrivilegedAccess, 'and the property the form no longer offers is intact').to.be.false
+        })
+    })
+
+    // Scope, privileged access and the targets are facts of the role, not settings. Each was editable
+    // here and each was a way to break a role from a form that looked like a preferences panel.
+    it('offers only what a role may safely change', () => {
+        RoleDetailPage.visit(role).openIdentityTab()
+
+        cy.get('[data-testid="role-title-field"]').should('be.visible')
+        cy.get('[data-testid="role-description-field"]').should('be.visible')
+        cy.get('[data-testid="role-hidden-field"]').should('be.visible')
+
+        cy.get('[data-testid="role-scope-field"]').should('not.exist')
+        cy.get('[data-testid="role-privileged-field"]').should('not.exist')
+        cy.get('[data-testid="role-targets-field"]').should('not.exist')
+    })
+
+    // j:nodeTypes narrows the content a role can be granted on. A server role is granted on the server
+    // and never on a piece of content, so the restriction has nothing to act on.
+    it('offers the node types on an edit role and not on a server role', () => {
+        RoleDetailPage.visit(role).openIdentityTab()
+        cy.get('[data-testid="role-nodetypes-field"]').should('be.visible')
+
+        RoleDetailPage.visit('server-administrator').openIdentityTab()
+        cy.get('[data-testid="role-nodetypes-field"]').should('not.exist')
+    })
+
+    it('goes back to the list, and the list is the one the route rendered before', () => {
+        // The role's settings are a dialog over the page, so the way out of them is to close them.
+        // Reaching the page's own back button through the overlay is not something a person can do
+        // either, and a test that did it would be testing a path the interface does not offer.
+        const page = RoleDetailPage.visit(role).openIdentityTab()
+        page.closeEdit()
+
+        page.back()
+        cy.get(`[data-testid="role-name-${role}"]`).should('be.visible')
+    })
+})
