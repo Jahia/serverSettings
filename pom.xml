@@ -55,7 +55,7 @@
     </parent>
 
     <artifactId>serverSettings</artifactId>
-    <version>9.12.0-SNAPSHOT</version>
+    <version>9.11.1-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>Jahia Server Settings</name>
     <description>Server settings</description>
