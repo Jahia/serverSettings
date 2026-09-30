@@ -7,6 +7,7 @@
 
     <bean id="messageSource" class="org.jahia.utils.i18n.ModuleMessageSource"/>
 
+    <bean name="mailSettingsValidator" class="org.jahia.modules.serversettings.flow.validator.MailSettingsValidator"/>
     <bean name="searchSettingsValidator" class="org.jahia.modules.serversettings.flow.validator.SearchSettingsValidator"/>
 
     <bean name="serverSettingsMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
@@ -15,5 +16,5 @@
             </map>
         </property>
     </bean>
-
+    
 </beans>
