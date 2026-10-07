@@ -128,6 +128,15 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="control-group">
+                                    <label class="checkbox">
+                                        <input type="checkbox" id="${importInfoMap.value.siteKey}acceptExternalAcl"
+                                               name="importsInfos['${importInfoMap.key}'].acceptExternalAcl" value="true"
+                                               <c:if test="${importInfoMap.value.acceptExternalAcl}">checked="checked"</c:if>/>
+                                        <fmt:message key="serverSettings.manageWebProjects.acceptExternalAcl"/>
+                                    </label>
+                                    <input type="hidden" name="_importsInfos['${importInfoMap.key}'].acceptExternalAcl"/>
+                                </div>
                             </c:if>
                         </div>
                     </c:if>
