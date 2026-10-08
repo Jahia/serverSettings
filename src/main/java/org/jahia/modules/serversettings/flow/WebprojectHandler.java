@@ -941,6 +941,7 @@ public class WebprojectHandler implements Serializable {
                                                     serverName(infos.getSiteServername()).
                                                     serverNameAliases(infos.getSiteServernameAliases()).
                                                     title(infos.getSiteTitle()).
+                                                    acceptExternalAcl(infos.isAcceptExternalAcl()).
                                                     description("").
                                                     templateSet(finalTpl).
                                                     modulesToDeploy(null).
