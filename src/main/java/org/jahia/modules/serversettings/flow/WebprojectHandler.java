@@ -63,6 +63,8 @@ import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.content.decorator.JCRUserNode;
 import org.jahia.services.importexport.ImportExportBaseService;
 import org.jahia.services.importexport.ImportExportService;
+import org.jahia.services.importexport.LegacyImportAclAudit;
+import org.jahia.services.io.FileSystemIOResource;
 import org.jahia.services.importexport.ImportUpdateService;
 import org.jahia.services.importexport.NoCloseZipInputStream;
 import org.jahia.services.importexport.validation.ValidationResults;
@@ -902,6 +904,12 @@ public class WebprojectHandler implements Serializable {
 
                     } else if (type.equals("site")) {
                         // site import
+                        if (refusedExternalAcl(infos, context)) {
+                            // the archive declares ACLs the administrator has not accepted: hold the
+                            // import back rather than create an empty site, and surface the entries.
+                            successful = false;
+                            continue;
+                        }
                         anythingImported = true;
                         String tpl = infos.getTemplates();
                         if ("".equals(tpl)) {
@@ -941,6 +949,7 @@ public class WebprojectHandler implements Serializable {
                                                     serverName(infos.getSiteServername()).
                                                     serverNameAliases(infos.getSiteServernameAliases()).
                                                     title(infos.getSiteTitle()).
+                                                    acceptExternalAcl(infos.isAcceptExternalAcl()).
                                                     description("").
                                                     templateSet(finalTpl).
                                                     modulesToDeploy(null).
@@ -1160,6 +1169,34 @@ public class WebprojectHandler implements Serializable {
         }
     }
 
+    /**
+     * Adds one message per external ACL the archive declares, when the administrator has not ticked the
+     * "accept external ACLs" option. Returns true when the import must be held back for this reason. The
+     * same audit runs in the core import; this drives the UI warning and avoids creating an empty site.
+     */
+    private boolean refusedExternalAcl(ImportInfo infos, MessageContext messageContext) {
+        if (infos.isAcceptExternalAcl() || !infos.isSite() || infos.getImportFile() == null) {
+            return false;
+        }
+        try {
+            List<LegacyImportAclAudit.Violation> violations = LegacyImportAclAudit.auditArchive(
+                    new FileSystemIOResource(infos.getImportFile()), infos.getSiteKey());
+            if (violations.isEmpty()) {
+                return false;
+            }
+            messageContext.addMessage(new MessageBuilder().error().source("acceptExternalAcl")
+                    .code("serverSettings.manageWebProjects.externalAcl.refused").build());
+            for (LegacyImportAclAudit.Violation violation : violations) {
+                messageContext.addMessage(new MessageBuilder().error().source("acceptExternalAcl")
+                        .defaultText(violation.toString()).build());
+            }
+            return true;
+        } catch (IOException | RepositoryException e) {
+            logger.error("Cannot audit the external ACLs of the import for site " + infos.getSiteKey(), e);
+            return false;
+        }
+    }
+
     private void validateSite(MessageContext messageContext, ImportInfo infos) {
         if (!infos.isSite()) {
             return;
@@ -1198,6 +1235,7 @@ public class WebprojectHandler implements Serializable {
                 infos.setSiteServername(serverName);
             }
             validateServerNames(serverName, infos.getSiteServernameAliases(), null, messageContext);
+            refusedExternalAcl(infos, messageContext);
         } catch (JahiaException e) {
             logger.error(e.getMessage(), e);
         }
