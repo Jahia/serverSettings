@@ -25,6 +25,12 @@ describe('Import preview, for an archive whose entry names hold markup character
 
         const importPage = ProjectsPage.visit().importFile('cypress/fixtures/testData/XSS.zip')
 
+        // The preview is drawn in the settings iframe, which this line's specs wait for explicitly.
+        // Without it the assertions below run against a frame that holds no document yet, and read
+        // an empty screen as a clean one.
+        /* eslint-disable-next-line cypress/no-unnecessary-waiting */
+        cy.wait(3000)
+
         importPage.expectEntryNamesListed([ENTRY_TYPOGRAPHIC_QUOTE, ENTRY_STRAIGHT_QUOTE])
         importPage.expectNoAttributeNamed('data-injected')
         importPage.expectRowLabelsBoundToGeneratedIds(2)
