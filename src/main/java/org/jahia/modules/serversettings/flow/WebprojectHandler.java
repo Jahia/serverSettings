@@ -1191,9 +1191,11 @@ public class WebprojectHandler implements Serializable {
                         .defaultText(violation.toString()).build());
             }
             return true;
-        } catch (IOException | RepositoryException e) {
+        } catch (IOException | RepositoryException | RuntimeException e) {
             logger.error("Cannot audit the external ACLs of the import for site " + infos.getSiteKey(), e);
-            return false;
+            messageContext.addMessage(new MessageBuilder().error().source("acceptExternalAcl")
+                    .code("serverSettings.manageWebProjects.externalAcl.auditFailed").build());
+            return true;
         }
     }
 
