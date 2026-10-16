@@ -904,12 +904,6 @@ public class WebprojectHandler implements Serializable {
 
                     } else if (type.equals("site")) {
                         // site import
-                        if (refusedExternalAcl(infos, context)) {
-                            // the archive declares ACLs the administrator has not accepted: hold the
-                            // import back rather than create an empty site, and surface the entries.
-                            successful = false;
-                            continue;
-                        }
                         anythingImported = true;
                         String tpl = infos.getTemplates();
                         if ("".equals(tpl)) {
@@ -1170,19 +1164,20 @@ public class WebprojectHandler implements Serializable {
     }
 
     /**
-     * Adds one message per external ACL the archive declares, when the administrator has not ticked the
-     * "accept external ACLs" option. Returns true when the import must be held back for this reason. The
-     * same audit runs in the core import; this drives the UI warning and avoids creating an empty site.
+     * Adds one error message per external ACL a legacy archive declares, when the administrator has not ticked
+     * the "accept external ACLs" option, so the import screen holds the import back. The core runs the same audit
+     * only after addSite has created the site, which then stays empty.
      */
-    private boolean refusedExternalAcl(ImportInfo infos, MessageContext messageContext) {
-        if (infos.isAcceptExternalAcl() || !infos.isSite() || infos.getImportFile() == null) {
-            return false;
+    private void checkExternalAcl(ImportInfo infos, MessageContext messageContext) {
+        if (infos.isAcceptExternalAcl() || !infos.isLegacyImport() || StringUtils.isEmpty(infos.getSiteKey())
+                || infos.getImportFile() == null) {
+            return;
         }
         try {
             List<LegacyImportAclAudit.Violation> violations = LegacyImportAclAudit.auditArchive(
                     new FileSystemIOResource(infos.getImportFile()), infos.getSiteKey());
             if (violations.isEmpty()) {
-                return false;
+                return;
             }
             messageContext.addMessage(new MessageBuilder().error().source("acceptExternalAcl")
                     .code("serverSettings.manageWebProjects.externalAcl.refused").build());
@@ -1190,16 +1185,16 @@ public class WebprojectHandler implements Serializable {
                 messageContext.addMessage(new MessageBuilder().error().source("acceptExternalAcl")
                         .defaultText(violation.toString()).build());
             }
-            return true;
         } catch (IOException | RepositoryException | RuntimeException e) {
             logger.error("Cannot audit the external ACLs of the import for site " + infos.getSiteKey(), e);
             messageContext.addMessage(new MessageBuilder().error().source("acceptExternalAcl")
                     .code("serverSettings.manageWebProjects.externalAcl.auditFailed").build());
-            return true;
         }
     }
 
     private void validateSite(MessageContext messageContext, ImportInfo infos) {
+        // a legacy archive may carry no site.properties, and still imports as a site
+        checkExternalAcl(infos, messageContext);
         if (!infos.isSite()) {
             return;
         }
@@ -1237,7 +1232,6 @@ public class WebprojectHandler implements Serializable {
                 infos.setSiteServername(serverName);
             }
             validateServerNames(serverName, infos.getSiteServernameAliases(), null, messageContext);
-            refusedExternalAcl(infos, messageContext);
         } catch (JahiaException e) {
             logger.error(e.getMessage(), e);
         }
