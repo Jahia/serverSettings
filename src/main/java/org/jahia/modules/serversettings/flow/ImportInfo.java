@@ -44,6 +44,7 @@
 package org.jahia.modules.serversettings.flow;
 
 import org.jahia.services.SpringContextSingleton;
+import org.jahia.services.importexport.ImportExportBaseService;
 import org.jahia.services.importexport.SiteImportDefaults;
 import org.jahia.services.importexport.validation.ValidationResults;
 
@@ -94,9 +95,7 @@ public class ImportInfo implements Serializable {
             map.put("siteservernamealiases", siteServernameAliases);
             map.put("templates", templates);
         }
-        // key must match ImportExportBaseService.IMPORT_ACL_ACCEPT_EXTERNAL in jahia-impl; kept as a
-        // literal so this module compiles against its released core rather than an unreleased snapshot
-        map.put("acceptExternalAcl", acceptExternalAcl);
+        map.put(ImportExportBaseService.IMPORT_ACL_ACCEPT_EXTERNAL, acceptExternalAcl);
         return map;
     }
 

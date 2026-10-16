@@ -130,12 +130,12 @@
                                 </div>
                                 <div class="control-group">
                                     <label class="checkbox">
-                                        <input type="checkbox" id="${importInfoMap.value.siteKey}acceptExternalAcl"
-                                               name="importsInfos['${importInfoMap.key}'].acceptExternalAcl" value="true"
+                                        <input type="checkbox" id="${fn:escapeXml(importInfoMap.value.siteKey)}acceptExternalAcl"
+                                               name="importsInfos['${fn:escapeXml(importInfoMap.key)}'].acceptExternalAcl" value="true"
                                                <c:if test="${importInfoMap.value.acceptExternalAcl}">checked="checked"</c:if>/>
                                         <fmt:message key="serverSettings.manageWebProjects.acceptExternalAcl"/>
                                     </label>
-                                    <input type="hidden" name="_importsInfos['${importInfoMap.key}'].acceptExternalAcl"/>
+                                    <input type="hidden" name="_importsInfos['${fn:escapeXml(importInfoMap.key)}'].acceptExternalAcl"/>
                                 </div>
                             </c:if>
                         </div>
