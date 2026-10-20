@@ -147,6 +147,15 @@
                                         </c:forEach>
                                     </select>
                                 </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" id="${fn:escapeXml(importInfoMap.value.siteKey)}acceptExternalAcl"
+                                               name="importsInfos['${fn:escapeXml(importInfoMap.key)}'].acceptExternalAcl" value="true"
+                                               <c:if test="${importInfoMap.value.acceptExternalAcl}">checked="checked"</c:if>/>
+                                        <fmt:message key="serverSettings.manageWebProjects.acceptExternalAcl"/>
+                                    </label>
+                                    <input type="hidden" name="_importsInfos['${fn:escapeXml(importInfoMap.key)}'].acceptExternalAcl"/>
+                                </div>
                             </c:if>
                         </c:if>
                     </c:forEach>
