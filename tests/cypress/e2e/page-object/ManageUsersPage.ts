@@ -11,6 +11,15 @@ export interface UserFormData {
     preferredLanguage?: string
 }
 
+/** The five properties the "search in properties" filter can be scoped to (legacy UsersAndRoles.PROPERTY). */
+export enum SearchProperty {
+    USERNAME = 'propsUsersname',
+    FIRSTNAME = 'propsFirstName',
+    LASTNAME = 'propsLastName',
+    EMAIL = 'propsEmail',
+    ORGANISATION = 'propsOrganization',
+}
+
 export class ManageUsersPage extends BasePage {
     static readonly IFRAME_SELECTOR = 'iframe[src*="manageUsers"]'
 
@@ -50,28 +59,36 @@ export class ManageUsersPage extends BasePage {
         return this.waitForIframeElement('#username')
     }
 
+    /* Clear a field, then type into it only if there is something to type - cy.type('') throws. */
+    private clearAndType(selector: string, value: string): void {
+        const field = this.iframe().find(selector).clear()
+        if (value !== '') {
+            field.type(value)
+        }
+    }
+
     /* Fill the create/edit user form. Only provided fields are typed. */
     fillForm(data: UserFormData): ManageUsersPage {
         if (data.username !== undefined) {
-            this.iframe().find('#username').clear().type(data.username)
+            this.clearAndType('#username', data.username)
         }
         if (data.firstName !== undefined) {
-            this.iframe().find('#firstName').clear().type(data.firstName)
+            this.clearAndType('#firstName', data.firstName)
         }
         if (data.lastName !== undefined) {
-            this.iframe().find('#lastName').clear().type(data.lastName)
+            this.clearAndType('#lastName', data.lastName)
         }
         if (data.email !== undefined) {
-            this.iframe().find('#email').clear().type(data.email)
+            this.clearAndType('#email', data.email)
         }
         if (data.organization !== undefined) {
-            this.iframe().find('#organization').clear().type(data.organization)
+            this.clearAndType('#organization', data.organization)
         }
         if (data.password !== undefined) {
-            this.iframe().find('#password').clear().type(data.password)
+            this.clearAndType('#password', data.password)
         }
         if (data.passwordConfirm !== undefined) {
-            this.iframe().find('#passwordConfirm').clear().type(data.passwordConfirm)
+            this.clearAndType('#passwordConfirm', data.passwordConfirm)
         }
         if (data.preferredLanguage !== undefined) {
             this.iframe().find('#preferredLanguage').select(data.preferredLanguage)
@@ -110,7 +127,10 @@ export class ManageUsersPage extends BasePage {
 
     /* Type a term in the search box and submit the search. */
     search(term: string): ManageUsersPage {
-        this.iframe().find('input[name="searchString"]').clear().type(term)
+        const field = this.iframe().find('input[name="searchString"]').clear()
+        if (term !== '') {
+            field.type(term)
+        }
         this.iframe().find('button[name="_eventId_search"]').click()
         // Wait for the results list to be rendered again.
         return this.waitForIframeElement('button[onclick*="addUser"]')
@@ -161,6 +181,142 @@ export class ManageUsersPage extends BasePage {
             .filter(`[href*="/cms/export/"][href*="/${username}.zip"]`)
             .should('have.attr', 'href')
             .and('include', `/${username}.zip`)
+        return this
+    }
+
+    /* Cancel an in-progress create/edit form without saving. */
+    cancel(): ManageUsersPage {
+        this.iframe().find('button[type="submit"][name="_eventId_cancel"], a[name="_eventId_cancel"]').click()
+        return this.waitForIframeElement('button[onclick*="addUser"]')
+    }
+
+    /* Verify a form field currently shows the given value (used to confirm cancel discarded an edit). */
+    verifyFieldValue(field: string, value: string): ManageUsersPage {
+        this.iframe().find(`#${field}`).should('have.value', value)
+        return this
+    }
+
+    verifyNoUsersFoundMessage(): ManageUsersPage {
+        this.iframe().should('contain', 'No users found.')
+        return this
+    }
+
+    /*
+     * Toggle "search in properties" and scope the search to exactly the given properties.
+     * Passing no properties unchecks the master toggle (unscoped search).
+     */
+    filterSearchProperties(properties: SearchProperty[]): ManageUsersPage {
+        // These checkboxes are styled via CSS (the native <input> has zero visible size, a
+        // sibling element carries the visible icon), so Cypress's actionability check on the
+        // input itself always fails - {force: true} is required, matching why the legacy
+        // Selenium suite routed every checkbox click through its own
+        // functions.getCheckableElementLocator() helper instead of a plain click.
+        const searchInProperties = this.iframe().find('#searchInProperties')
+        if (properties.length === 0) {
+            searchInProperties.then(($el) => {
+                if (($el as unknown as HTMLInputElement[])[0]?.checked) {
+                    cy.wrap($el).click({ force: true })
+                }
+            })
+            return this
+        }
+        searchInProperties.then(($el) => {
+            if (!($el as unknown as HTMLInputElement[])[0]?.checked) {
+                cy.wrap($el).click({ force: true })
+            }
+        })
+        properties.forEach((prop) => {
+            this.iframe()
+                .find(`#${prop}`)
+                .then(($el) => {
+                    if (!($el as unknown as HTMLInputElement[])[0]?.checked) {
+                        cy.wrap($el).click({ force: true })
+                    }
+                })
+        })
+        return this
+    }
+
+    /* Select every visible bulk-delete checkbox for the given usernames. */
+    selectUsersForRemoval(usernames: string[]): ManageUsersPage {
+        usernames.forEach((username) => {
+            this.iframe().find(`input.userCheckbox[value*="/${username}"]`).click({ force: true })
+        })
+        return this
+    }
+
+    /* Click "Remove selected users" to reach the bulk-delete confirmation screen. */
+    submitBulkRemove(): ManageUsersPage {
+        this.iframe().find('button').contains('Remove selected users').click()
+        return this.waitForIframeElement('button[name="_eventId_confirm"]')
+    }
+
+    verifyBulkConfirmationScreen(usernames: string[]): ManageUsersPage {
+        this.iframe().should('contain', 'Name')
+        usernames.forEach((username) => {
+            this.iframe().should('contain', username)
+        })
+        return this
+    }
+
+    /* Confirm the bulk removal shown on the confirmation screen. */
+    confirmBulkRemove(): ManageUsersPage {
+        this.iframe().find('button[name="_eventId_confirm"]').click()
+        return this.waitForIframeElement('button[onclick*="addUser"]')
+    }
+
+    verifyBulkRemovalSuccess(usernames: string[]): ManageUsersPage {
+        usernames.forEach((username) => {
+            this.iframe().should('contain', `Successfully removed ${username}.`)
+        })
+        return this
+    }
+
+    /*
+     * Each role <select> option's own text is a single "|"-joined, fixed-width-padded row -
+     * e.g. "site-privileged     | <siteKey>| (site-administrator)" - not one option per column.
+     * Verify one option's text contains every given substring.
+     */
+    verifyRoleOptionContaining(...substrings: string[]): ManageUsersPage {
+        this.iframe()
+            .find('select#roles option, select[name="roles"] option, select[name="selectMember"] option')
+            .then(($options) => {
+                // The column padding uses non-breaking spaces (and runs of them), which don't
+                // equal a literal ' ' in a plain substring like "System Site" - collapse all
+                // whitespace (regex \s matches NBSP too) to a single regular space first.
+                const texts = $options.toArray().map((o) => (o.textContent || '').replace(/\s+/g, ' '))
+                const match = texts.some((text) => substrings.every((s) => text.includes(s)))
+                expect(
+                    match,
+                    `expected an option containing [${substrings.join(', ')}] among: ${JSON.stringify(texts)}`,
+                ).to.eq(true)
+            })
+        return this
+    }
+
+    /* Toggle the "Account locked" checkbox on the currently open edit-user form. */
+    setAccountLocked(locked: boolean): ManageUsersPage {
+        this.iframe()
+            .find('input[name="accountLocked"]')
+            .then(($el) => {
+                const isChecked = ($el as unknown as HTMLInputElement[])[0]?.checked
+                if (isChecked !== locked) {
+                    cy.wrap($el).click({ force: true })
+                }
+            })
+        return this
+    }
+
+    /* Toggle the "Email notifications disabled" checkbox on the currently open edit-user form. */
+    setEmailNotificationsDisabled(disabled: boolean): ManageUsersPage {
+        this.iframe()
+            .find('input[name="emailNotificationsDisabled"]')
+            .then(($el) => {
+                const isChecked = ($el as unknown as HTMLInputElement[])[0]?.checked
+                if (isChecked !== disabled) {
+                    cy.wrap($el).click({ force: true })
+                }
+            })
         return this
     }
 }
