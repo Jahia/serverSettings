@@ -4,6 +4,7 @@ name: On merge to 9_x
 
 # The workflow could also be triggered on PRs
 on:
+  workflow_dispatch:
   push:
     branches:
       - '9_x'
