@@ -58,17 +58,24 @@ jobs:
           sonar_token: ${{ secrets.SONAR_TOKEN }}
 
   integration-tests:
-    name: Integration Tests (Cluster)
+    name: Integration Tests (Cluster, Jahia ${{ matrix.jahia.line }})
+    strategy:
+      fail-fast: false
+      matrix:
+        # serverSettings 10.x ships in the 8.2.3.x pack from 8.2.3.8 on; 8-SNAPSHOT is the 8.2.4 line.
+        jahia:
+          - { line: "8.2.3", image: "ghcr.io/jahia/jahia-ee-dev:8.2.3-SNAPSHOT" }
+          - { line: "8.2.4", image: "ghcr.io/jahia/jahia-ee-dev:8-SNAPSHOT" }
     secrets: inherit
     needs: build
     uses: Jahia/jahia-modules-action/.github/workflows/reusable-integration-tests.yml@v2
     with:
       module_id: serverSettings
       module_branch: ${{ github.ref }}
-      jahia_image: ghcr.io/jahia/jahia-ee-dev:8-SNAPSHOT
+      jahia_image: ${{ matrix.jahia.image }}
       provisioning_manifest: provisioning-manifest-build.yml
       testrail_project: ServerSettings Module
       should_skip_testrail: true
       should_use_build_artifacts: true
-      artifact_prefix: serset
+      artifact_prefix: serset-${{ matrix.jahia.line }}
       timeout_job: 45
