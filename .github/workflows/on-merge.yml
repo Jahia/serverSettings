@@ -69,17 +69,24 @@ jobs:
           nexus_password: ${{ secrets.NEXUS_PASSWORD }}
 
   integration-tests:
-    name: Integration Tests (Standalone)
+    name: Integration Tests (Standalone, Jahia ${{ matrix.jahia.line }})
+    strategy:
+      fail-fast: false
+      matrix:
+        # serverSettings 10.x ships in the 8.2.3.x pack from 8.2.3.8 on; 8-SNAPSHOT is the 8.2.4 line.
+        jahia:
+          - { line: "8.2.3", image: "ghcr.io/jahia/jahia-ee-dev:8.2.3-SNAPSHOT" }
+          - { line: "8.2.4", image: "ghcr.io/jahia/jahia-ee-dev:8-SNAPSHOT" }
     secrets: inherit
     needs: build
     uses: Jahia/jahia-modules-action/.github/workflows/reusable-integration-tests.yml@v2
     with:
       module_id: serverSettings
       module_branch: main
-      jahia_image: ghcr.io/jahia/jahia-ee-dev:8-SNAPSHOT
+      jahia_image: ${{ matrix.jahia.image }}
       provisioning_manifest: provisioning-manifest-build.yml
-      incident_service: serverSettings-JahiaSN
+      incident_service: serverSettings-JahiaSN-${{ matrix.jahia.line }}
       testrail_project: ServerSettings Module
       should_use_build_artifacts: true
-      artifact_prefix: serset
+      artifact_prefix: serset-${{ matrix.jahia.line }}
       timeout_job: 45
