@@ -59,7 +59,9 @@ export class EditSitePage extends BasePage {
 
     /** Reads the `confirm()` stub of the last {@link save}, which asks before a server name changes. */
     expectServerNameChangeConfirmed() {
-        cy.get('@confirm').should('have.been.calledOnce')
+        cy.get('@confirm')
+            .should('have.been.calledOnce')
+            .and('have.been.calledWithMatch', 'change the site server name')
         return this
     }
 
