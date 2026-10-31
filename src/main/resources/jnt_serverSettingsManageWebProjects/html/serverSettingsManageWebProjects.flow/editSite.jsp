@@ -21,7 +21,7 @@
 
             $("#${currentNode.identifier}-updateSiteForm").submit(function(event) {
                 if ($("#${currentNode.identifier}-eventId").val() != 'next'
-                        ||'${siteBean.serverName}' == $("#serverName").val()
+                        ||$("#serverName").prop("defaultValue") == $("#serverName").val()
                         || confirm('${i18nServerNameChangeWarn}')) {
                     workInProgress('${i18nWaiting}');
                     return;
