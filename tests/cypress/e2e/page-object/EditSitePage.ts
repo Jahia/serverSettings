@@ -51,9 +51,20 @@ export class EditSitePage extends BasePage {
         cy.get(WEB_PROJECTS_IFRAME)
             .its('0.contentWindow')
             .then((win) => {
-                cy.stub(win, 'confirm').returns(true)
+                cy.stub(win, 'confirm').as('confirm').returns(true)
             })
         webProjectsFrame().find('button.btn-primary').should('be.visible').click()
+        return this
+    }
+
+    /** Reads the `confirm()` stub of the last {@link save}, which asks before a server name changes. */
+    expectServerNameChangeConfirmed() {
+        cy.get('@confirm').should('have.been.calledOnce')
+        return this
+    }
+
+    expectNoConfirmation() {
+        cy.get('@confirm').should('not.have.been.called')
         return this
     }
 
