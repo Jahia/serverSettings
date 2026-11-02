@@ -125,6 +125,24 @@ export class ImportPage extends BasePage {
         return this
     }
 
+    /** The screen lists each external access control entry it refused, and names its principal. */
+    expectExternalAclRefused(principal: string) {
+        webProjectsFrame()
+            .find('.alert-danger')
+            .should('contain', 'This archive declares access control that would apply outside the imported site')
+            .and('contain', principal)
+        return this
+    }
+
+    /**
+     * Ticks the "accept external ACLs" option of one site. The option is keyed by the site key found in the
+     * archive, and the Material skin hides the real input behind a span, so the check needs `force`.
+     */
+    acceptExternalAcl(archivedSiteKey: string) {
+        webProjectsFrame().find(`#${archivedSiteKey}acceptExternalAcl`).check({ force: true })
+        return this
+    }
+
     expectNoError() {
         webProjectsFrame().find('.alert-danger').should('not.exist')
         return this
@@ -163,5 +181,11 @@ export class ImportPage extends BasePage {
     processImport() {
         webProjectsFrame().find('[name="_eventId_processImport"]').should('be.visible').click()
         return new ProjectsPage()
+    }
+
+    /** Submits an import the screen validation refuses, which leaves the screen on this form. */
+    processRefusedImport() {
+        webProjectsFrame().find('[name="_eventId_processImport"]').should('be.visible').click()
+        return this
     }
 }
