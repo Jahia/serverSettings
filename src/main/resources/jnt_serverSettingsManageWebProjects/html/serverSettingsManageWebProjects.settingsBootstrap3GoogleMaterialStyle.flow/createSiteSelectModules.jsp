@@ -92,8 +92,8 @@
                         <div class="bs-card-container">
                             <c:forEach items="${templateSetsPreview}" var="templateSetPreview" varStatus="loop">
                                 <div class="bs-card ${siteBean.templateSet eq templateSetPreview.id || empty siteBean.templateSet && defaultTemplateSetId != null && templateSetPreview.id eq defaultTemplateSetId || empty siteBean.templateSet && defaultTemplateSetId == null && loop.index == 0 ? 'bs-card-selected' : ''}"
-                                     id="template-set-${templateSetPreview.id}"
-                                     data-templateset-id="${templateSetPreview.id}">
+                                     id="template-set-${fn:escapeXml(templateSetPreview.id)}"
+                                     data-templateset-id="${fn:escapeXml(templateSetPreview.id)}">
                                     <div class="bs-card-image">
                                         <c:choose>
                                             <c:when test="${empty templateSetPreview.previewResources}">
@@ -101,21 +101,22 @@
                                                      src='<c:url value="/modules/serverSettings/images/template-preview-placeholder.png"/>'>
                                             </c:when>
                                             <c:otherwise>
+                                                <c:url var="previewUrl" value="/modules/${templateSetPreview.id}${templateSetPreview.previewResources[0]}"/>
                                                 <img class="img-responsive"
-                                                     src='<c:url value="/modules/${templateSetPreview.id}${templateSetPreview.previewResources[0]}"/>'/>
+                                                     src="${fn:escapeXml(previewUrl)}"/>
                                             </c:otherwise>
                                         </c:choose>
                                     </div><!-- card image -->
 
                                     <div class="bs-card-content">
-                                        <span class="bs-card-title">${templateSetPreview.jahiaTemplatesPackage.name}</span>
+                                        <span class="bs-card-title">${fn:escapeXml(templateSetPreview.jahiaTemplatesPackage.name)}</span>
                                         <i class="material-icons bs-card-check">check_circle</i>
                                     </div><!-- card content -->
                                 </div>
                             </c:forEach>
                         </div>
                         <input type="hidden" name="templateSet" id="templateSet"
-                               value="${empty siteBean.templateSet ? (defaultTemplateSetId != null ? defaultTemplateSetId : templateSetsPreview[0].id) : siteBean.templateSet}"/>
+                               value="${fn:escapeXml(empty siteBean.templateSet ? (defaultTemplateSetId != null ? defaultTemplateSetId : templateSetsPreview[0].id) : siteBean.templateSet)}"/>
                     </div>
                 </div>
             </div>
@@ -152,7 +153,7 @@
                         <select id="unselectedModules" class="form-control higher-select" multiple>
                             <c:forEach items="${modules}" var="module">
                                 <c:if test="${not functions:contains(siteBean.modules,module.id)}">
-                                    <option value="${module.id}">${module.name} (${module.id})</option>
+                                    <option value="${fn:escapeXml(module.id)}">${fn:escapeXml(module.name)} (${fn:escapeXml(module.id)})</option>
                                 </c:if>
                             </c:forEach>
                         </select>
@@ -195,7 +196,7 @@
                         <select id="selectedModules" class="form-control higher-select" name="modules" multiple>
                             <c:forEach items="${modules}" var="module">
                                 <c:if test="${functions:contains(siteBean.modules,module.id)}">
-                                    <option value="${module.id}">${module.name} (${module.id})</option>
+                                    <option value="${fn:escapeXml(module.id)}">${fn:escapeXml(module.name)} (${fn:escapeXml(module.id)})</option>
                                 </c:if>
                             </c:forEach>
                         </select>
