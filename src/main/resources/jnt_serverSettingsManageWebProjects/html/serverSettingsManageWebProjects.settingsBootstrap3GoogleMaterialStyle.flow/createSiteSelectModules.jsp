@@ -102,7 +102,7 @@
                                             </c:when>
                                             <c:otherwise>
                                                 <c:url var="previewUrl" value="/modules/${templateSetPreview.id}${templateSetPreview.previewResources[0]}"/>
-                                                <img class="img-responsive"
+                                                <img class="img-responsive" alt=""
                                                      src="${fn:escapeXml(previewUrl)}"/>
                                             </c:otherwise>
                                         </c:choose>
