@@ -35,7 +35,7 @@
 
                     <select class="span6" name="templateSet" id="templateSet">
                         <c:forEach items="${templateSets}" var="module">
-                            <option value="${module.id}" ${siteBean.templateSet eq module.id || empty siteBean.templateSet && module.id eq defaultTemplateSetId ? 'selected="true"' : ''}>${module.name}&nbsp;(${module.id})</option>
+                            <option value="${fn:escapeXml(module.id)}" ${siteBean.templateSet eq module.id || empty siteBean.templateSet && module.id eq defaultTemplateSetId ? 'selected="true"' : ''}>${fn:escapeXml(module.name)}&nbsp;(${fn:escapeXml(module.id)})</option>
                         </c:forEach>
                     </select>
                 </div>
@@ -49,9 +49,9 @@
                 <div class="clearfix">
                     <c:forEach items="${modules}" var="module">
                         <div class="moduleListItem">
-                            <label style="padding: 5px;" for="${module.id}" title="${module.description}">
-                                <input type="checkbox" name="modules" id="${module.id}"
-                                       value="${module.id}" ${functions:contains(siteBean.modules,module.id) ? 'checked="true"' : ''} /> ${module.name} (${module.id})
+                            <label style="padding: 5px;" for="${fn:escapeXml(module.id)}" title="${fn:escapeXml(module.description)}">
+                                <input type="checkbox" name="modules" id="${fn:escapeXml(module.id)}"
+                                       value="${fn:escapeXml(module.id)}" ${functions:contains(siteBean.modules,module.id) ? 'checked="true"' : ''} /> ${fn:escapeXml(module.name)} (${fn:escapeXml(module.id)})
                             </label>
                         </div>
                     </c:forEach>

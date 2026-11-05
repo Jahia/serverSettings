@@ -76,6 +76,29 @@ export class EditSitePage extends BasePage {
         return this
     }
 
+    /** The modules of the site are listed as labels; reads the one holding `token` as text. */
+    expectModuleLabel(token: string, name: string) {
+        webProjectsFrame()
+            .find('span.label')
+            .filter((_, el) => el.textContent.includes(token))
+            .should('have.length', 1)
+            .invoke('text')
+            .should('equal', name)
+        return this
+    }
+
+    /** Opens the module selection of the site, from the edit button beside its module labels. */
+    editModules() {
+        webProjectsFrame().find('button[id$="-editModules"]').click()
+        return this
+    }
+
+    /** The module selection lists each module as `<name> (<id>)`, in the list it belongs to. */
+    expectModuleOption(list: 'selectedModules' | 'unselectedModules', id: string, name: string) {
+        webProjectsFrame().find(`#${list} option[value="${id}"]`).should('have.text', `${name} (${id})`)
+        return this
+    }
+
     expectServerNameConflict(conflictingName: string) {
         webProjectsFrame()
             .find('.alert-danger')

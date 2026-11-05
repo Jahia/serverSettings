@@ -77,7 +77,7 @@
                             <strong><fmt:message key="serverSettings.manageWebProjects.webProject.templateSet"/></strong>&nbsp;
                         </td>
                         <td>
-                            ${siteBean.templateSetPackage.name}&nbsp;(${siteBean.templateSet})
+                            ${fn:escapeXml(siteBean.templateSetPackage.name)}&nbsp;(${fn:escapeXml(siteBean.templateSet)})
                         </td>
                     </tr>
                     <tr>
@@ -87,7 +87,7 @@
                         <td>
                             <p style="line-height: 2em">
                                 <c:forEach items="${siteBean.modulePackages}" var="module" varStatus="loopStatus">
-                                    <span class="label label-info">${module.name}</span>
+                                    <span class="label label-info">${fn:escapeXml(module.name)}</span>
                                 </c:forEach>
                             </p>
                         </td>
