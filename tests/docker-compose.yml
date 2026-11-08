@@ -27,6 +27,7 @@ services:
                     memory: 4gb
         depends_on:
             - mariadb
+            - smtp-server
         networks:
             - stack
         ports:
@@ -54,6 +55,7 @@ services:
             NEXUS_PASSWORD: ${NEXUS_PASSWORD}
             TZ: ${TIMEZONE}
             JPDA: 'true'
+            SMTP_SERVER_URL: smtp://smtp-server:1025
 
     jahia-browsing-a:
         image: '${JAHIA_IMAGE}'
@@ -139,6 +141,7 @@ services:
             memory: 4gb
       depends_on:
         - jahia
+        - smtp-server
       environment:
         # Uses variable substitution: https://docs.docker.com/compose/compose-file/compose-file-v3/#variable-substitution
         MANIFEST: ${MANIFEST:-provisioning-manifest-build.yml}
@@ -152,7 +155,17 @@ services:
         SUPER_USER_PASSWORD: ${SUPER_USER_PASSWORD}
         JAHIA_CLUSTER_ENABLED: '${JAHIA_CLUSTER_ENABLED}'
         TZ: ${TIMEZONE}
+        MAILPIT_URL: http://smtp-server:8025
       networks:
         - stack
+
+    smtp-server:
+        image: axllent/mailpit:v1.27
+        container_name: smtp-server
+        ports:
+            - '1025:1025' # SMTP
+            - '8025:8025' # web UI / REST API
+        networks:
+            - stack
 networks:
     stack:

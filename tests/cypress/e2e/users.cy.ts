@@ -1,4 +1,4 @@
-import { createUser, deleteUser } from '@jahia/cypress'
+import { context, createUser, deleteUser } from '@jahia/cypress'
 import { ManageUsersPage } from './page-object/ManageUsersPage'
 
 describe('Manage Users - Create / Search / Edit / Delete Tests', () => {
@@ -11,11 +11,38 @@ describe('Manage Users - Create / Search / Edit / Delete Tests', () => {
     const REMOVE_USER = 'removeTestUser'
     const EXPORT_USER = 'exportTestUser'
 
+    // Full initial profile for SEARCH_USER (FT-004: search must match on any of these fields)
+    // and EDIT_USER (FT-001/002/003: the edit form must reflect and let us change every one of them).
+    const SEARCH_PROFILE = {
+        firstName: 'Searchy',
+        lastName: 'Findable',
+        email: 'searchy.findable@jahia.invalid',
+        organization: 'JahiaSearchOrg',
+    }
+    const EDIT_PROFILE = {
+        firstName: 'Original',
+        lastName: 'Editable',
+        email: 'original.editable@jahia.invalid',
+        organization: 'JahiaEditOrg',
+        preferredLanguage: 'en',
+    }
+
     before(() => {
         cy.login()
         createUser(EXISTING_USER, PASSWORD)
-        createUser(SEARCH_USER, PASSWORD)
-        createUser(EDIT_USER, PASSWORD)
+        createUser(SEARCH_USER, PASSWORD, [
+            { name: 'j:firstName', value: SEARCH_PROFILE.firstName },
+            { name: 'j:lastName', value: SEARCH_PROFILE.lastName },
+            { name: 'j:email', value: SEARCH_PROFILE.email },
+            { name: 'j:organization', value: SEARCH_PROFILE.organization },
+        ])
+        createUser(EDIT_USER, PASSWORD, [
+            { name: 'j:firstName', value: EDIT_PROFILE.firstName },
+            { name: 'j:lastName', value: EDIT_PROFILE.lastName },
+            { name: 'j:email', value: EDIT_PROFILE.email },
+            { name: 'j:organization', value: EDIT_PROFILE.organization },
+            { name: 'preferredLanguage', value: EDIT_PROFILE.preferredLanguage },
+        ])
         createUser(DELETE_USER, PASSWORD)
         createUser(REMOVE_USER, PASSWORD)
         createUser(EXPORT_USER, PASSWORD)
@@ -69,6 +96,8 @@ describe('Manage Users - Create / Search / Edit / Delete Tests', () => {
     })
 
     it('should reject a username with not allowed special characters', () => {
+        // FT-018 (Jahia/selenium#1604): invalid characters in the username are rejected.
+        context.tag('user-management', 'create', 'validation', 'username-format', 'admin')
         const username = 'invalid#user!'
 
         const page = ManageUsersPage.visit()
@@ -82,18 +111,52 @@ describe('Manage Users - Create / Search / Edit / Delete Tests', () => {
             .verifyErrorMessage("only characters (a..z, A..Z, 0..9, _, -, ., @, '{', '}') are valid for the user name.")
     })
 
-    it('should reject when password confirmation does not match', () => {
+    it('should reject mismatched password confirmation together with an invalid email address', () => {
+        // FT-017 (Jahia/selenium#1604): both validation messages must appear from the one submit.
+        context.tag('user-management', 'create', 'validation', 'password-mismatch', 'email-format', 'admin')
         const username = 'mismatchUser01'
 
         const page = ManageUsersPage.visit()
         page.openCreateForm()
             .fillForm({
                 username,
+                email: 'not-an-email',
                 password: PASSWORD,
                 passwordConfirm: 'DifferentPass12&',
             })
             .submitCreate()
             .verifyErrorMessage('Password confirmation does not match. Please try again.')
+            .verifyErrorMessage('Please enter valid e-mail address.')
+    })
+
+    it('should reject creating a user with a blank username', () => {
+        // FT-013 (Jahia/selenium#1604)
+        context.tag('user-management', 'create', 'validation', 'admin')
+        ManageUsersPage.visit()
+            .openCreateForm()
+            .fillForm({ username: '', password: PASSWORD, passwordConfirm: PASSWORD })
+            .submitCreate()
+            .verifyErrorMessage('Please specify a user name.')
+    })
+
+    it('should reject creating a user with no password or confirmation', () => {
+        // FT-015 (Jahia/selenium#1604)
+        context.tag('user-management', 'create', 'validation', 'password', 'admin')
+        ManageUsersPage.visit()
+            .openCreateForm()
+            .fillForm({ username: 'noPasswordUser01', password: '', passwordConfirm: '' })
+            .submitCreate()
+            .verifyErrorMessage('Please specify a password.')
+    })
+
+    it('should reject creating a user with a password but no confirmation', () => {
+        // FT-016 (Jahia/selenium#1604)
+        context.tag('user-management', 'create', 'validation', 'password-confirmation', 'admin')
+        ManageUsersPage.visit()
+            .openCreateForm()
+            .fillForm({ username: 'noConfirmUser01', password: PASSWORD, passwordConfirm: '' })
+            .submitCreate()
+            .verifyErrorMessage('Please specify a password.')
     })
 
     it('should create a user with preferred language set to French', () => {
@@ -113,6 +176,8 @@ describe('Manage Users - Create / Search / Edit / Delete Tests', () => {
     })
 
     it('should reject a username that already exists', () => {
+        // FT-014 (Jahia/selenium#1604)
+        context.tag('user-management', 'create', 'validation', 'duplicate-username', 'admin')
         const page = ManageUsersPage.visit()
         page.openCreateForm()
             .fillForm({
@@ -124,25 +189,85 @@ describe('Manage Users - Create / Search / Edit / Delete Tests', () => {
             .verifyErrorMessage(`Username '${EXISTING_USER}' already exists`)
     })
 
-    it('should search for a user and list it', () => {
-        const page = ManageUsersPage.visit()
-        page.search(SEARCH_USER).verifyUserListed(SEARCH_USER)
+    it('should match an unfiltered search on any identifying field, and never match Guest user', () => {
+        // FT-004 (Jahia/selenium#1604): username, first/last name, organization and email all match;
+        // the built-in Guest user must never appear.
+        context.tag('user-management', 'search', 'admin')
+        ;[
+            SEARCH_USER,
+            SEARCH_PROFILE.firstName,
+            SEARCH_PROFILE.lastName,
+            SEARCH_PROFILE.organization,
+            SEARCH_PROFILE.email,
+        ].forEach((term) => {
+            ManageUsersPage.visit().search(term).verifyUserListed(SEARCH_USER).verifyUserNotListed('Guest user')
+        })
+    })
+
+    it('should show "No users found." when a search matches nothing', () => {
+        // FT-005 (Jahia/selenium#1604)
+        context.tag('user-management', 'search', 'empty-result', 'admin')
+        ManageUsersPage.visit().search('xxzztjwefn').verifyNoUsersFoundMessage()
+    })
+
+    it('should restore the default user listing when the search is cleared', () => {
+        // FT-006 (Jahia/selenium#1604): baseline users reappear once the search string is emptied.
+        context.tag('user-management', 'search', 'reset', 'admin')
+        ManageUsersPage.visit().search('').verifyUserListed(EXISTING_USER).verifyUserListed(SEARCH_USER)
     })
 
     it('should delete a user', () => {
-        const page = ManageUsersPage.visit()
-        page.openExportOrRemove(DELETE_USER).deleteFromRemovePage()
+        // FT-021 (Jahia/selenium#1604): success message shown, and the user disappears from search.
+        context.tag('user-management', 'delete', 'search', 'admin')
+        ManageUsersPage.visit()
+            .openExportOrRemove(DELETE_USER)
+            .deleteFromRemovePage()
+            .verifyBulkRemovalSuccess([DELETE_USER])
 
         ManageUsersPage.visit().search(DELETE_USER).verifyUserNotListed(DELETE_USER)
     })
 
-    it('should edit a user', () => {
-        const page = ManageUsersPage.visit()
-        page.openUser(EDIT_USER).fillForm({ organization: 'Jahia' }).submitUpdate()
+    it("should show a user's persisted profile values when opening for edit", () => {
+        // FT-001 (Jahia/selenium#1604)
+        context.tag('user-management', 'edit', 'admin')
+        ManageUsersPage.visit()
+            .openUser(EDIT_USER)
+            .verifyFieldValue('firstName', EDIT_PROFILE.firstName)
+            .verifyFieldValue('lastName', EDIT_PROFILE.lastName)
+            .verifyFieldValue('email', EDIT_PROFILE.email)
+            .verifyFieldValue('organization', EDIT_PROFILE.organization)
+            .verifyFieldValue('preferredLanguage', EDIT_PROFILE.preferredLanguage)
+    })
 
-        // Reopen the user and verify the organization persisted.
-        ManageUsersPage.visit().openUser(EDIT_USER)
-        page.iframe().find('#organization').should('have.value', 'Jahia')
+    it('should discard an unsaved edit when Cancel is clicked', () => {
+        // FT-002 (Jahia/selenium#1604)
+        context.tag('user-management', 'edit', 'cancel', 'admin')
+        ManageUsersPage.visit().openUser(EDIT_USER).fillForm({ firstName: 'rodrigo' }).cancel()
+
+        ManageUsersPage.visit().openUser(EDIT_USER).verifyFieldValue('firstName', EDIT_PROFILE.firstName)
+    })
+
+    it('should persist every edited field on save', () => {
+        // FT-003 (Jahia/selenium#1604)
+        context.tag('user-management', 'edit', 'save', 'admin')
+        const updated = {
+            firstName: 'Updated',
+            lastName: 'Person',
+            email: 'updated.person@jahia.invalid',
+            organization: 'JahiaUpdatedOrg',
+            preferredLanguage: 'fr',
+            password: 'NewPass12&',
+            passwordConfirm: 'NewPass12&',
+        }
+        ManageUsersPage.visit().openUser(EDIT_USER).fillForm(updated).submitUpdate()
+
+        ManageUsersPage.visit()
+            .openUser(EDIT_USER)
+            .verifyFieldValue('firstName', updated.firstName)
+            .verifyFieldValue('lastName', updated.lastName)
+            .verifyFieldValue('email', updated.email)
+            .verifyFieldValue('organization', updated.organization)
+            .verifyFieldValue('preferredLanguage', updated.preferredLanguage)
     })
 
     it('should open Export or Remove, verify fields are disabled, then delete', () => {
