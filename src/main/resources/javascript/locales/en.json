@@ -54,7 +54,8 @@
     },
     "nothingToDisplay":"Nothing to display",
     "error": "Something went wrong while fetching the data",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "loading": "Loading"
   }
 }
 

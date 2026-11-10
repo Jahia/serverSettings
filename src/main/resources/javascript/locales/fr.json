@@ -54,6 +54,7 @@
     },
     "nothingToDisplay": "Rien à afficher",
     "error": "Quelque chose s'est mal passé lors de la récupération des données",
-    "refresh": "Actualiser"
+    "refresh": "Actualiser",
+    "loading": "Chargement"
   }
 }

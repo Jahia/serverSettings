@@ -54,6 +54,7 @@
     },
     "nothingToDisplay": "Nichts anzuzeigen",
     "error": "Etwas ist schief gelaufen beim Abrufen der Daten",
-    "refresh": "Aktualisieren"
+    "refresh": "Aktualisieren",
+    "loading": "Wird geladen"
   }
 }

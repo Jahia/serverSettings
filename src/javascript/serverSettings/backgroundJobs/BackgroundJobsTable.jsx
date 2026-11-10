@@ -35,6 +35,8 @@ const BackgroundJobsTable = forwardRef(({data, columns, paginationProps, loading
         setPage
     } = paginationProps;
 
+    const {t} = useTranslation('serverSettings');
+
     useImperativeHandle(ref, () => ({
         refetch
     }));
@@ -57,7 +59,7 @@ const BackgroundJobsTable = forwardRef(({data, columns, paginationProps, loading
                 height: 300
             }}
             >
-                <Loader size="big"/>
+                <Loader size="big" aria-label={t('backgroundJobs.loading')}/>
             </div>
         );
     }
