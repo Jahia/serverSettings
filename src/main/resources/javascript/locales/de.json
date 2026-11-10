@@ -53,6 +53,7 @@
       "canceled": "Abgebrochen"
     },
     "nothingToDisplay": "Nichts anzuzeigen",
-    "error": "Etwas ist schief gelaufen beim Abrufen der Daten"
+    "error": "Etwas ist schief gelaufen beim Abrufen der Daten",
+    "refresh": "Aktualisieren"
   }
 }

@@ -53,7 +53,8 @@
       "canceled": "Canceled"
     },
     "nothingToDisplay":"Nothing to display",
-    "error": "Something went wrong while fetching the data"
+    "error": "Something went wrong while fetching the data",
+    "refresh": "Refresh"
   }
 }
 
