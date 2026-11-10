@@ -1,5 +1,9 @@
 .tabs {
+    display: flex;
+    align-items: center;
     width: 100%;
+    padding-right: var(--moon-spacing-small);
+    box-sizing: border-box;
 }
 
 .spacer {
