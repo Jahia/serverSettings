@@ -87,7 +87,7 @@
                         <p><fmt:message key="label.modules"/>:</p>
                         <p style="line-height: 2em">
                             <c:forEach items="${siteBean.modulePackages}" var="module" varStatus="loopStatus">
-                                <span class="badge badge-info">${module.name}</span>
+                                <span class="badge badge-info">${fn:escapeXml(module.name)}</span>
                             </c:forEach>
                         </p>
                     </div>
