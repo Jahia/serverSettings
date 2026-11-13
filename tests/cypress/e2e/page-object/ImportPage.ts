@@ -134,15 +134,6 @@ export class ImportPage extends BasePage {
         return this
     }
 
-    /**
-     * Ticks the "accept external ACLs" option of one site. The option is keyed by the site key found in the
-     * archive, and the Material skin hides the real input behind a span, so the check needs `force`.
-     */
-    acceptExternalAcl(archivedSiteKey: string) {
-        webProjectsFrame().find(`#${archivedSiteKey}acceptExternalAcl`).check({ force: true })
-        return this
-    }
-
     expectNoError() {
         webProjectsFrame().find('.alert-danger').should('not.exist')
         return this
