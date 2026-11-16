@@ -129,6 +129,7 @@ public class WebprojectHandler implements Serializable {
     ));
 
     private static final Map<String, Integer> RANK;
+    private static final String ACCEPT_EXTERNAL_ACL_FIELD = "acceptExternalAcl";
     private static final String SERVER_SETTINGS_MANAGE_WEB_PROJECTS_WARNING_MSG = "serverSettings.manageWebProjects.warningMsg.completeRequestInfo";
     private static final String IMPORT = "import";
     private static final String FILES = "files";
@@ -1179,15 +1180,15 @@ public class WebprojectHandler implements Serializable {
             if (violations.isEmpty()) {
                 return;
             }
-            messageContext.addMessage(new MessageBuilder().error().source("acceptExternalAcl")
+            messageContext.addMessage(new MessageBuilder().error().source(ACCEPT_EXTERNAL_ACL_FIELD)
                     .code("serverSettings.manageWebProjects.externalAcl.refused").build());
             for (LegacyImportAclAudit.Violation violation : violations) {
-                messageContext.addMessage(new MessageBuilder().error().source("acceptExternalAcl")
+                messageContext.addMessage(new MessageBuilder().error().source(ACCEPT_EXTERNAL_ACL_FIELD)
                         .defaultText(violation.toString()).build());
             }
         } catch (IOException | RepositoryException | RuntimeException e) {
             logger.error("Cannot audit the external ACLs of the import for site " + infos.getSiteKey(), e);
-            messageContext.addMessage(new MessageBuilder().error().source("acceptExternalAcl")
+            messageContext.addMessage(new MessageBuilder().error().source(ACCEPT_EXTERNAL_ACL_FIELD)
                     .code("serverSettings.manageWebProjects.externalAcl.auditFailed").build());
         }
     }
