@@ -20,9 +20,9 @@
     <jcr:nodeProperty node="${renderContext.mainResource.node}" name="jcr:description" inherited="true" var="description"/>
     <jcr:nodeProperty node="${renderContext.mainResource.node}" name="jcr:createdBy" inherited="true" var="author"/>
     <c:set var="keywords" value="${jcr:getKeywords(renderContext.mainResource.node, true)}"/>
-    <c:if test="${!empty description}"><meta name="description" content="${description.string}" /></c:if>
-    <c:if test="${!empty author}"><meta name="author" content="${author.string}" /></c:if>
-    <c:if test="${!empty keywords}"><meta name="keywords" content="${keywords}" /></c:if>
+    <c:if test="${!empty description}"><meta name="description" content="${fn:escapeXml(description.string)}" /></c:if>
+    <c:if test="${!empty author}"><meta name="author" content="${fn:escapeXml(author.string)}" /></c:if>
+    <c:if test="${!empty keywords}"><meta name="keywords" content="${fn:escapeXml(keywords)}" /></c:if>
     <title>${fn:escapeXml(renderContext.mainResource.node.displayableName)}</title>
 </head>
 

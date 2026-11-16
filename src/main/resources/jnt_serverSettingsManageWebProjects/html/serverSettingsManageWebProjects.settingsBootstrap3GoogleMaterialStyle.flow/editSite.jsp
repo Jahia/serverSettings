@@ -21,7 +21,7 @@
 
             $("#${currentNode.identifier}-updateSiteForm").submit(function(event) {
                 if ($("#${currentNode.identifier}-eventId").val() != 'next'
-                        ||'${siteBean.serverName}' == $("#serverName").val()
+                        ||$("#serverName").prop("defaultValue") == $("#serverName").val()
                         || confirm('${i18nServerNameChangeWarn}')) {
                     workInProgress('${i18nWaiting}');
                     return;
@@ -97,10 +97,10 @@
                                 <c:choose>
                                     <c:when test="${module.moduleType eq 'system'}">
                                 <span data-toggle="tooltip" class="label label-default" title="${module.moduleType}"
-                                      data-placement="top" data-container="body">${module.name}</span>
+                                      data-placement="top" data-container="body">${fn:escapeXml(module.name)}</span>
                                     </c:when>
                                     <c:otherwise>
-                                        <span class="label label-primary">${module.name}</span>
+                                        <span class="label label-primary">${fn:escapeXml(module.name)}</span>
                                     </c:otherwise>
                                 </c:choose>
                             </c:forEach>

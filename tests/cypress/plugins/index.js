@@ -36,5 +36,9 @@ module.exports = (on, config) => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     on('task', require('./exportArchive'))
 
+    // Manifest-only module jars for the Web projects specs (see plugins/moduleJar.js).
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    on('task', require('./moduleJar'))
+
     return config
 }

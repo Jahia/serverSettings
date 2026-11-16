@@ -50,7 +50,7 @@
     <parent>
         <groupId>org.jahia.modules</groupId>
         <artifactId>jahia-modules</artifactId>
-        <version>8.2.4.0-SNAPSHOT</version>
+        <version>8.2.3.8-SNAPSHOT</version>
         <relativePath />
     </parent>
 
@@ -89,6 +89,17 @@
             <id>jahia-public</id>
             <name>Jahia Public Repository</name>
             <url>https://devtools.jahia.com/nexus/content/groups/public</url>
+        </repository>
+        <repository>
+            <id>jahia-maven-central</id>
+            <name>Jahia Maven Central Repository</name>
+            <url>https://maven.jahia.com/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
     </repositories>
 

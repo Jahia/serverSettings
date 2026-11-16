@@ -45,6 +45,45 @@ export class CreateSitePage extends BasePage {
         return this
     }
 
+    /** The template sets are offered as cards, each titled with the name of its template set. */
+    expectTemplateSetCard(id: string, name: string) {
+        webProjectsFrame().find(`.bs-card[data-templateset-id="${id}"] .bs-card-title`).should('have.text', name)
+        return this
+    }
+
+    expectModuleOption(list: 'selectedModules' | 'unselectedModules', id: string, name: string) {
+        webProjectsFrame().find(`#${list} option[value="${id}"]`).should('have.text', `${name} (${id})`)
+        return this
+    }
+
+    /** Picks a template set and one module, then moves on to the summary. */
+    chooseTemplateSetAndModule(templateSetId: string, moduleId: string) {
+        webProjectsFrame().find(`.bs-card[data-templateset-id="${templateSetId}"]`).click()
+        webProjectsFrame().find('#templateSet').should('have.value', templateSetId)
+        webProjectsFrame()
+            .find(`#unselectedModules option[value="${moduleId}"]`)
+            .then(($option) => {
+                $option.prop('selected', true)
+            })
+        webProjectsFrame().find('button[onclick="manageSelectedModules.select()"]').click()
+        webProjectsFrame().find(`#selectedModules option[value="${moduleId}"]`).should('exist')
+        webProjectsFrame().find('#formSelectModule [name="_eventId_next"]').click()
+        return this
+    }
+
+    /** The summary names the template set as `<name> (<id>)` and lists each chosen module by name. */
+    expectSummary(templateSetId: string, templateSetName: string, moduleToken: string, moduleName: string) {
+        webProjectsFrame().find('[name="_eventId_previous"]').should('be.visible')
+        webProjectsFrame().should('contain.text', `${templateSetName} (${templateSetId})`)
+        webProjectsFrame()
+            .find('span.label')
+            .filter((_, el) => el.textContent.includes(moduleToken))
+            .should('have.length', 1)
+            .invoke('text')
+            .should('equal', moduleName)
+        return this
+    }
+
     /**
      * Every step carries a `_eventId_next` button, so waiting on that alone would re-click the
      * previous step's button while its document is still being replaced. `_eventId_previous` exists
