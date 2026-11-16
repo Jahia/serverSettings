@@ -17,3 +17,10 @@ export const WEB_PROJECTS_IFRAME = 'iframe[src*="webProjectSettings.html"]'
  * assertion is what drives the retry.
  */
 export const webProjectsFrame = () => cy.get(WEB_PROJECTS_IFRAME, { timeout: 30000 }).its('0.contentDocument.body')
+
+/**
+ * Waits until the iframe's document has finished loading. A screen binds some click handlers in
+ * `$(document).ready`, so its elements are on screen before a click on them does anything.
+ */
+export const waitForWebProjectsFrameLoaded = () =>
+    cy.get(WEB_PROJECTS_IFRAME, { timeout: 30000 }).its('0.contentDocument.readyState').should('equal', 'complete')
