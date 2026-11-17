@@ -63,6 +63,8 @@ import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.content.decorator.JCRUserNode;
 import org.jahia.services.importexport.ImportExportBaseService;
 import org.jahia.services.importexport.ImportExportService;
+import org.jahia.services.importexport.LegacyImportAclAudit;
+import org.jahia.services.io.FileSystemIOResource;
 import org.jahia.services.importexport.ImportUpdateService;
 import org.jahia.services.importexport.NoCloseZipInputStream;
 import org.jahia.services.importexport.validation.ValidationResults;
@@ -127,6 +129,7 @@ public class WebprojectHandler implements Serializable {
     ));
 
     private static final Map<String, Integer> RANK;
+    private static final String ACCEPT_EXTERNAL_ACL_FIELD = "acceptExternalAcl";
     private static final String SERVER_SETTINGS_MANAGE_WEB_PROJECTS_WARNING_MSG = "serverSettings.manageWebProjects.warningMsg.completeRequestInfo";
     private static final String IMPORT = "import";
     private static final String FILES = "files";
@@ -941,6 +944,7 @@ public class WebprojectHandler implements Serializable {
                                                     serverName(infos.getSiteServername()).
                                                     serverNameAliases(infos.getSiteServernameAliases()).
                                                     title(infos.getSiteTitle()).
+                                                    acceptExternalAcl(infos.isAcceptExternalAcl()).
                                                     description("").
                                                     templateSet(finalTpl).
                                                     modulesToDeploy(null).
@@ -1160,7 +1164,38 @@ public class WebprojectHandler implements Serializable {
         }
     }
 
+    /**
+     * Adds one error message per external ACL a legacy archive declares, when the administrator has not ticked
+     * the "accept external ACLs" option, so the import screen holds the import back. The core runs the same audit
+     * only after addSite has created the site, which then stays empty.
+     */
+    private void checkExternalAcl(ImportInfo infos, MessageContext messageContext) {
+        if (infos.isAcceptExternalAcl() || !infos.isLegacyImport() || StringUtils.isEmpty(infos.getSiteKey())
+                || infos.getImportFile() == null) {
+            return;
+        }
+        try {
+            List<LegacyImportAclAudit.Violation> violations = LegacyImportAclAudit.auditArchive(
+                    new FileSystemIOResource(infos.getImportFile()), infos.getSiteKey());
+            if (violations.isEmpty()) {
+                return;
+            }
+            messageContext.addMessage(new MessageBuilder().error().source(ACCEPT_EXTERNAL_ACL_FIELD)
+                    .code("serverSettings.manageWebProjects.externalAcl.refused").build());
+            for (LegacyImportAclAudit.Violation violation : violations) {
+                messageContext.addMessage(new MessageBuilder().error().source(ACCEPT_EXTERNAL_ACL_FIELD)
+                        .defaultText(violation.toString()).build());
+            }
+        } catch (IOException | RepositoryException | RuntimeException e) {
+            logger.error("Cannot audit the external ACLs of the import for site " + infos.getSiteKey(), e);
+            messageContext.addMessage(new MessageBuilder().error().source(ACCEPT_EXTERNAL_ACL_FIELD)
+                    .code("serverSettings.manageWebProjects.externalAcl.auditFailed").build());
+        }
+    }
+
     private void validateSite(MessageContext messageContext, ImportInfo infos) {
+        // a legacy archive may carry no site.properties, and still imports as a site
+        checkExternalAcl(infos, messageContext);
         if (!infos.isSite()) {
             return;
         }
