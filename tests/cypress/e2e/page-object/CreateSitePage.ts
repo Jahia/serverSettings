@@ -1,7 +1,7 @@
 import { BasePage } from '@jahia/cypress'
 import IframeOptions = Cypress.IframeOptions
 import { ProjectsPage } from './ProjectsPage'
-import { webProjectsFrame } from './webProjectsIframe'
+import { waitForWebProjectsFrameLoaded, webProjectsFrame } from './webProjectsIframe'
 
 export interface SiteDefinition {
     title: string
@@ -58,6 +58,8 @@ export class CreateSitePage extends BasePage {
 
     /** Picks a template set and one module, then moves on to the summary. */
     chooseTemplateSetAndModule(templateSetId: string, moduleId: string) {
+        webProjectsFrame().find('#formSelectModule').should('be.visible')
+        waitForWebProjectsFrameLoaded()
         webProjectsFrame().find(`.bs-card[data-templateset-id="${templateSetId}"]`).click()
         webProjectsFrame().find('#templateSet').should('have.value', templateSetId)
         webProjectsFrame()

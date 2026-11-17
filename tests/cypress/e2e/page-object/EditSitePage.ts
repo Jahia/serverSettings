@@ -1,6 +1,6 @@
 import { BasePage } from '@jahia/cypress'
 import IframeOptions = Cypress.IframeOptions
-import { WEB_PROJECTS_IFRAME, webProjectsFrame } from './webProjectsIframe'
+import { WEB_PROJECTS_IFRAME, waitForWebProjectsFrameLoaded, webProjectsFrame } from './webProjectsIframe'
 
 /**
  * A single web project's detailed view (edit form).
@@ -48,6 +48,8 @@ export class EditSitePage extends BasePage {
      * explicitly (closeAlertAndGetItsText).
      */
     save() {
+        webProjectsFrame().find('button.btn-primary').should('be.visible')
+        waitForWebProjectsFrameLoaded()
         cy.get(WEB_PROJECTS_IFRAME)
             .its('0.contentWindow')
             .then((win) => {
@@ -89,6 +91,8 @@ export class EditSitePage extends BasePage {
 
     /** Opens the module selection of the site, from the edit button beside its module labels. */
     editModules() {
+        webProjectsFrame().find('button[id$="-editModules"]').should('be.visible')
+        waitForWebProjectsFrameLoaded()
         webProjectsFrame().find('button[id$="-editModules"]').click()
         return this
     }
