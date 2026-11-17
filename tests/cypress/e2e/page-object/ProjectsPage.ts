@@ -3,7 +3,7 @@ import IframeOptions = Cypress.IframeOptions
 import { ImportPage } from './ImportPage'
 import { CreateSitePage } from './CreateSitePage'
 import { EditSitePage } from './EditSitePage'
-import { webProjectsFrame } from './webProjectsIframe'
+import { waitForWebProjectsFrameLoaded, webProjectsFrame } from './webProjectsIframe'
 
 export class ProjectsPage extends BasePage {
     iFrameOptions: IframeOptions
@@ -57,6 +57,8 @@ export class ProjectsPage extends BasePage {
      * The checkbox is visually replaced by a Material span, so the real input needs `force`.
      */
     exportSiteStaging(siteKey: string) {
+        webProjectsFrame().find('#exportStagingSites').should('exist')
+        waitForWebProjectsFrameLoaded()
         webProjectsFrame().find(`input[name="selectedSites"][value="${siteKey}"]`).check({ force: true })
         webProjectsFrame().find('#exportStagingSites').click({ force: true })
         return this
