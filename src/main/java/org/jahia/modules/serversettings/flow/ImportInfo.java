@@ -44,6 +44,7 @@
 package org.jahia.modules.serversettings.flow;
 
 import org.jahia.services.SpringContextSingleton;
+import org.jahia.services.importexport.ImportExportBaseService;
 import org.jahia.services.importexport.SiteImportDefaults;
 import org.jahia.services.importexport.validation.ValidationResults;
 
@@ -70,6 +71,7 @@ public class ImportInfo implements Serializable {
     private String oldSiteKey;
     private String originatingJahiaRelease;
     private boolean selected;
+    private boolean acceptExternalAcl;
     private String selectedLegacyDefinitions;
     private String selectedLegacyMapping;
     private boolean site;
@@ -93,6 +95,7 @@ public class ImportInfo implements Serializable {
             map.put("siteservernamealiases", siteServernameAliases);
             map.put("templates", templates);
         }
+        map.put(ImportExportBaseService.IMPORT_ACL_ACCEPT_EXTERNAL, acceptExternalAcl);
         return map;
     }
 
@@ -184,6 +187,11 @@ public class ImportInfo implements Serializable {
         return selected;
     }
 
+    /** Whether the administrator accepted the external ACLs this archive declares. */
+    public boolean isAcceptExternalAcl() {
+        return acceptExternalAcl;
+    }
+
     public boolean isSite() {
         return site;
     }
@@ -258,6 +266,10 @@ public class ImportInfo implements Serializable {
 
     public void setOriginatingJahiaRelease(String originatingJahiaRelease) {
         this.originatingJahiaRelease = originatingJahiaRelease;
+    }
+
+    public void setAcceptExternalAcl(boolean acceptExternalAcl) {
+        this.acceptExternalAcl = acceptExternalAcl;
     }
 
     public void setSelected(boolean selected) {
