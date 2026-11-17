@@ -1,0 +1,13 @@
+# Release testing of serverSettings 9.12.0 on its Nexus staging repository (temporary branch, no pull request).
+- addMavenRepository: 'https://devtools.jahia.com/nexus/content/repositories/jahia_staging_releases-3138/@id=staging-repository'
+  username: ${env:NEXUS_USERNAME}
+  password: ${env:NEXUS_PASSWORD}
+- installBundle:
+    - 'mvn:org.jahia.modules/serverSettings/9.12.0'
+  autoStart: true
+  uninstallPreviousVersion: true
+
+# The site-creation specs need a deployed template set; qa-templatesSet is the lightest one available.
+- addMavenRepository: 'https://devtools.jahia.com/nexus/content/repositories/jahia-snapshots@id=jahia-snapshots@snapshots'
+- installOrUpgradeBundle: "mvn:org.jahia.qa/qa-templatesSet/1.0.0-SNAPSHOT"
+  autoStart: true
