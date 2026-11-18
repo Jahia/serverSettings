@@ -23,4 +23,7 @@ export default defineConfig({
         excludeSpecPattern: ['**/*.example.ts', '**/*.disabled.ts', '**/quarantined/*'],
         baseUrl: 'http://localhost:8080',
     },
+    env: {
+        MAILPIT_URL: process.env.MAILPIT_URL || 'http://localhost:8025', // Fallback for local runs
+    }
 })
