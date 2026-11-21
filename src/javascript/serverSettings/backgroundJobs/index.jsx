@@ -19,26 +19,29 @@ const BackgroundJobsTabs = () => {
             header={<Header title={t('backgroundJobs.title')}/>}
             content={(
                 <Paper>
-                    <Tab className={classes.tabs}>
-                        <TabItem
-                            id="history"
-                            label={t('backgroundJobs.tabs.history')}
-                            size="big"
-                            isSelected={activeTab === 'history'}
-                            data-testid="background-jobs-history-tab"
-                            onClick={() => setActiveTab('history')}
-                        />
-                        <TabItem
-                            id="scheduled"
-                            label={t('backgroundJobs.tabs.scheduled')}
-                            size="big"
-                            isSelected={activeTab === 'scheduled'}
-                            data-testid="background-jobs-scheduled-tab"
-                            onClick={() => setActiveTab('scheduled')}
-                        />
+                    <div className={classes.tabs}>
+                        <Tab>
+                            <TabItem
+                                id="history"
+                                label={t('backgroundJobs.tabs.history')}
+                                size="big"
+                                isSelected={activeTab === 'history'}
+                                data-testid="background-jobs-history-tab"
+                                onClick={() => setActiveTab('history')}
+                            />
+                            <TabItem
+                                id="scheduled"
+                                label={t('backgroundJobs.tabs.scheduled')}
+                                size="big"
+                                isSelected={activeTab === 'scheduled'}
+                                data-testid="background-jobs-scheduled-tab"
+                                onClick={() => setActiveTab('scheduled')}
+                            />
+                        </Tab>
                         <div className={classes.spacer}/>
                         <Button
                             variant="ghost"
+                            aria-label={t('backgroundJobs.refresh')}
                             icon={<Reload/>}
                             onClick={() => {
                                 if (activeTab === 'history') {
@@ -48,7 +51,7 @@ const BackgroundJobsTabs = () => {
                                 }
                             }}
                         />
-                    </Tab>
+                    </div>
                     <div style={activeTab === 'history' ? {} : {display: 'none'}}>
                         {historyTable}
                     </div>
